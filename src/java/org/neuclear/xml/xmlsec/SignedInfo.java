@@ -1,5 +1,9 @@
-/* $Id: SignedInfo.java,v 1.8 2004/04/07 17:22:22 pelle Exp $
+/* $Id: SignedInfo.java,v 1.9 2004/04/12 15:00:42 pelle Exp $
  * $Log: SignedInfo.java,v $
+ * Revision 1.9  2004/04/12 15:00:42  pelle
+ * Now have a slightly better way of handling the waiting for input using the WaitForInput class.
+ * This will later be put into a command queue for execution.
+ *
  * Revision 1.8  2004/04/07 17:22:22  pelle
  * Added support for the new improved interactive signing model. A new Agent is also available with SwingAgent.
  * The XMLSig classes have also been updated to support this.
@@ -124,7 +128,7 @@ package org.neuclear.xml.xmlsec;
 
 /**
  * @author pelleb
- * @version $Revision: 1.8 $
+ * @version $Revision: 1.9 $
  */
 
 import org.dom4j.Element;
@@ -306,7 +310,7 @@ public final class SignedInfo extends AbstractXMLSigElement {
         return signer.sign(name, canonicalize());
     }
 
-    public final byte[] sign(BrowsableSigner signer, KeyInfo.CreateKeyInfoCallBack cb) throws XMLSecurityException, NonExistingSignerException, UserCancellationException {
+    public final byte[] sign(BrowsableSigner signer, KeyInfo.CreateKeyInfoCallBack cb) throws XMLSecurityException, UserCancellationException {
         return signer.sign(canonicalize(), cb);
     }
 

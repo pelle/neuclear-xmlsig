@@ -1,5 +1,9 @@
-/* $Id: SignedElement.java,v 1.12 2004/03/19 22:21:51 pelle Exp $
+/* $Id: SignedElement.java,v 1.13 2004/04/12 15:00:42 pelle Exp $
  * $Log: SignedElement.java,v $
+ * Revision 1.13  2004/04/12 15:00:42  pelle
+ * Now have a slightly better way of handling the waiting for input using the WaitForInput class.
+ * This will later be put into a command queue for execution.
+ *
  * Revision 1.12  2004/03/19 22:21:51  pelle
  * Changes in the XMLSignature class, which is now Abstract there are currently 3 implementations for:
  * - Enveloped
@@ -149,13 +153,14 @@ package org.neuclear.xml.xmlsec;
 
 /**
  * @author pelleb
- * @version $Revision: 1.12 $
+ * @version $Revision: 1.13 $
  */
 
 import org.dom4j.Element;
 import org.dom4j.Namespace;
 import org.dom4j.QName;
 import org.neuclear.commons.crypto.passphraseagents.UserCancellationException;
+import org.neuclear.commons.crypto.signers.BrowsableSigner;
 import org.neuclear.commons.crypto.signers.NonExistingSignerException;
 import org.neuclear.commons.crypto.signers.Signer;
 import org.neuclear.xml.AbstractElementProxy;
@@ -241,6 +246,12 @@ public abstract class SignedElement extends AbstractElementProxy {
     public final void sign(final String name, final Signer signer) throws XMLSecurityException, UserCancellationException, NonExistingSignerException {
         preSign();
         sig = new EnvelopedSignature(name, signer, getElement());
+        postSign();
+    }
+
+    public final void sign(final BrowsableSigner signer) throws XMLSecurityException, UserCancellationException {
+        preSign();
+        sig = new EnvelopedSignature(signer, getElement());
         postSign();
     }
 

@@ -52,11 +52,10 @@ public class EnvelopedSignature extends XMLSignature {
      * @param signer
      * @param elem
      * @throws XMLSecurityException
-     * @throws UserCancellationException  
-     * @throws NonExistingSignerException
+     * @throws UserCancellationException
      * @see Signer
      */
-    public EnvelopedSignature(BrowsableSigner signer, Element elem) throws XMLSecurityException, UserCancellationException, NonExistingSignerException {
+    public EnvelopedSignature(BrowsableSigner signer, Element elem) throws XMLSecurityException, UserCancellationException {
         super(new SignedInfo(SignedInfo.SIG_ALG_RSA, 1));
         si.setEnvelopedReference(elem);
         elem.add(getElement());

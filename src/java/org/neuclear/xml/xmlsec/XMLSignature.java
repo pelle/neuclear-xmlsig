@@ -1,5 +1,9 @@
-/* $Id: XMLSignature.java,v 1.20 2004/04/07 17:22:22 pelle Exp $
+/* $Id: XMLSignature.java,v 1.21 2004/04/12 15:00:42 pelle Exp $
  * $Log: XMLSignature.java,v $
+ * Revision 1.21  2004/04/12 15:00:42  pelle
+ * Now have a slightly better way of handling the waiting for input using the WaitForInput class.
+ * This will later be put into a command queue for execution.
+ *
  * Revision 1.20  2004/04/07 17:22:22  pelle
  * Added support for the new improved interactive signing model. A new Agent is also available with SwingAgent.
  * The XMLSig classes have also been updated to support this.
@@ -212,7 +216,7 @@ package org.neuclear.xml.xmlsec;
 
 /**
  * @author pelleb
- * @version $Revision: 1.20 $
+ * @version $Revision: 1.21 $
  */
 
 import org.dom4j.Element;
@@ -367,7 +371,7 @@ abstract public class XMLSignature extends AbstractXMLSigElement {
      * Subclasses should call this in their constructor.
      *
      * @param alias
-     * @param signer 
+     * @param signer
      * @throws XMLSecurityException
      * @throws NonExistingSignerException
      * @throws UserCancellationException
@@ -376,7 +380,7 @@ abstract public class XMLSignature extends AbstractXMLSigElement {
         sigval.setText(Base64.encode(si.sign(alias, signer)));
     }
 
-    protected void sign(BrowsableSigner signer) throws XMLSecurityException, NonExistingSignerException, UserCancellationException {
+    protected void sign(BrowsableSigner signer) throws XMLSecurityException, UserCancellationException {
         KeyInfo.CreateKeyInfoCallBack cb = new KeyInfo.CreateKeyInfoCallBack();
         sigval.setText(Base64.encode(si.sign(signer, cb)));
         addElement(cb.createKeyInfo());
