@@ -16,7 +16,7 @@ import java.net.URL;
  *
  * @author <a href="mailto:pelle@neubia.com">Pelle Braendgaard</a>
  * @author <a href="mailto:jstrachan@apache.org">James Strachan</a>
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 public class XPP3Reader {
 
@@ -249,10 +249,11 @@ public class XPP3Reader {
         Element parent = null;
         XmlPullParser pp = getXPPParser();
         pp.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, true);
-        pp.setFeature(XmlPullParser.FEATURE_PROCESS_DOCDECL, true);
-        pp.setFeature(XmlPullParser.FEATURE_VALIDATION, true);
-        pp.setFeature("http://xmlpull.org/v1/doc/features.html#xml-roundtrip", true);
+//        pp.setFeature(XmlPullParser.FEATURE_PROCESS_DOCDECL, true);
+//        pp.setFeature(XmlPullParser.FEATURE_VALIDATION, true);
+//        pp.setFeature("http://xmlpull.org/v1/doc/features.html#xml-roundtrip", true);
         while (true) {
+//            int type = pp.next();
             int type = pp.nextToken();
             switch (type) {
                 case XmlPullParser.PROCESSING_INSTRUCTION:
@@ -401,5 +402,5 @@ public class XPP3Reader {
  *
  * Copyright 2001-2004 (C) MetaStuff, Ltd. All Rights Reserved.
  *
- * $Id: XPP3Reader.java,v 1.1 2004/09/07 18:48:02 pelle Exp $
+ * $Id: XPP3Reader.java,v 1.2 2004/09/07 19:19:11 pelle Exp $
  */
