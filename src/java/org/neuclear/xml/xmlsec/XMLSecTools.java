@@ -1,5 +1,9 @@
-/* $Id: XMLSecTools.java,v 1.10 2004/02/19 15:30:09 pelle Exp $
+/* $Id: XMLSecTools.java,v 1.11 2004/02/19 19:37:34 pelle Exp $
  * $Log: XMLSecTools.java,v $
+ * Revision 1.11  2004/02/19 19:37:34  pelle
+ * At times IntelliJ IDEA can cause some real hassle. On my last checkin it optimized away all of the dom4j and command line imports.
+ * We'll now, Ive added them all back.
+ *
  * Revision 1.10  2004/02/19 15:30:09  pelle
  * Various cleanups and corrections
  *
@@ -159,10 +163,12 @@ package org.neuclear.xml.xmlsec;
 
 /**
  * @author pelleb
- * @version $Revision: 1.10 $
+ * @version $Revision: 1.11 $
  */
 
 import org.dom4j.io.XMLWriter;
+import org.dom4j.*;
+
 import org.neuclear.commons.crypto.Base64;
 import org.neuclear.commons.crypto.CryptoException;
 import org.neuclear.commons.crypto.passphraseagents.UserCancellationException;

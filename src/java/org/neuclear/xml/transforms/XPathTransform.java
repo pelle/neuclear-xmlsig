@@ -2,7 +2,7 @@ package org.neuclear.xml.transforms;
 
 import org.neuclear.xml.xmlsec.XMLSecTools;
 import org.neuclear.xml.xmlsec.XMLSecurityException;
-
+import org.dom4j.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;

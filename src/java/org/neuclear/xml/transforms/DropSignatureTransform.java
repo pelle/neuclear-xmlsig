@@ -5,8 +5,12 @@ package org.neuclear.xml.transforms;
  * User: pelleb
  * Date: Jan 27, 2003
  * Time: 10:02:07 AM
- * $Id: DropSignatureTransform.java,v 1.3 2004/02/19 15:30:08 pelle Exp $
+ * $Id: DropSignatureTransform.java,v 1.4 2004/02/19 19:37:34 pelle Exp $
  * $Log: DropSignatureTransform.java,v $
+ * Revision 1.4  2004/02/19 19:37:34  pelle
+ * At times IntelliJ IDEA can cause some real hassle. On my last checkin it optimized away all of the dom4j and command line imports.
+ * We'll now, Ive added them all back.
+ *
  * Revision 1.3  2004/02/19 15:30:08  pelle
  * Various cleanups and corrections
  *
@@ -40,6 +44,7 @@ package org.neuclear.xml.transforms;
 
 import org.neuclear.xml.xmlsec.XMLSecTools;
 import org.neuclear.xml.xmlsec.XMLSecurityException;
+import org.dom4j.*;
 
 import java.util.ListIterator;
 

@@ -5,8 +5,12 @@ package org.neuclear.xml.c14;
  * User: pelleb
  * Date: Feb 3, 2003
  * Time: 5:56:42 AM
- * $Id: Canonicalizer.java,v 1.8 2004/02/19 15:30:08 pelle Exp $
+ * $Id: Canonicalizer.java,v 1.9 2004/02/19 19:37:33 pelle Exp $
  * $Log: Canonicalizer.java,v $
+ * Revision 1.9  2004/02/19 19:37:33  pelle
+ * At times IntelliJ IDEA can cause some real hassle. On my last checkin it optimized away all of the dom4j and command line imports.
+ * We'll now, Ive added them all back.
+ *
  * Revision 1.8  2004/02/19 15:30:08  pelle
  * Various cleanups and corrections
  *
@@ -122,6 +126,7 @@ package org.neuclear.xml.c14;
  */
 
 import org.dom4j.tree.NamespaceStack;
+import org.dom4j.*;
 import org.neuclear.xml.ElementProxy;
 import org.neuclear.xml.XMLTools;
 import org.neuclear.xml.transforms.TransformerFactory;

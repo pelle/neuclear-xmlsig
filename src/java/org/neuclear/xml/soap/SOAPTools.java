@@ -1,5 +1,9 @@
-/* $Id: SOAPTools.java,v 1.7 2004/02/19 15:30:08 pelle Exp $
+/* $Id: SOAPTools.java,v 1.8 2004/02/19 19:37:33 pelle Exp $
  * $Log: SOAPTools.java,v $
+ * Revision 1.8  2004/02/19 19:37:33  pelle
+ * At times IntelliJ IDEA can cause some real hassle. On my last checkin it optimized away all of the dom4j and command line imports.
+ * We'll now, Ive added them all back.
+ *
  * Revision 1.7  2004/02/19 15:30:08  pelle
  * Various cleanups and corrections
  *
@@ -117,11 +121,12 @@ package org.neuclear.xml.soap;
 
 /**
  * @author pelleb
- * @version $Revision: 1.7 $
+ * @version $Revision: 1.8 $
  */
 
 import org.dom4j.io.SAXReader;
 import org.neuclear.commons.NeuClearException;
+import org.dom4j.*;
 
 import java.io.*;
 import java.net.HttpURLConnection;
