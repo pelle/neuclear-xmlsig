@@ -1,5 +1,8 @@
-/* $Id: XMLSecTools.java,v 1.6 2004/01/13 23:37:59 pelle Exp $
+/* $Id: XMLSecTools.java,v 1.7 2004/01/14 06:42:38 pelle Exp $
  * $Log: XMLSecTools.java,v $
+ * Revision 1.7  2004/01/14 06:42:38  pelle
+ * Got rid of the verifyXXX() methods
+ *
  * Revision 1.6  2004/01/13 23:37:59  pelle
  * Refactoring parts of the core of XMLSignature. There shouldnt be any real API changes.
  *
@@ -145,7 +148,7 @@ package org.neuclear.xml.xmlsec;
 
 /**
  * @author pelleb
- * @version $Revision: 1.6 $
+ * @version $Revision: 1.7 $
  */
 
 import org.dom4j.*;
@@ -190,21 +193,10 @@ public final class XMLSecTools {
      * @throws XMLSecurityException 
      */
     public static XMLSignature signElement(final Element root, final KeyPair keypair) throws XMLSecurityException, CryptoException {//, KeyStoreException {
-        final XMLSignature sig = new QuickEmbeddedSignature(keypair, root);
+        final XMLSignature sig = new XMLSignature(keypair, root);
         return sig;
     }
 
-    /**
-     * Signs an element with a given Private Key and "Envelopes" the signature within.
-     * 
-     * @param root    Element to be signed
-     * @param key     RSA Private Key
-     * @throws XMLSecurityException 
-     */
-    public static XMLSignature signElement( final Element root, final PrivateKey key) throws XMLSecurityException, CryptoException {//, KeyStoreException {
-        final XMLSignature sig = new QuickEmbeddedSignature(key, root);
-        return sig;
-    }
 
     /**
      * Signs an element with a given Private Key and "Envelopes" the signature within.
@@ -215,20 +207,18 @@ public final class XMLSecTools {
      * @throws XMLSecurityException 
      */
     public static XMLSignature signElement( final Element root, final String name, final org.neuclear.commons.crypto.signers.Signer signer) throws XMLSecurityException, NonExistingSignerException, UserCancellationException {//, KeyStoreException {
-        final XMLSignature sig = new QuickEmbeddedSignature(name, signer, root);
-        return sig;
+        return  new XMLSignature(name, signer, root,Reference.XMLSIGTYPE_ENVELOPED);
     }
 
     /**
      * Signs an element with a given keypair and embeds the element within the Signature.
      * 
-     * @param baseURI Unique ID of the Element to be signed
      * @param root    Element to be signed
      * @param keypair RSA/DSA KeyPair
-     * @throws XMLSecurityException 
+     * @throws XMLSecurityException
      */
-    public static XMLSignature signElementEnveloping(final String baseURI, final Element root, final KeyPair keypair) throws XMLSecurityException, CryptoException {//, KeyStoreException {
-        final XMLSignature sig = new XMLSignature(keypair, root, baseURI, Reference.XMLSIGTYPE_ENVELOPING);
+    public static XMLSignature signElementEnveloping(final Element root, final KeyPair keypair) throws XMLSecurityException, CryptoException {//, KeyStoreException {
+        final XMLSignature sig = new XMLSignature(keypair, root, Reference.XMLSIGTYPE_ENVELOPING);
         return sig;
     }
 
@@ -241,7 +231,7 @@ public final class XMLSecTools {
      * @throws XMLSecurityException 
      */
     public static XMLSignature signElementEnveloping(final String baseURI, final Element root, final PrivateKey key) throws XMLSecurityException, CryptoException {//, KeyStoreException {
-        final XMLSignature sig = new XMLSignature(key, null, root, baseURI, Reference.XMLSIGTYPE_ENVELOPING);
+        final XMLSignature sig = new XMLSignature(key, null, root, Reference.XMLSIGTYPE_ENVELOPING);
         return sig;
     }
 
@@ -297,7 +287,7 @@ public final class XMLSecTools {
      * @return XMLSignature object
      * @throws XMLSecurityException 
      */
-    public static XMLSignature getXMLSignature(final Element elem) throws XMLSecurityException {
+    public static XMLSignature getXMLSignature(final Element elem) throws XMLSecurityException, InvalidSignatureException {
         final QName qname = XMLSecTools.createQName("Signature");
         Element xmlSigElement = elem.element(qname);
         if (xmlSigElement == null || (isInXMLSigNS(xmlSigElement))) {
@@ -322,21 +312,12 @@ public final class XMLSecTools {
      * @throws XMLSecurityException 
      */
     public static boolean verifySignature(final Element elem, final PublicKey pub) throws XMLSecurityException {
-        final XMLSignature sig = getXMLSignature(elem);
-        return sig.verifySignature(pub);
-    }
-
-    /**
-     * Verifies the signature of a given element
-     * 
-     * @param elem Element to verify
-     * @param pubs Array of Public Key to verify against
-     * @return true if it verifies
-     * @throws XMLSecurityException 
-     */
-    public static boolean verifySignature(final Element elem, final PublicKey[] pubs) throws XMLSecurityException {
-        final XMLSignature sig = getXMLSignature(elem);
-        return sig.verifySignature(pubs);
+        try {
+            final XMLSignature sig = getXMLSignature(elem);
+            return true;
+        } catch (InvalidSignatureException e) {
+            return false;
+        }
     }
 
     /**
@@ -348,8 +329,12 @@ public final class XMLSecTools {
      * @throws XMLSecurityException 
      */
     public static boolean verifySignature(final Element elem) throws XMLSecurityException, CryptoException {
-        final XMLSignature sig = getXMLSignature(elem);
-        return sig.verifySignature();
+        try {
+            final XMLSignature sig = getXMLSignature(elem);
+            return true;
+        } catch (InvalidSignatureException e) {
+            return false;
+        }
     }
 
     /**
@@ -376,7 +361,7 @@ public final class XMLSecTools {
      * @param node Dom4J node to canonicalize
      * @return byte array of signature
      */
-    public static byte[] canonicalize(final Object node) {
+    public static byte[] canonicalize(final Object node) throws XMLSecurityException {
         return canonicalize(new Canonicalizer(), node);
     }
 
@@ -386,7 +371,7 @@ public final class XMLSecTools {
      * @param node 
      * @return 
      */
-    public static byte[] canonicalizeEmbeddedSignature(final Object node) {
+    public static byte[] canonicalizeEmbeddedSignature(final Object node) throws XMLSecurityException {
         return canonicalize(new CanonicalizerWithoutSignature(), node);
     }
 
@@ -397,14 +382,8 @@ public final class XMLSecTools {
      * @param node  
      * @return 
      */
-    public static byte[] canonicalize(final Canonicalizer canon, final Object node) {
-        try {
-
-            return canon.canonicalize(node);
-        } catch (IOException e) {
-            throw new RuntimeException("Weird IOException while generating textual representation: " + e.getMessage());
-        }
-
+    public static byte[] canonicalize(final Canonicalizer canon, final Object node) throws XMLSecurityException {
+           return canon.canonicalize(node);
     }
 
     /**

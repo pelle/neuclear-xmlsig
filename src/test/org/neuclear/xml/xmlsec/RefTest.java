@@ -28,8 +28,11 @@ You should have received a copy of the GNU Lesser General Public
 License along with this library; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-$Id: RefTest.java,v 1.1 2004/01/13 23:37:59 pelle Exp $
+$Id: RefTest.java,v 1.2 2004/01/14 06:42:38 pelle Exp $
 $Log: RefTest.java,v $
+Revision 1.2  2004/01/14 06:42:38  pelle
+Got rid of the verifyXXX() methods
+
 Revision 1.1  2004/01/13 23:37:59  pelle
 Refactoring parts of the core of XMLSignature. There shouldnt be any real API changes.
 
@@ -62,6 +65,23 @@ public class RefTest extends TestCase {
         assertNotNull(ref.getDigest());
         assertEquals("#one",ref.getUri());
         System.out.println(ref.asXML());
+
+    }
+    public void testEnvelopingReference() throws DocumentException, XMLException, CryptoException, InvalidSignatureException {
+        Document doc=DocumentHelper.parseText("<Signature><SignedInfo/><Object id=\"one\"><test>hello</test></Object>");
+        Reference ref=new Reference(doc.getRootElement().element("Object"),Reference.XMLSIGTYPE_ENVELOPED);
+        doc.getRootElement().element("SignedInfo").add(ref.getElement());
+        assertNotNull(ref);
+        assertNotNull(ref.getDigest());
+        assertEquals("#one",ref.getUri());
+        System.out.println(doc.asXML());
+
+        Document doc2=DocumentHelper.parseText(doc.asXML());
+        Reference ref2=new Reference(doc2.getRootElement().element("SignedInfo").element("Reference"));
+        assertEquals(ref.getDigest(),ref2.getDigest());
+        assertEquals(ref.getUri(),ref2.getUri());
+
+
     }
 
 }

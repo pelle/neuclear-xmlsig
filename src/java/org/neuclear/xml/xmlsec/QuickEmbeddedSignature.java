@@ -5,8 +5,11 @@ package org.neuclear.xml.xmlsec;
  * User: pelleb
  * Date: Feb 8, 2003
  * Time: 12:15:24 PM
- * $Id: QuickEmbeddedSignature.java,v 1.7 2004/01/13 23:37:59 pelle Exp $
+ * $Id: QuickEmbeddedSignature.java,v 1.8 2004/01/14 06:42:38 pelle Exp $
  * $Log: QuickEmbeddedSignature.java,v $
+ * Revision 1.8  2004/01/14 06:42:38  pelle
+ * Got rid of the verifyXXX() methods
+ *
  * Revision 1.7  2004/01/13 23:37:59  pelle
  * Refactoring parts of the core of XMLSignature. There shouldnt be any real API changes.
  *
@@ -138,14 +141,14 @@ import java.security.interfaces.RSAPrivateKey;
  * This a class to quickly create NeuDist format standard signatures
  */
 public final class QuickEmbeddedSignature extends XMLSignature {
-    public QuickEmbeddedSignature(final KeyPair keypair, final Element root) throws XMLSecurityException, CryptoException {
+    public QuickEmbeddedSignature(final KeyPair keypair, final Element root) throws XMLSecurityException, CryptoException, InvalidSignatureException {
         this(keypair.getPrivate(), root);
         final Element sig = getElement();
         final KeyInfo key = new KeyInfo(keypair.getPublic());
         sig.add(key.getElement());
     }
 
-    public QuickEmbeddedSignature(final PrivateKey key, final Element root) throws XMLSecurityException, CryptoException {
+    public QuickEmbeddedSignature(final PrivateKey key, final Element root) throws XMLSecurityException, CryptoException, InvalidSignatureException {
         super(getSignatureElement(root, key));
         final Element sig = getElement();
 
@@ -155,7 +158,7 @@ public final class QuickEmbeddedSignature extends XMLSignature {
         sig.add(XMLSecTools.base64ToElement("SignatureValue", CryptoTools.sign(key, canonicalizedSignedInfo)));
     }
 
-    public QuickEmbeddedSignature(final String name, final Signer signer, final Element root) throws XMLSecurityException, UserCancellationException, NonExistingSignerException {
+    public QuickEmbeddedSignature(final String name, final Signer signer, final Element root) throws XMLSecurityException, UserCancellationException, NonExistingSignerException, InvalidSignatureException {
         super(getSignatureElement(root,signer.getKeyType(name)));
         final Element sig = getElement();
 

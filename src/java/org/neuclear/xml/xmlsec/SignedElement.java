@@ -1,5 +1,8 @@
-/* $Id: SignedElement.java,v 1.9 2004/01/13 23:37:59 pelle Exp $
+/* $Id: SignedElement.java,v 1.10 2004/01/14 06:42:38 pelle Exp $
  * $Log: SignedElement.java,v $
+ * Revision 1.10  2004/01/14 06:42:38  pelle
+ * Got rid of the verifyXXX() methods
+ *
  * Revision 1.9  2004/01/13 23:37:59  pelle
  * Refactoring parts of the core of XMLSignature. There shouldnt be any real API changes.
  *
@@ -136,7 +139,7 @@ package org.neuclear.xml.xmlsec;
 
 /**
  * @author pelleb
- * @version $Revision: 1.9 $
+ * @version $Revision: 1.10 $
  */
 
 import org.dom4j.Element;
@@ -168,6 +171,8 @@ public abstract class SignedElement extends AbstractElementProxy {
                 sig = new XMLSignature(sigElement);
             } catch (XMLException e) {
                 throw new XMLSecurityException(e);
+            } catch (InvalidSignatureException e) {
+                throw new XMLSecurityException(e) ;
             }
 
     }
@@ -214,36 +219,17 @@ public abstract class SignedElement extends AbstractElementProxy {
     public final XMLSignature getXMLSignature() throws XMLSecurityException {
         return sig;
     }
-
-    /**
-     * This verifies the signature of the object.
-     */
-    public final boolean verifySignature(final PublicKey pub) throws XMLSecurityException {
-        if (sig == null)
-            throw new XMLSecurityException("The object can not be verified as it doesnt contain a signature");
-        return sig.verifySignature(pub);
+    public boolean verify() throws XMLSecurityException {
+        try {
+            sig=new XMLSignature(getElement().element(XMLSecTools.createQName("Signature")));
+            return true;
+        } catch (InvalidSignatureException e) {
+            return false;
+        }
     }
-    /**
-     * This verifies the signature of the object.
-     */
-    public final boolean verifySignature() throws XMLSecurityException {
-        if (sig == null)
-            throw new XMLSecurityException("The object can not be verified as it doesnt contain a signature");
-        return sig.verifySignature();
-    }
-
-    /**
-     * Sign object using given PrivateKey. This also adds a timestamp to the root element prior to signing
-     */
-    public final void sign(final PrivateKey priv) throws XMLSecurityException, CryptoException {
-        preSign();
-        sig = XMLSecTools.signElement(getElement(), priv);
-        postSign();
-    }
-
     public final void sign(final String name, final Signer signer) throws XMLSecurityException, NonExistingSignerException, UserCancellationException {
         preSign();
-        sig = XMLSecTools.signElement( getElement(), name, signer);
+        sig = new XMLSignature(name,signer, getElement(),Reference.XMLSIGTYPE_ENVELOPED);
         postSign();
     }
 

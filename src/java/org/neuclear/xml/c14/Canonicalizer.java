@@ -5,8 +5,11 @@ package org.neuclear.xml.c14;
  * User: pelleb
  * Date: Feb 3, 2003
  * Time: 5:56:42 AM
- * $Id: Canonicalizer.java,v 1.4 2003/12/10 23:57:04 pelle Exp $
+ * $Id: Canonicalizer.java,v 1.5 2004/01/14 06:42:37 pelle Exp $
  * $Log: Canonicalizer.java,v $
+ * Revision 1.5  2004/01/14 06:42:37  pelle
+ * Got rid of the verifyXXX() methods
+ *
  * Revision 1.4  2003/12/10 23:57:04  pelle
  * Did some cleaning up in the builders
  * Fixed some stuff in IdentityCreator
@@ -111,8 +114,10 @@ import org.dom4j.*;
 import org.dom4j.tree.NamespaceStack;
 import org.neuclear.xml.ElementProxy;
 import org.neuclear.xml.XMLTools;
+import org.neuclear.xml.xmlsec.XMLSecurityException;
 import org.neuclear.xml.transforms.TransformerFactory;
 import org.neuclear.xml.transforms.XPathTransform;
+import org.neuclear.commons.LowLevelException;
 
 import java.io.*;
 import java.nio.charset.Charset;
@@ -157,12 +162,15 @@ public class Canonicalizer extends XPathTransform {
      * Canonicalizes a node and outputs it to the writer
      * 
      * @param node 
-     * @throws IOException 
      */
-    public final byte[] canonicalize(final Object node) throws IOException {
-        init();
-        write(node);
-        return getBytes();
+    public final byte[] canonicalize(final Object node) throws XMLSecurityException {
+        try {
+            init();
+            write(node);
+            return getBytes();
+        } catch (IOException e) {
+            throw new XMLSecurityException(e);
+        }
     }
 
     /**

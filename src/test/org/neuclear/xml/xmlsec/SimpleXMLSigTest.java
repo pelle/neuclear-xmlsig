@@ -19,8 +19,11 @@ import java.security.interfaces.DSAPublicKey;
  * User: pelleb
  * Date: Jan 20, 2003
  * Time: 3:49:27 PM
- * $Id: SimpleXMLSigTest.java,v 1.6 2004/01/13 23:37:59 pelle Exp $
+ * $Id: SimpleXMLSigTest.java,v 1.7 2004/01/14 06:42:38 pelle Exp $
  * $Log: SimpleXMLSigTest.java,v $
+ * Revision 1.7  2004/01/14 06:42:38  pelle
+ * Got rid of the verifyXXX() methods
+ *
  * Revision 1.6  2004/01/13 23:37:59  pelle
  * Refactoring parts of the core of XMLSignature. There shouldnt be any real API changes.
  *
@@ -112,7 +115,7 @@ public final class SimpleXMLSigTest extends TestCase {
 
     public final void testRSASignXML() throws DocumentException, XMLException, CryptoException {
         Document doc = DocumentHelper.parseText(TESTXML);
-        final XMLSignature sig = new XMLSignature(signer, doc.getRootElement(), "http://testsigs");
+        final XMLSignature sig = new XMLSignature(signer, doc.getRootElement());
         final File outputFile = new File("target/testdata/homegrown/signature-enveloped-rsa.xml");
         XMLTools.writeFile(outputFile, doc);
 
@@ -122,7 +125,7 @@ public final class SimpleXMLSigTest extends TestCase {
 
     public final void testRSAEnvelopingSignXML() throws DocumentException, XMLException, CryptoException {
         Document doc = DocumentHelper.parseText(TESTXML);
-        final XMLSignature sig = new XMLSignature(signer, doc.getRootElement(), "http://testsigs", Reference.XMLSIGTYPE_ENVELOPING);
+        final XMLSignature sig = new XMLSignature(signer, doc.getRootElement(), Reference.XMLSIGTYPE_ENVELOPING);
         final File outputFile = new File("target/testdata/homegrown/signature-enveloping-rsa.xml");
         XMLTools.writeFile(outputFile, sig.getElement());
 
@@ -132,7 +135,7 @@ public final class SimpleXMLSigTest extends TestCase {
 
     public final void testDSAEnvelopingSignXML() throws DocumentException, XMLException, CryptoException {
         Document doc = DocumentHelper.parseText(TESTXML);
-        final XMLSignature sig = new XMLSignature(dsaSigner, doc.getRootElement(), "http://testsigs", Reference.XMLSIGTYPE_ENVELOPING);
+        final XMLSignature sig = new XMLSignature(dsaSigner, doc.getRootElement(), Reference.XMLSIGTYPE_ENVELOPING);
         final File outputFile = new File("target/testdata/homegrown/signature-enveloping-dsa.xml");
         XMLTools.writeFile(outputFile, sig.getElement());
 
@@ -144,7 +147,7 @@ public final class SimpleXMLSigTest extends TestCase {
             throws DocumentException, XMLException, CryptoException {
         assertTrue("Test if public key is really DSA", dsaSigner.getPublic() instanceof DSAPublicKey);
         Document doc = DocumentHelper.parseText(TESTXML);
-        final XMLSignature sig = new XMLSignature(dsaSigner, doc.getRootElement(), "http://testDSAsigs");
+        final XMLSignature sig = new XMLSignature(dsaSigner, doc.getRootElement());
 
         final File outputFile = new File("target/testdata/homegrown/signature-enveloped-dsa.xml");
         XMLTools.writeFile(outputFile, doc);

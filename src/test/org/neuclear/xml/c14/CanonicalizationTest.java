@@ -4,8 +4,11 @@ package org.neuclear.xml.c14;
  * User: pelleb
  * Date: Feb 3, 2003
  * Time: 6:54:20 AM
- * $Id: CanonicalizationTest.java,v 1.3 2003/11/21 04:44:31 pelle Exp $
+ * $Id: CanonicalizationTest.java,v 1.4 2004/01/14 06:42:38 pelle Exp $
  * $Log: CanonicalizationTest.java,v $
+ * Revision 1.4  2004/01/14 06:42:38  pelle
+ * Got rid of the verifyXXX() methods
+ *
  * Revision 1.3  2003/11/21 04:44:31  pelle
  * EncryptedFileStore now works. It uses the PBECipher with DES3 afair.
  * Otherwise You will Finaliate.
@@ -63,6 +66,7 @@ import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.io.SAXReader;
 import org.neuclear.xml.xmlsec.XMLSecTools;
+import org.neuclear.xml.xmlsec.XMLSecurityException;
 
 import java.io.*;
 import java.net.URL;
@@ -84,11 +88,11 @@ public final class CanonicalizationTest extends TestCase {
 //        runDirectoryTest("src/testdata/c14");
     }
 */
-    public final void testMerlin() throws IOException, DocumentException {
+    public final void testMerlin() throws IOException, DocumentException, XMLSecurityException {
         runDirectoryTest("src/testdata/merlin-xmldsig-eight");
     }
 
-    public final void runDirectoryTest(final String path) throws DocumentException, IOException, FileNotFoundException {
+    public final void runDirectoryTest(final String path) throws DocumentException, IOException, FileNotFoundException, XMLSecurityException {
         final File dir=new File(path).getAbsoluteFile();
         if (!dir.exists()) {
             System.out.println("Doesnt exist");

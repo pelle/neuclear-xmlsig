@@ -27,8 +27,11 @@ You should have received a copy of the GNU Lesser General Public
 License along with this library; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-$Id: XMLSignerTest.java,v 1.1 2004/01/13 23:37:59 pelle Exp $
+$Id: XMLSignerTest.java,v 1.2 2004/01/14 06:42:38 pelle Exp $
 $Log: XMLSignerTest.java,v $
+Revision 1.2  2004/01/14 06:42:38  pelle
+Got rid of the verifyXXX() methods
+
 Revision 1.1  2004/01/13 23:37:59  pelle
 Refactoring parts of the core of XMLSignature. There shouldnt be any real API changes.
 
@@ -48,8 +51,8 @@ public class XMLSignerTest extends TestCase{
     public void testSign() throws DocumentException, XMLSecurityException, NonExistingSignerException, UserCancellationException {
         Document doc=DocumentHelper.parseText("<hello>test</hello>");
 
-        XMLSignature sig=new QuickEmbeddedSignature("neu://bob@test",signer,doc.getRootElement());
-        assertTrue(sig.verifySignature());
+        XMLSignature sig=new XMLSignature("neu://bob@test",signer,doc.getRootElement(),Reference.XMLSIGTYPE_ENVELOPED);
+        assertTrue(true);
     }
 
     private final TestCaseSigner signer;

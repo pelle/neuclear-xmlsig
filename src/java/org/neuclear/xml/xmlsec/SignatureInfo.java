@@ -1,5 +1,8 @@
-/* $Id: SignatureInfo.java,v 1.5 2004/01/13 23:37:59 pelle Exp $
+/* $Id: SignatureInfo.java,v 1.6 2004/01/14 06:42:38 pelle Exp $
  * $Log: SignatureInfo.java,v $
+ * Revision 1.6  2004/01/14 06:42:38  pelle
+ * Got rid of the verifyXXX() methods
+ *
  * Revision 1.5  2004/01/13 23:37:59  pelle
  * Refactoring parts of the core of XMLSignature. There shouldnt be any real API changes.
  *
@@ -83,7 +86,7 @@ package org.neuclear.xml.xmlsec;
 
 /**
  * @author pelleb
- * @version $Revision: 1.5 $
+ * @version $Revision: 1.6 $
  */
 
 import org.dom4j.Element;
@@ -96,9 +99,8 @@ import java.security.NoSuchProviderException;
 import java.security.Signature;
 
 public final class SignatureInfo extends AbstractXMLSigElement {
-    public SignatureInfo(final XMLSignature sig, final Element root, final String uri, final int sigalg, final int sigtype) throws XMLSecurityException {
+    public SignatureInfo(final Element root, final int sigalg, final int sigtype) throws XMLSecurityException {
         super(SignatureInfo.TAG_NAME);
-        this.sig = sig;
         this.algType = sigalg;
 
         final Element cm = XMLSecTools.createElementInSignatureSpace("CanonicalizationMethod");
@@ -120,7 +122,7 @@ public final class SignatureInfo extends AbstractXMLSigElement {
         }
     }
 
-    public SignatureInfo(final XMLSignature sig, final Element elem) throws XMLSecurityException {
+    public SignatureInfo( final Element elem) throws XMLSecurityException, InvalidSignatureException {
         super(elem);
         if (!elem.getQName().equals(XMLSecTools.createQName(TAG_NAME)))
             throw new XMLSecurityException("Element: " + elem.getQualifiedName() + " is not a valid: " + XMLSecTools.NS_DS.getPrefix() + ":" + TAG_NAME);
