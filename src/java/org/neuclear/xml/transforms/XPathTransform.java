@@ -59,6 +59,14 @@ public class XPathTransform extends Transform {
     }
 
     public final Object transformNode(final Object in) {
+        if (in instanceof Element) {
+            Element copy = ((Element) in).createCopy();
+            return transform(copy);
+        }
+        return transform(in);
+    }
+
+    private final Object transform(final Object in) {
         // XPath needs a document. So if element doesnt have one we add it.
         if (in instanceof Element) {
             if (((Element) in).getDocument() == null) {
@@ -77,7 +85,7 @@ public class XPathTransform extends Transform {
         if (iter != null) {
             while (iter.hasNext()) {
                 final Node node = (Node) iter.next();
-                if (transformNode(node) == null)
+                if (transform(node) == null)
                     iter.remove();
             }
         }

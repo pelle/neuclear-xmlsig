@@ -5,8 +5,11 @@ package org.neuclear.xml.xmlsec;
  * User: pelleb
  * Date: Feb 3, 2003
  * Time: 6:54:20 AM
- * $Id: InteropTests.java,v 1.2 2004/03/19 23:38:25 pelle Exp $
+ * $Id: InteropTests.java,v 1.3 2004/03/20 17:19:42 pelle Exp $
  * $Log: InteropTests.java,v $
+ * Revision 1.3  2004/03/20 17:19:42  pelle
+ * The problem with Enveloped signatures has now been fixed. It was a problem in the way transforms work. I have bandaided it, but in the future if better support for transforms need to be made, we need to rethink it a bit. Perhaps using the new crypto channel's in neuclear-commons.
+ *
  * Revision 1.2  2004/03/19 23:38:25  pelle
  * I now know the problem is in the Reference element
  *
@@ -125,11 +128,11 @@ public final class InteropTests extends TestCase {
 //    }
 
     public final void testMerlin23() throws IOException, DocumentException, NeuClearException {
-        runDirectoryTest("src/testdata/merlin-xmldsig-twenty-three", 11);//,"signature-enveloping-dsa\\.xml");
+        runDirectoryTest("src/testdata/merlin-xmldsig-twenty-three", 10);//,"signature-enveloping-dsa\\.xml");
     }
 
     public final void testPhaos() throws IOException, DocumentException, NeuClearException {
-        runDirectoryTest("src/testdata/phaos-xmldsig-two", 0);
+        runDirectoryTest("src/testdata/phaos-xmldsig-two", 30);
     }
 
     public final void runDirectoryTest(final String path, final int pass) throws DocumentException, IOException, FileNotFoundException, NeuClearException {
@@ -169,7 +172,7 @@ public final class InteropTests extends TestCase {
                     System.out.println("FAILED: " + (errors++));
             } catch (Exception e) {
                 System.out.println("ERROR: " + (errors++) + e.getMessage());
-                e.printStackTrace();  //To change body of catch statement use Options | File Templates.
+//                e.printStackTrace();  //To change body of catch statement use Options | File Templates.
             }
         }
         System.out.println(errors + " out of " + i + " documents failed");
@@ -183,6 +186,7 @@ public final class InteropTests extends TestCase {
             new AnyXMLSignature(doc.getRootElement());
             return true;
         } catch (InvalidSignatureException e) {
+            System.out.println(e.getMessage());
             return false;
         }
     }

@@ -1,5 +1,8 @@
-/* $Id: XMLSignature.java,v 1.17 2004/03/19 23:38:25 pelle Exp $
+/* $Id: XMLSignature.java,v 1.18 2004/03/20 17:19:42 pelle Exp $
  * $Log: XMLSignature.java,v $
+ * Revision 1.18  2004/03/20 17:19:42  pelle
+ * The problem with Enveloped signatures has now been fixed. It was a problem in the way transforms work. I have bandaided it, but in the future if better support for transforms need to be made, we need to rethink it a bit. Perhaps using the new crypto channel's in neuclear-commons.
+ *
  * Revision 1.17  2004/03/19 23:38:25  pelle
  * I now know the problem is in the Reference element
  *
@@ -200,7 +203,7 @@ package org.neuclear.xml.xmlsec;
 
 /**
  * @author pelleb
- * @version $Revision: 1.17 $
+ * @version $Revision: 1.18 $
  */
 
 import org.dom4j.Element;
@@ -275,9 +278,9 @@ abstract public class XMLSignature extends AbstractXMLSigElement {
 
         final byte[] sig = getSignature();
         final byte[] cansi = si.canonicalize();
-        System.out.println("Verifying Canonicalized: ");
-        System.out.println(new String(cansi));
-        System.out.println("------");
+//        System.out.println("Verifying Canonicalized: ");
+//        System.out.println(new String(cansi));
+//        System.out.println("------");
 
         try {
             if (!CryptoTools.verify(key.getPublicKey(), cansi, sig))

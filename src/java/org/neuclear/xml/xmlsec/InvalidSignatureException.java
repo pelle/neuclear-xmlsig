@@ -11,7 +11,7 @@ import java.security.PublicKey;
  */
 public class InvalidSignatureException extends Exception {
     public InvalidSignatureException(byte[] a, byte[] b) {
-        super("Digest: '" + a + "' not equal to: " + b);
+        super("Digest: '" + new String(a) + "' not equal to: " + new String(b));
     }
 
     public InvalidSignatureException(PublicKey pub) {
