@@ -19,11 +19,17 @@ import java.security.interfaces.DSAPublicKey;
  * User: pelleb
  * Date: Jan 20, 2003
  * Time: 3:49:27 PM
- * $Id: SimpleXMLSigTest.java,v 1.3 2003/11/18 23:35:18 pelle Exp $
+ * $Id: SimpleXMLSigTest.java,v 1.4 2003/11/20 23:41:58 pelle Exp $
  * $Log: SimpleXMLSigTest.java,v $
+ * Revision 1.4  2003/11/20 23:41:58  pelle
+ * Getting all the tests to work in id
+ * Removing usage of BC in CryptoTools as it was causing issues.
+ * First version of EntityLedger that will use OFB's EntityEngine. This will allow us to support a vast amount databases without
+ * writing SQL. (Yipee)
+ *
  * Revision 1.3  2003/11/18 23:35:18  pelle
  * Payment Web Application is getting there.
- *
+ * <p/>
  * Revision 1.2  2003/11/11 21:18:08  pelle
  * Further vital reshuffling.
  * org.neudist.crypto.* and org.neudist.utils.* have been moved to respective areas under org.neuclear.commons
@@ -92,6 +98,7 @@ public class SimpleXMLSigTest extends TestCase {
         super(s);
         signer = JunitTools.getTestRSAKey();
         dsaSigner = JunitTools.getTestDSAKey();
+        new File("target/testdata/homegrown").mkdirs();
     }
 
     public void testRSASignXML() throws DocumentException, XMLException, CryptoException {
@@ -107,7 +114,7 @@ public class SimpleXMLSigTest extends TestCase {
     public void testRSAEnvelopingSignXML() throws DocumentException, XMLException, CryptoException {
         Document doc = DocumentHelper.parseText(TESTXML);
         XMLSignature sig = new XMLSignature(signer, doc.getRootElement(), "http://testsigs", Reference.XMLSIGTYPE_ENVELOPING);
-        File outputFile = new File("target/src/testdata/homegrown/signature-enveloping-rsa.xml");
+        File outputFile = new File("target/testdata/homegrown/signature-enveloping-rsa.xml");
         XMLTools.writeFile(outputFile, sig.getElement());
 
         doc = XMLTools.loadDocument(outputFile);
@@ -117,7 +124,7 @@ public class SimpleXMLSigTest extends TestCase {
     public void testDSAEnvelopingSignXML() throws DocumentException, XMLException, CryptoException {
         Document doc = DocumentHelper.parseText(TESTXML);
         XMLSignature sig = new XMLSignature(dsaSigner, doc.getRootElement(), "http://testsigs", Reference.XMLSIGTYPE_ENVELOPING);
-        File outputFile = new File("target/src/testdata/homegrown/signature-enveloping-dsa.xml");
+        File outputFile = new File("target/testdata/homegrown/signature-enveloping-dsa.xml");
         XMLTools.writeFile(outputFile, sig.getElement());
 
         doc = XMLTools.loadDocument(outputFile);
@@ -130,7 +137,7 @@ public class SimpleXMLSigTest extends TestCase {
         Document doc = DocumentHelper.parseText(TESTXML);
         XMLSignature sig = new XMLSignature(dsaSigner, doc.getRootElement(), "http://testDSAsigs");
 
-        File outputFile = new File("target/src/testdata/homegrown/signature-enveloped-dsa.xml");
+        File outputFile = new File("target/testdata/homegrown/signature-enveloped-dsa.xml");
         XMLTools.writeFile(outputFile, doc);
 
         doc = XMLTools.loadDocument(outputFile);
@@ -140,7 +147,7 @@ public class SimpleXMLSigTest extends TestCase {
     public void testQuickRSASignXML() throws DocumentException, XMLException, CryptoException {
         Document doc = DocumentHelper.parseText(TESTXML);
         XMLSecTools.signElement("http://testsigs", doc.getRootElement(), signer);
-        File outputFile = new File("target/src/testdata/homegrown/signature-enveloped-rsa-quick.xml");
+        File outputFile = new File("target/testdata/homegrown/signature-enveloped-rsa-quick.xml");
         XMLTools.writeFile(outputFile, doc);
 
         doc = XMLTools.loadDocument(outputFile);
