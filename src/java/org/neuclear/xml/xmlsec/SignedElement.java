@@ -1,5 +1,8 @@
-/* $Id: SignedElement.java,v 1.8 2004/01/11 00:39:19 pelle Exp $
+/* $Id: SignedElement.java,v 1.9 2004/01/13 23:37:59 pelle Exp $
  * $Log: SignedElement.java,v $
+ * Revision 1.9  2004/01/13 23:37:59  pelle
+ * Refactoring parts of the core of XMLSignature. There shouldnt be any real API changes.
+ *
  * Revision 1.8  2004/01/11 00:39:19  pelle
  * Cleaned up the schemas even more they now all verifiy.
  * The Order/Receipt pairs for neuclear pay, should now work. They all have Readers using the latest
@@ -133,7 +136,7 @@ package org.neuclear.xml.xmlsec;
 
 /**
  * @author pelleb
- * @version $Revision: 1.8 $
+ * @version $Revision: 1.9 $
  */
 
 import org.dom4j.Element;
@@ -141,8 +144,8 @@ import org.dom4j.Namespace;
 import org.dom4j.QName;
 import org.neuclear.commons.crypto.CryptoException;
 import org.neuclear.commons.crypto.passphraseagents.UserCancellationException;
-import org.neuclear.commons.crypto.signers.Signer;
 import org.neuclear.commons.crypto.signers.NonExistingSignerException;
+import org.neuclear.commons.crypto.signers.Signer;
 import org.neuclear.xml.AbstractElementProxy;
 import org.neuclear.xml.XMLException;
 
@@ -234,32 +237,14 @@ public abstract class SignedElement extends AbstractElementProxy {
      */
     public final void sign(final PrivateKey priv) throws XMLSecurityException, CryptoException {
         preSign();
-        sig = XMLSecTools.signElement(getURI(), getElement(), priv);
+        sig = XMLSecTools.signElement(getElement(), priv);
         postSign();
     }
 
     public final void sign(final String name, final Signer signer) throws XMLSecurityException, NonExistingSignerException, UserCancellationException {
         preSign();
-        sig = XMLSecTools.signElement(getURI(), getElement(), name, signer);
+        sig = XMLSecTools.signElement( getElement(), name, signer);
         postSign();
-    }
-
-    /**
-     * @return 
-     * @throws XMLSecurityException 
-     */
-
-    public final byte[] getDigest() throws XMLSecurityException, CryptoException {
-        if (sig == null)
-            throw new XMLSecurityException("The object can not be verified as it doesnt contain a signature");
-        return sig.getDigest();
-    }
-
-    /**
-     * Returns the URI of the Element. This is used in the signing process.
-     */
-    public String getURI() throws XMLSecurityException {
-        return "#" ;
     }
 
 }

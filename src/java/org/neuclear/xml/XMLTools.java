@@ -1,6 +1,9 @@
 /*
- * $Id: XMLTools.java,v 1.4 2003/12/10 23:57:05 pelle Exp $
+ * $Id: XMLTools.java,v 1.5 2004/01/13 23:37:59 pelle Exp $
  * $Log: XMLTools.java,v $
+ * Revision 1.5  2004/01/13 23:37:59  pelle
+ * Refactoring parts of the core of XMLSignature. There shouldnt be any real API changes.
+ *
  * Revision 1.4  2003/12/10 23:57:05  pelle
  * Did some cleaning up in the builders
  * Fixed some stuff in IdentityCreator
@@ -134,7 +137,7 @@ package org.neuclear.xml;
 
 /**
  * @author pelleb
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.5 $
  */
 
 import org.dom4j.Document;
@@ -146,6 +149,7 @@ import org.dom4j.io.*;
 
 import java.io.*;
 import java.net.MalformedURLException;
+import java.net.URL;
 
 
 public final class XMLTools {
@@ -177,15 +181,28 @@ public final class XMLTools {
     public static Document newDocument() {
         return DocumentHelper.createDocument();
     }
-
+    public static Document loadDocument(final String url) throws XMLException{
+        try {
+            return loadDocument(new URL(url));
+        } catch (MalformedURLException e) {
+            throw new XMLException(e);            
+        }
+    }
+    public static Document loadDocument(final URL url) throws XMLException {
+        try {
+            final SAXReader xmlReader = new SAXReader();
+            return xmlReader.read(url);
+        } catch (Exception e) {
+            throw new XMLException(e);
+        }
+    }
     public static Document loadDocument(final InputStream is) throws XMLException {
         try {
             final SAXReader xmlReader = new SAXReader();
             return xmlReader.read(is);
         } catch (Exception e) {
-            rethrowException(e);
+            throw new XMLException(e);
         }
-        return null;
     }
 
     public static Document loadDocument(final File f) throws XMLException {
@@ -193,11 +210,10 @@ public final class XMLTools {
         try {
             return xmlReader.read(f);
         } catch (DocumentException e) {
-            rethrowException(e);
+            throw new XMLException(e);
         } catch (MalformedURLException e) {
-            rethrowException(e);
+            throw new XMLException(e);
         }
-        return null;
     }
 
     public static void writeFile(final File outputFile, final Document doc) throws XMLException {

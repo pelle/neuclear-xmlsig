@@ -1,5 +1,8 @@
-/* $Id: XMLSecTools.java,v 1.5 2003/12/19 18:03:07 pelle Exp $
+/* $Id: XMLSecTools.java,v 1.6 2004/01/13 23:37:59 pelle Exp $
  * $Log: XMLSecTools.java,v $
+ * Revision 1.6  2004/01/13 23:37:59  pelle
+ * Refactoring parts of the core of XMLSignature. There shouldnt be any real API changes.
+ *
  * Revision 1.5  2003/12/19 18:03:07  pelle
  * Revamped a lot of exception handling throughout the framework, it has been simplified in most places:
  * - For most cases the main exception to worry about now is InvalidNamedObjectException.
@@ -142,7 +145,7 @@ package org.neuclear.xml.xmlsec;
 
 /**
  * @author pelleb
- * @version $Revision: 1.5 $
+ * @version $Revision: 1.6 $
  */
 
 import org.dom4j.*;
@@ -182,40 +185,37 @@ public final class XMLSecTools {
     /**
      * Signs an element with a given keypair and envelopes the signature within.
      * 
-     * @param baseURI Unique ID of the Element to be signed
      * @param root    Element to be signed
      * @param keypair RSA/DSA KeyPair
      * @throws XMLSecurityException 
      */
-    public static XMLSignature signElement(final String baseURI, final Element root, final KeyPair keypair) throws XMLSecurityException, CryptoException {//, KeyStoreException {
-        final XMLSignature sig = new QuickEmbeddedSignature(keypair, root, baseURI);
+    public static XMLSignature signElement(final Element root, final KeyPair keypair) throws XMLSecurityException, CryptoException {//, KeyStoreException {
+        final XMLSignature sig = new QuickEmbeddedSignature(keypair, root);
         return sig;
     }
 
     /**
      * Signs an element with a given Private Key and "Envelopes" the signature within.
      * 
-     * @param baseURI Unique ID of the Element to be signed
      * @param root    Element to be signed
      * @param key     RSA Private Key
      * @throws XMLSecurityException 
      */
-    public static XMLSignature signElement(final String baseURI, final Element root, final PrivateKey key) throws XMLSecurityException, CryptoException {//, KeyStoreException {
-        final XMLSignature sig = new QuickEmbeddedSignature(key, root, baseURI);
+    public static XMLSignature signElement( final Element root, final PrivateKey key) throws XMLSecurityException, CryptoException {//, KeyStoreException {
+        final XMLSignature sig = new QuickEmbeddedSignature(key, root);
         return sig;
     }
 
     /**
      * Signs an element with a given Private Key and "Envelopes" the signature within.
      * 
-     * @param baseURI Unique ID of the Element to be signed
      * @param root    Element to be signed
      * @param name    Alias of key to be used for signing
      * @param signer  NeuClear Signer
      * @throws XMLSecurityException 
      */
-    public static XMLSignature signElement(final String baseURI, final Element root, final String name, final org.neuclear.commons.crypto.signers.Signer signer) throws XMLSecurityException, NonExistingSignerException, UserCancellationException {//, KeyStoreException {
-        final XMLSignature sig = new QuickEmbeddedSignature(name, signer, root, baseURI);
+    public static XMLSignature signElement( final Element root, final String name, final org.neuclear.commons.crypto.signers.Signer signer) throws XMLSecurityException, NonExistingSignerException, UserCancellationException {//, KeyStoreException {
+        final XMLSignature sig = new QuickEmbeddedSignature(name, signer, root);
         return sig;
     }
 

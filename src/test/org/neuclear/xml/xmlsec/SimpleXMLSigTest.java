@@ -19,8 +19,11 @@ import java.security.interfaces.DSAPublicKey;
  * User: pelleb
  * Date: Jan 20, 2003
  * Time: 3:49:27 PM
- * $Id: SimpleXMLSigTest.java,v 1.5 2003/11/21 04:44:31 pelle Exp $
+ * $Id: SimpleXMLSigTest.java,v 1.6 2004/01/13 23:37:59 pelle Exp $
  * $Log: SimpleXMLSigTest.java,v $
+ * Revision 1.6  2004/01/13 23:37:59  pelle
+ * Refactoring parts of the core of XMLSignature. There shouldnt be any real API changes.
+ *
  * Revision 1.5  2003/11/21 04:44:31  pelle
  * EncryptedFileStore now works. It uses the PBECipher with DES3 afair.
  * Otherwise You will Finaliate.
@@ -152,7 +155,7 @@ public final class SimpleXMLSigTest extends TestCase {
 
     public final void testQuickRSASignXML() throws DocumentException, XMLException, CryptoException {
         Document doc = DocumentHelper.parseText(TESTXML);
-        XMLSecTools.signElement("http://testsigs", doc.getRootElement(), signer);
+        XMLSecTools.signElement( doc.getRootElement(), signer);
         final File outputFile = new File("target/testdata/homegrown/signature-enveloped-rsa-quick.xml");
         XMLTools.writeFile(outputFile, doc);
 
@@ -164,7 +167,7 @@ public final class SimpleXMLSigTest extends TestCase {
             throws DocumentException, XMLException, CryptoException {
         assertTrue("Test if public key is really DSA", dsaSigner.getPublic() instanceof DSAPublicKey);
         Document doc = DocumentHelper.parseText(TESTXML);
-        XMLSecTools.signElement("http://testDSAsigs", doc.getRootElement(), dsaSigner);
+        XMLSecTools.signElement( doc.getRootElement(), dsaSigner);
 
         final File outputFile = new File("target/testdata/homegrown/signature-enveloped-dsa-quick.xml");
         XMLTools.writeFile(outputFile, doc);
@@ -177,7 +180,7 @@ public final class SimpleXMLSigTest extends TestCase {
     public final void testBadSignXML() throws DocumentException, XMLException, CryptoException {
         final Document doc = DocumentHelper.parseText(TESTXML);
 
-        XMLSecTools.signElement("http://testsigs", doc.getRootElement(), signer);
+        XMLSecTools.signElement( doc.getRootElement(), signer);
         assertTrue("Test if Signature is valid", XMLSecTools.verifySignature(doc.getRootElement(), signer.getPublic()));
         doc.getRootElement().addElement("BadElement");
         assertTrue("Test that Signature is invalid", !XMLSecTools.verifySignature(doc.getRootElement(), signer.getPublic()));
@@ -188,7 +191,7 @@ public final class SimpleXMLSigTest extends TestCase {
             throws DocumentException, XMLException, CryptoException {
         final Document doc = DocumentHelper.parseText(TESTXML);
 
-        XMLSecTools.signElement("http://testDSAsigs", doc.getRootElement(), dsaSigner);
+        XMLSecTools.signElement(doc.getRootElement(), dsaSigner);
         assertTrue("Test if DSA Signature is valid", XMLSecTools.verifySignature(doc.getRootElement(), dsaSigner.getPublic()));
         doc.getRootElement().addElement("BadElement");
         assertTrue("Test that DSA Signature is invalid", !XMLSecTools.verifySignature(doc.getRootElement(), signer.getPublic()));

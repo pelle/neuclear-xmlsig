@@ -1,5 +1,8 @@
-/* $Id: XMLSignature.java,v 1.8 2004/01/08 23:38:06 pelle Exp $
+/* $Id: XMLSignature.java,v 1.9 2004/01/13 23:37:59 pelle Exp $
  * $Log: XMLSignature.java,v $
+ * Revision 1.9  2004/01/13 23:37:59  pelle
+ * Refactoring parts of the core of XMLSignature. There shouldnt be any real API changes.
+ *
  * Revision 1.8  2004/01/08 23:38:06  pelle
  * XMLSignature can now give you the Signing key and the id of the signer.
  * SignedElement can now self verify using embedded public keys as well as KeyName's
@@ -163,7 +166,7 @@ package org.neuclear.xml.xmlsec;
 
 /**
  * @author pelleb
- * @version $Revision: 1.8 $
+ * @version $Revision: 1.9 $
  */
 
 import org.dom4j.DocumentHelper;
@@ -279,7 +282,7 @@ public class XMLSignature extends AbstractXMLSigElement {
     private final synchronized KeyInfo getKeyInfo() throws XMLSecurityException{
         if (ki==null){
             final Element keyInfoElem = getElement().element(XMLSecTools.createQName("KeyInfo"));
-            if (keyInfoElem == null)
+            if (keyInfoElem != null)
                 ki=new KeyInfo(keyInfoElem);
         }
         return ki;
@@ -289,8 +292,8 @@ public class XMLSignature extends AbstractXMLSigElement {
     public final boolean verifySignature(final PublicKey pk) throws XMLSecurityException {
 
         try {
-            if (!si.getReference().verifyReferences())
-                return false;
+//            if (!si.getReference().verifyReferences())
+//                return false;
             final byte[] sig = getSignature();
             final byte[] cansi = si.canonicalize();
             return CryptoTools.verify(pk, cansi, sig);
@@ -302,10 +305,10 @@ public class XMLSignature extends AbstractXMLSigElement {
     public final boolean verifySignature(final PublicKey[] pks) throws XMLSecurityException {
 
         try {
-            if (!si.getReference().verifyReferences()) {
-//            System.err.println("XMLSIG: References didnt match up");
-                return false;
-            }
+//            if (!si.getReference().verifyReferences()) {
+////            System.err.println("XMLSIG: References didnt match up");
+//                return false;
+//            }
             final byte[] sig = getSignature();
             final byte[] cansi = si.canonicalize();
             for (int i = 0; i < pks.length; i++)
@@ -319,16 +322,7 @@ public class XMLSignature extends AbstractXMLSigElement {
     }
 
 
-    public final String getTagName() {
-        return TAG_NAME;
-    }
-
-    public final byte[] getDigest() throws XMLSecurityException, CryptoException {
-        if (si == null)
-            throw new XMLSecurityException("The object can not be verified as it doesnt contain a signature");
-        return si.getReference().getDigest();
-    }
-
+    
     protected final SignatureInfo getSi() {
         return si;
     }

@@ -1,5 +1,8 @@
-/* $Id: SignatureInfo.java,v 1.4 2003/12/11 23:56:53 pelle Exp $
+/* $Id: SignatureInfo.java,v 1.5 2004/01/13 23:37:59 pelle Exp $
  * $Log: SignatureInfo.java,v $
+ * Revision 1.5  2004/01/13 23:37:59  pelle
+ * Refactoring parts of the core of XMLSignature. There shouldnt be any real API changes.
+ *
  * Revision 1.4  2003/12/11 23:56:53  pelle
  * Trying to test the ReceiverServlet with cactus. Still no luck. Need to return a ElementProxy of some sort.
  * Cleaned up some missing fluff in the ElementProxy interface. getTagName(), getQName() and getNameSpace() have been killed.
@@ -80,15 +83,13 @@ package org.neuclear.xml.xmlsec;
 
 /**
  * @author pelleb
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.5 $
  */
 
 import org.dom4j.Element;
 import org.neuclear.commons.crypto.signers.Signer;
 import org.neuclear.xml.XMLException;
 import org.neuclear.xml.c14.Canonicalizer;
-import org.neuclear.xml.c14.CanonicalizerWithComments;
-import org.neuclear.xml.c14.CanonicalizerWithoutSignature;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
@@ -112,7 +113,7 @@ public final class SignatureInfo extends AbstractXMLSigElement {
                 sm.addAttribute("Algorithm", "http://www.w3.org/2000/09/xmldsig#dsa-sha1");
 
             addElement(sm);
-            ref = new Reference(root, uri, this, sigtype);
+            ref = new Reference(root, sigtype);
             addElement(ref);
         } catch (XMLException e) {
             throw new XMLSecurityException(e);
@@ -129,7 +130,7 @@ public final class SignatureInfo extends AbstractXMLSigElement {
             c14nType = Canonicalizer.C14NTYPE_WITH_COMMENTS;
         final Element refElem = elem.element(XMLSecTools.createQName("Reference"));
         if (refElem != null)
-            ref = new Reference(refElem, this);
+            ref = new Reference(refElem);
         //Check reference element if signature is enveloped
 
     }
@@ -146,10 +147,10 @@ public final class SignatureInfo extends AbstractXMLSigElement {
     }
 
     final Canonicalizer getCanonicalizer() {
-        if (ref.getSigType() == Reference.XMLSIGTYPE_ENVELOPED)
-            return new CanonicalizerWithoutSignature();
-        else if (c14nType == Canonicalizer.C14NTYPE_WITH_COMMENTS)
-            return new CanonicalizerWithComments();
+//        if (ref.getSigType() == Reference.XMLSIGTYPE_ENVELOPED)
+//            return new CanonicalizerWithoutSignature();
+//        else if (c14nType == Canonicalizer.C14NTYPE_WITH_COMMENTS)
+//            return new CanonicalizerWithComments();
         return new Canonicalizer();
     }
 
