@@ -17,4 +17,8 @@ public class InvalidSignatureException extends Exception {
     public InvalidSignatureException(PublicKey pub) {
         super("Public Key: " + pub.toString() + " didnt sign this signature");
     }
+
+    protected InvalidSignatureException(String title) {
+        super(title);
+    }
 }

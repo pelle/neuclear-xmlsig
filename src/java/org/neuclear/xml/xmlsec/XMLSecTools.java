@@ -1,5 +1,11 @@
-/* $Id: XMLSecTools.java,v 1.13 2004/03/08 23:51:03 pelle Exp $
+/* $Id: XMLSecTools.java,v 1.14 2004/03/19 22:21:51 pelle Exp $
  * $Log: XMLSecTools.java,v $
+ * Revision 1.14  2004/03/19 22:21:51  pelle
+ * Changes in the XMLSignature class, which is now Abstract there are currently 3 implementations for:
+ * - Enveloped
+ * - DataObjects - (Enveloping)
+ * - Any for interop testing mainly.
+ *
  * Revision 1.13  2004/03/08 23:51:03  pelle
  * More improvements on the XMLSignature. Now uses the Transforms properly, References properly.
  * All the major elements have been refactored to be cleaner and more correct.
@@ -173,22 +179,19 @@ package org.neuclear.xml.xmlsec;
 
 /**
  * @author pelleb
- * @version $Revision: 1.13 $
+ * @version $Revision: 1.14 $
  */
 
 import org.dom4j.*;
 import org.dom4j.io.XMLWriter;
 import org.neuclear.commons.crypto.Base64;
 import org.neuclear.commons.crypto.CryptoException;
-import org.neuclear.commons.crypto.passphraseagents.UserCancellationException;
-import org.neuclear.commons.crypto.signers.NonExistingSignerException;
 import org.neuclear.xml.XMLException;
 import org.neuclear.xml.c14.Canonicalizer;
 
 import java.io.IOException;
 import java.io.StringWriter;
 import java.math.BigInteger;
-import java.security.KeyPair;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.PublicKey;
@@ -216,49 +219,12 @@ public final class XMLSecTools {
 
 
     /**
-     * Signs an element with a given keypair and envelopes the signature within.
-     * 
-     * @param root    Element to be signed
-     * @param keypair RSA/DSA KeyPair
-     * @throws XMLSecurityException 
-     */
-    public static XMLSignature signElement(final Element root, final KeyPair keypair) throws XMLSecurityException, CryptoException {//, KeyStoreException {
-        final XMLSignature sig = new XMLSignature(keypair, root);
-        return sig;
-    }
-
-
-    /**
-     * Signs an element with a given Private Key and "Envelopes" the signature within.
-     *
-     * @param root   Element to be signed
-     * @param name   Alias of key to be used for signing
-     * @param signer NeuClear Signer
-     * @throws XMLSecurityException
-     */
-    public static XMLSignature signElement(final Element root, final String name, final org.neuclear.commons.crypto.signers.Signer signer) throws XMLSecurityException, NonExistingSignerException, UserCancellationException {//, KeyStoreException {
-        return new XMLSignature(name, signer, root, true);
-    }
-
-    /**
-     * Signs an element with a given keypair and embeds the element within the Signature.
-     *
-     * @param root    Element to be signed
-     * @param keypair RSA/DSA KeyPair
-     * @throws XMLSecurityException
-     */
-    public static XMLSignature signElementEnveloping(final Element root, final KeyPair keypair) throws XMLSecurityException, CryptoException {//, KeyStoreException {
-        final XMLSignature sig = new XMLSignature(keypair, root, false);
-        return sig;
-    }
-
-    /**
      * Creates a KeyInfo Element containing the public key of a key stored in the given keystore.
-     * 
+     *
      * @param ks KeyStore to use
      * @param s  Identifier of Key
      * @return Element containg valid KeyInfo
-     * @throws KeyStoreException 
+     * @throws KeyStoreException
      */
     public static Element createKeyInfo(final KeyStore ks, final String s) throws KeyStoreException {
         Certificate puk = null;
@@ -304,8 +270,10 @@ public final class XMLSecTools {
      * @return XMLSignature object
      * @throws XMLSecurityException 
      */
-    public static XMLSignature getXMLSignature(final Element elem) throws XMLSecurityException, InvalidSignatureException {
+    public static Element getSignatureElement(final Element elem) throws XMLSecurityException {
         final QName qname = XMLSecTools.createQName("Signature");
+        if (elem.getQName().equals(qname))
+            return elem;
         Element xmlSigElement = elem.element(qname);
         if (xmlSigElement == null || (isInXMLSigNS(xmlSigElement))) {
             if (elem.getQName().equals(qname)) // This is an Enveloping Signature
@@ -313,46 +281,11 @@ public final class XMLSecTools {
             else
                 throw new XMLSecurityException("No Signature Found");
         }
-        return new XMLSignature(xmlSigElement);
+        return xmlSigElement;
     }
 
     public static boolean isInXMLSigNS(final Element xmlSigElement) {
         return !xmlSigElement.getNamespaceURI().equals(XMLSecTools.XMLDSIG_NAMESPACE);
-    }
-
-    /**
-     * Verifies the signature of a given element
-     * 
-     * @param elem Element to verify
-     * @param pub  Public Key to verify against
-     * @return true if it verifies
-     * @throws XMLSecurityException 
-     */
-    public static boolean verifySignature(final Element elem, final PublicKey pub) throws XMLSecurityException {
-        try {
-            final XMLSignature sig = getXMLSignature(elem);
-            return true;
-        } catch (InvalidSignatureException e) {
-            return false;
-        }
-    }
-
-    /**
-     * Verifies the signature of a given element. Note this requires an embedded KeyInfo part within the
-     * Signature Element.
-     * 
-     * @param elem Element to verify
-     * @return true if it verifies
-     * @throws XMLSecurityException 
-     */
-    public static boolean verifySignature(final Element elem) throws XMLSecurityException, CryptoException {
-        try {
-            final XMLSignature sig = getXMLSignature(elem);
-            return true;
-        } catch (InvalidSignatureException e) {
-            System.out.println(e.getLocalizedMessage());
-            return false;
-        }
     }
 
     /**
@@ -451,10 +384,6 @@ public final class XMLSecTools {
             throw new XMLSecurityException(e);
         }
 
-    }
-
-    public static void rethrowException(final Throwable e) throws XMLSecurityException {
-        throw new XMLSecurityException(e);
     }
 
     /**
@@ -577,35 +506,4 @@ public final class XMLSecTools {
 
         return base64ToElement(localName, Base64.getBytes(big));
     }
-/*
-    public static void main(String args[]){
-        SAXReader reader = new SAXReader();
-        try {
-
-            reader.setValidation(false);
-            reader.setStripWhitespaceText(false);
-            reader.setMergeAdjacentText(false);
-            reader.setStringInternEnabled(false);
-
-            reader.setIncludeExternalDTDDeclarations(false);
-            Document document = reader.read(System.in);
-//            if (reader.getXMLFilter()!=null)
-//                    System.out.println("XMLFilter: "+reader.getXMLFilter().getClass().toString());
-//            if (reader.getXMLReader()!=null)
-//                System.out.println("XMLReader: "+reader.getXMLReader().getClass().toString());
-            System.out.println("Original:");
-            System.out.println(document.asXML());
-            System.out.println("C14n:");
-
-            System.out.write(getElementBytes(document));
-        } catch (DocumentException e) {
-            System.err.println("There was no input");
-            e.printStackTrace();  //To change body of catch statement use Options | File Templates.
-        } catch (IOException e) {
-
-            e.printStackTrace();  //To change body of catch statement use Options | File Templates.
-        }
-
-    }
-*/
 }

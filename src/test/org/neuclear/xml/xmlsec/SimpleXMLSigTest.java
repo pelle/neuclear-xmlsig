@@ -15,18 +15,25 @@ import org.neuclear.xml.XMLTools;
 import java.io.File;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
+import java.security.interfaces.DSAPublicKey;
 
 /**
  * (C) 2003 Antilles Software Ventures SA
  * User: pelleb
  * Date: Jan 20, 2003
  * Time: 3:49:27 PM
- * $Id: SimpleXMLSigTest.java,v 1.11 2004/03/08 23:51:04 pelle Exp $
+ * $Id: SimpleXMLSigTest.java,v 1.12 2004/03/19 22:21:51 pelle Exp $
  * $Log: SimpleXMLSigTest.java,v $
+ * Revision 1.12  2004/03/19 22:21:51  pelle
+ * Changes in the XMLSignature class, which is now Abstract there are currently 3 implementations for:
+ * - Enveloped
+ * - DataObjects - (Enveloping)
+ * - Any for interop testing mainly.
+ *
  * Revision 1.11  2004/03/08 23:51:04  pelle
  * More improvements on the XMLSignature. Now uses the Transforms properly, References properly.
  * All the major elements have been refactored to be cleaner and more correct.
- *
+ * <p/>
  * Revision 1.10  2004/03/02 23:30:44  pelle
  * Renamed SignatureInfo to SignedInfo as that is the name of the Element.
  * Made some changes in the Canonicalizer to make all the output verify in Aleksey's xmlsec library.
@@ -135,57 +142,82 @@ public final class SimpleXMLSigTest extends TestCase {
         new File("target/testdata/homegrown").mkdirs();
     }
 
+    private void assertValidEnvelopedSignature(Document doc) throws XMLSecurityException {
+        try {
+            XMLSignature sig = new EnvelopedSignature(doc.getRootElement());
+        } catch (InvalidSignatureException e) {
+            assertTrue("Signature Failed: " + e.getLocalizedMessage(), false);
+        }
+    }
+
+    private void assertInvalidEnvelopedSignature(Document doc) throws XMLSecurityException {
+        try {
+            XMLSignature sig = new EnvelopedSignature(doc.getRootElement());
+            assertTrue("Invalid Signature Verified", false);
+        } catch (InvalidSignatureException e) {
+            assertTrue("Signature Failed", true);
+        }
+    }
+
+    private void assertValidEnvelopingSignature(Document doc) throws XMLSecurityException {
+        try {
+            XMLSignature sig = new DataObjectSignature(doc.getRootElement());
+        } catch (InvalidSignatureException e) {
+            assertTrue("Signature Failed: " + e.getLocalizedMessage(), false);
+        }
+    }
+
     public final void testEnvelopedUsignRSAKeyPair() throws DocumentException, XMLException, CryptoException {
         Document doc = DocumentHelper.parseText(TESTXML);
-        final XMLSignature sig = new XMLSignature(rsa, doc.getRootElement());
+        final XMLSignature sig = new EnvelopedSignature(rsa, doc.getRootElement());
         final File outputFile = new File("target/testdata/homegrown/signature-enveloped-rsa.xml");
         XMLTools.writeFile(outputFile, doc);
 
         doc = XMLTools.loadDocument(outputFile);
-        assertTrue("Test if Signature is valid", XMLSecTools.verifySignature(doc.getRootElement()));
-    }
-
-    public final void testEnvelopingUsignRSAKeyPair() throws DocumentException, XMLException, CryptoException {
-        Document doc = DocumentHelper.parseText(TESTXML);
-        final XMLSignature sig = new XMLSignature(rsa, doc.getRootElement(), false);
-        final File outputFile = new File("target/testdata/homegrown/signature-enveloping-rsa.xml");
-        XMLTools.writeFile(outputFile, sig.getElement());
-
-        doc = XMLTools.loadDocument(outputFile);
-        assertTrue("Test if Signature is valid", XMLSecTools.verifySignature(doc.getRootElement()));
-    }
-
-    public final void testEnvelopingUsignDSAKeyPair() throws DocumentException, XMLException, CryptoException {
-        Document doc = DocumentHelper.parseText(TESTXML);
-        final XMLSignature sig = new XMLSignature(dsa, doc.getRootElement(), false);
-        final File outputFile = new File("target/testdata/homegrown/signature-enveloping-dsa.xml");
-        XMLTools.writeFile(outputFile, sig.getElement());
-
-        doc = XMLTools.loadDocument(outputFile);
-        assertTrue("Test if Signature is valid", XMLSecTools.verifySignature(doc.getRootElement()));
+        assertValidEnvelopedSignature(doc);
     }
 
     public final void testEnvelopedUsignDSAKeyPair()
             throws DocumentException, XMLException, CryptoException {
-//        assertTrue("Test if public key is really DSA", dsa.getPublic() instanceof DSAPublicKey);
+        assertTrue("Test if public key is really DSA", dsa.getPublic() instanceof DSAPublicKey);
         Document doc = DocumentHelper.parseText(TESTXML);
-        final XMLSignature sig = new XMLSignature(dsa, doc.getRootElement());
+        final XMLSignature sig = new EnvelopedSignature(dsa, doc.getRootElement());
 
         final File outputFile = new File("target/testdata/homegrown/signature-enveloped-dsa.xml");
         XMLTools.writeFile(outputFile, doc);
 
         doc = XMLTools.loadDocument(outputFile);
-        assertTrue("Test if DSA Signature is valid", XMLSecTools.verifySignature(doc.getRootElement()));
+        assertValidEnvelopedSignature(doc);
+    }
+
+    public final void testEnvelopingUsignRSAKeyPair() throws DocumentException, XMLException, CryptoException {
+        Document doc = DocumentHelper.parseText(TESTXML);
+        final XMLSignature sig = new DataObjectSignature(rsa, doc.getRootElement());
+        final File outputFile = new File("target/testdata/homegrown/signature-enveloping-rsa.xml");
+        XMLTools.writeFile(outputFile, sig.getElement());
+
+        doc = XMLTools.loadDocument(outputFile);
+        assertValidEnvelopingSignature(doc);
+    }
+
+    public final void testEnvelopingUsignDSAKeyPair() throws DocumentException, XMLException, CryptoException {
+        Document doc = DocumentHelper.parseText(TESTXML);
+        final XMLSignature sig = new DataObjectSignature(dsa, doc.getRootElement());
+        final File outputFile = new File("target/testdata/homegrown/signature-enveloping-dsa.xml");
+        XMLTools.writeFile(outputFile, sig.getElement());
+
+        doc = XMLTools.loadDocument(outputFile);
+        assertValidEnvelopingSignature(doc);
     }
 
 
     public final void testBadRSASignature() throws DocumentException, XMLException, CryptoException {
         final Document doc = DocumentHelper.parseText(TESTXML);
 
-        XMLSecTools.signElement(doc.getRootElement(), rsa);
-        assertTrue("Test if Signature is valid", XMLSecTools.verifySignature(doc.getRootElement(), rsa.getPublic()));
+        final XMLSignature sig = new EnvelopedSignature(rsa, doc.getRootElement());
+        assertValidEnvelopedSignature(doc);
         doc.getRootElement().addElement("BadElement");
-        assertTrue("Test that Signature is invalid", !XMLSecTools.verifySignature(doc.getRootElement(), rsa.getPublic()));
+        assertInvalidEnvelopedSignature(doc);
 
     }
 
@@ -193,50 +225,50 @@ public final class SimpleXMLSigTest extends TestCase {
             throws DocumentException, XMLException, CryptoException {
         final Document doc = DocumentHelper.parseText(TESTXML);
 
-        XMLSecTools.signElement(doc.getRootElement(), dsa);
-        assertTrue("Test if DSA Signature is valid", XMLSecTools.verifySignature(doc.getRootElement(), dsa.getPublic()));
+        final XMLSignature sig = new EnvelopedSignature(dsa, doc.getRootElement());
+        assertValidEnvelopedSignature(doc);
         doc.getRootElement().addElement("BadElement");
-        assertTrue("Test that DSA Signature is invalid", !XMLSecTools.verifySignature(doc.getRootElement(), rsa.getPublic()));
+        assertInvalidEnvelopedSignature(doc);
     }
 
     public final void testEnvelopedUsingSigner() throws DocumentException, XMLException, CryptoException, UserCancellationException {
         Document doc = DocumentHelper.parseText(TESTXML);
-        final XMLSignature sig = new XMLSignature("neu://test", signer, doc.getRootElement(), true);
+        final XMLSignature sig = new EnvelopedSignature("neu://test", signer, doc.getRootElement());
         final File outputFile = new File("target/testdata/homegrown/signature-enveloped-signer.xml");
         XMLTools.writeFile(outputFile, doc);
 
         doc = XMLTools.loadDocument(outputFile);
-        assertTrue("Test if Signature is valid", XMLSecTools.verifySignature(doc.getRootElement()));
+        assertValidEnvelopedSignature(doc);
     }
 
     public final void testEnvelopingUsingSigner() throws DocumentException, XMLException, CryptoException, UserCancellationException {
         Document doc = DocumentHelper.parseText(TESTXML);
-        final XMLSignature sig = new XMLSignature("neu://test", signer, doc.getRootElement(), false);
+        final XMLSignature sig = new DataObjectSignature("neu://test", signer, doc.getRootElement());
         final File outputFile = new File("target/testdata/homegrown/signature-enveloping-signer.xml");
         XMLTools.writeFile(outputFile, sig.getElement());
 
         doc = XMLTools.loadDocument(outputFile);
-        assertTrue("Test if Signature is valid", XMLSecTools.verifySignature(doc.getRootElement()));
+        assertValidEnvelopingSignature(doc);
     }
 
     public final void testComplexEnvelopedUsingSigner() throws DocumentException, XMLException, CryptoException, UserCancellationException {
         Document doc = DocumentHelper.parseText(COMPLEX_XML);
-        final XMLSignature sig = new XMLSignature("neu://test", signer, doc.getRootElement(), true);
+        final XMLSignature sig = new EnvelopedSignature("neu://test", signer, doc.getRootElement());
         final File outputFile = new File("target/testdata/homegrown/signature-complex-enveloped-signer.xml");
         XMLTools.writeFile(outputFile, doc);
 
         doc = XMLTools.loadDocument(outputFile);
-        assertTrue("Test if Signature is valid", XMLSecTools.verifySignature(doc.getRootElement()));
+        assertValidEnvelopedSignature(doc);
     }
 
     public final void testComplexEnvelopingUsingSigner() throws DocumentException, XMLException, CryptoException, UserCancellationException {
         Document doc = DocumentHelper.parseText(COMPLEX_XML);
-        final XMLSignature sig = new XMLSignature("neu://test", signer, doc.getRootElement(), false);
+        final XMLSignature sig = new DataObjectSignature("neu://test", signer, doc.getRootElement());
         final File outputFile = new File("target/testdata/homegrown/signature-complex-enveloping-signer.xml");
         XMLTools.writeFile(outputFile, sig.getElement());
 
         doc = XMLTools.loadDocument(outputFile);
-        assertTrue("Test if Signature is valid", XMLSecTools.verifySignature(doc.getRootElement()));
+        assertValidEnvelopingSignature(doc);
     }
 
     private final KeyPair rsa;

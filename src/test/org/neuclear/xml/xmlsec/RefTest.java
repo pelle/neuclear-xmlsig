@@ -30,8 +30,14 @@ You should have received a copy of the GNU Lesser General Public
 License along with this library; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-$Id: RefTest.java,v 1.8 2004/03/08 23:51:04 pelle Exp $
+$Id: RefTest.java,v 1.9 2004/03/19 22:21:51 pelle Exp $
 $Log: RefTest.java,v $
+Revision 1.9  2004/03/19 22:21:51  pelle
+Changes in the XMLSignature class, which is now Abstract there are currently 3 implementations for:
+- Enveloped
+- DataObjects - (Enveloping)
+- Any for interop testing mainly.
+
 Revision 1.8  2004/03/08 23:51:04  pelle
 More improvements on the XMLSignature. Now uses the Transforms properly, References properly.
 All the major elements have been refactored to be cleaner and more correct.
@@ -91,9 +97,9 @@ public class RefTest extends TestCase {
     }
 
     public void testEnvelopedReference() throws DocumentException, XMLException, CryptoException {
-        Document doc = DocumentHelper.parseText("<test>hello<Signature xmlns=\"http://www.w3.org/2000/09/xmldsig#\"><SignedInfo/></Signature></test>");
+        Document doc = DocumentHelper.parseText("<test>hello<ds:Signature xmlns:ds=\"http://www.w3.org/2000/09/xmldsig#\"><ds:SignedInfo/></ds:Signature></test>");
         Reference ref = new Reference(doc.getRootElement(), true);
-        doc.getRootElement().element("Signature").element("SignedInfo").add(ref.getElement());
+        XMLSecTools.getSignatureElement(doc.getRootElement()).element("SignedInfo").add(ref.getElement());
 
         assertNotNull(ref);
         assertNotNull(ref.getReferencedElement());

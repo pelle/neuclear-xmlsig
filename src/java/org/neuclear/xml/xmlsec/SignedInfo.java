@@ -1,5 +1,11 @@
-/* $Id: SignedInfo.java,v 1.4 2004/03/18 21:31:33 pelle Exp $
+/* $Id: SignedInfo.java,v 1.5 2004/03/19 22:21:51 pelle Exp $
  * $Log: SignedInfo.java,v $
+ * Revision 1.5  2004/03/19 22:21:51  pelle
+ * Changes in the XMLSignature class, which is now Abstract there are currently 3 implementations for:
+ * - Enveloped
+ * - DataObjects - (Enveloping)
+ * - Any for interop testing mainly.
+ *
  * Revision 1.4  2004/03/18 21:31:33  pelle
  * Some fixups in SignedInfo
  *
@@ -106,7 +112,7 @@ package org.neuclear.xml.xmlsec;
 
 /**
  * @author pelleb
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.5 $
  */
 
 import org.dom4j.Element;
@@ -207,9 +213,8 @@ public final class SignedInfo extends AbstractXMLSigElement {
      * This returns the signing PublicKey if it exists or null if it doesnt.
      * 
      * @return 
-     * @throws XMLSecurityException 
      */
-    public final List getReferences() throws XMLSecurityException {
+    public final List getReferences() {
         return Collections.unmodifiableList(refs);
     }
 
@@ -218,8 +223,17 @@ public final class SignedInfo extends AbstractXMLSigElement {
      *
      * @return
      */
-    public final Element getPrimaryReference() {
+    public final Element getPrimaryReferenceElement() {
         return ((Reference) refs.get(0)).getReferencedElement();
+    }
+
+    /**
+     * Returns the first Reference
+     *
+     * @return
+     */
+    public final Reference getPrimaryReference() {
+        return ((Reference) refs.get(0));
     }
 
     final Canonicalizer getCanonicalizer() {
@@ -251,8 +265,8 @@ public final class SignedInfo extends AbstractXMLSigElement {
     }
 
     public final byte[] canonicalize() throws XMLSecurityException {
-        return XMLSecTools.canonicalize(getCanonicalizer(), getElement());
-    }
+        return getCanonicalizer().canonicalize(getElement());
+    };
 
     /**
      * Signs the SignedInfo and returns the signature
@@ -263,7 +277,12 @@ public final class SignedInfo extends AbstractXMLSigElement {
      */
     public final byte[] sign(PrivateKey key) throws XMLSecurityException {
         try {
-            return CryptoTools.sign(key, canonicalize());
+            final byte[] cansi = canonicalize();
+            System.out.println("Signing Canonicalized:");
+            System.out.println(new String(cansi));
+            System.out.println("------");
+
+            return CryptoTools.sign(key, cansi);
         } catch (CryptoException e) {
             throw new XMLSecurityException(e);
         }

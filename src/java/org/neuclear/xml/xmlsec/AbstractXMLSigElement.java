@@ -1,5 +1,11 @@
-/* $Id: AbstractXMLSigElement.java,v 1.3 2003/12/11 23:56:53 pelle Exp $
+/* $Id: AbstractXMLSigElement.java,v 1.4 2004/03/19 22:21:51 pelle Exp $
  * $Log: AbstractXMLSigElement.java,v $
+ * Revision 1.4  2004/03/19 22:21:51  pelle
+ * Changes in the XMLSignature class, which is now Abstract there are currently 3 implementations for:
+ * - Enveloped
+ * - DataObjects - (Enveloping)
+ * - Any for interop testing mainly.
+ *
  * Revision 1.3  2003/12/11 23:56:53  pelle
  * Trying to test the ReceiverServlet with cactus. Still no luck. Need to return a ElementProxy of some sort.
  * Cleaned up some missing fluff in the ElementProxy interface. getTagName(), getQName() and getNameSpace() have been killed.
@@ -36,7 +42,7 @@ package org.neuclear.xml.xmlsec;
 
 /**
  * @author pelleb
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  */
 
 import org.dom4j.Element;
@@ -51,6 +57,8 @@ public abstract class AbstractXMLSigElement extends AbstractElementProxy {
 //    }
     protected AbstractXMLSigElement(final Element elem) throws XMLSecurityException {
         super(elem);
+        if (elem == null)
+            throw new XMLSecurityException("Null Element Passed");
         if (!elem.getNamespaceURI().equalsIgnoreCase(XMLSecTools.NS_DS.getURI()))
             throw new XMLSecurityException("Element: " + elem.getQualifiedName() + " is not part of XML NS: " + XMLSecTools.NS_DS.getURI());
     }

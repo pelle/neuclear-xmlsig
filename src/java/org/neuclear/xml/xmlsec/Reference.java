@@ -1,5 +1,11 @@
-/* $Id: Reference.java,v 1.16 2004/03/08 23:51:03 pelle Exp $
+/* $Id: Reference.java,v 1.17 2004/03/19 22:21:51 pelle Exp $
  * $Log: Reference.java,v $
+ * Revision 1.17  2004/03/19 22:21:51  pelle
+ * Changes in the XMLSignature class, which is now Abstract there are currently 3 implementations for:
+ * - Enveloped
+ * - DataObjects - (Enveloping)
+ * - Any for interop testing mainly.
+ *
  * Revision 1.16  2004/03/08 23:51:03  pelle
  * More improvements on the XMLSignature. Now uses the Transforms properly, References properly.
  * All the major elements have been refactored to be cleaner and more correct.
@@ -161,7 +167,7 @@ package org.neuclear.xml.xmlsec;
  * The Reference class implements the W3C XML Signature Spec Reference Object.
  * The basic contract says that once it has been instantiated the digest value within is valid.
  * @author pelleb
- * @version $Revision: 1.16 $
+ * @version $Revision: 1.17 $
  */
 
 import org.dom4j.Element;
@@ -289,13 +295,21 @@ public final class Reference extends AbstractXMLSigElement {
             dig2 = digest(uri);
         } else {
             Node node = refObject;
-            final List list = elem.element(XMLSecTools.createQName("Transforms")).elements(XMLSecTools.createQName("Transform"));
-            for (int i = 0; i < list.size() - 1; i++) {
-                Transform o = TransformerFactory.make((Element) list.get(i));
-                node = (Node) o.transformNode(node);
+            final Element trelem = elem.element(XMLSecTools.createQName("Transforms"));
+            Canonicalizer canon = null;
+            if (trelem != null) {
+                final List list = trelem.elements(XMLSecTools.createQName("Transform"));
+                for (int i = 0; i < list.size(); i++) {
+                    Transform o = TransformerFactory.make((Element) list.get(i));
+                    if (i == list.size() - 1 && o instanceof Canonicalizer)
+                        canon = (Canonicalizer) TransformerFactory.make((Element) list.get(list.size() - 1));
+                    else
+                        node = (Node) o.transformNode(node);
+                }
             }
-
-            dig2 = createDigest((Canonicalizer) TransformerFactory.make((Element) list.get(list.size() - 1)), node);
+            if (canon == null)
+                canon = new Canonicalizer();
+            dig2 = createDigest(canon, node);
         }
         if (!CryptoTools.equalByteArrays(digest, dig2))
             throw new InvalidSignatureException(digest, dig2);

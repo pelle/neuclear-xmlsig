@@ -66,10 +66,12 @@ public final class KeyInfo extends AbstractXMLSigElement {
             //seed and pgenCounter
         }
     }
-    public KeyInfo(final PublicKey pub, final String name){
+
+    public KeyInfo(final PublicKey pub, final String name) {
         this(pub);
         appendKeyName(name);
     }
+
     public KeyInfo(final String name) {
         super(TAG_NAME);
         appendKeyName(name);
@@ -84,7 +86,7 @@ public final class KeyInfo extends AbstractXMLSigElement {
     public KeyInfo(final X509Certificate cert) throws CertificateEncodingException {
         super(TAG_NAME);
         final Element kv = XMLSecTools.createElementInSignatureSpace("X509Data");
-        kv.add(XMLSecTools.base64ToElement("X509Certificate",cert.getEncoded()));
+        kv.add(XMLSecTools.base64ToElement("X509Certificate", cert.getEncoded()));
         addElement(kv);
     }
 
@@ -103,19 +105,20 @@ public final class KeyInfo extends AbstractXMLSigElement {
     public final String getKeyName()
             throws XMLSecurityException {
         if (pub == null) {
-            Iterator iter=getElement().elementIterator();
-            while (iter.hasNext()&&pub==null) {
+            Iterator iter = getElement().elementIterator();
+            while (iter.hasNext() && pub == null) {
                 Element element = (Element) iter.next();
-                if(element.getName().equals("KeyName"))
+                if (element.getName().equals("KeyName"))
                     return element.getTextTrim();
-                else if(element.getName().equals("X509Data"))
-                    return "x509v3:"+Base64.encode(extractX509(element).getSerialNumber());
+                else if (element.getName().equals("X509Data"))
+                    return "x509v3:" + Base64.encode(extractX509(element).getSerialNumber());
                 if (element.getName().equals("KeyValue"))
-                    return "sha1:"+Base64.encode(CryptoTools.digest(parseKeyValue(element).getEncoded()));
+                    return "sha1:" + Base64.encode(CryptoTools.digest(parseKeyValue(element).getEncoded()));
             }
         }
         return null;
     }
+
     /**
      * Method getPublicKey
      * 
@@ -125,41 +128,45 @@ public final class KeyInfo extends AbstractXMLSigElement {
     public final PublicKey getPublicKey()
             throws XMLSecurityException {
         if (pub == null) {
-            Iterator iter=getElement().elementIterator();
-            while (iter.hasNext()&&pub==null) {
+            Iterator iter = getElement().elementIterator();
+            while (iter.hasNext() && pub == null) {
                 Element element = (Element) iter.next();
                 if (element.getName().equals("KeyValue"))
-                    pub=parseKeyValue(element);
-                else if(element.getName().equals("KeyName"))
-                    pub=parseKeyName(element);
-                else if(element.getName().equals("X509Data"))
-                    pub=parseX509(element);
+                    pub = parseKeyValue(element);
+                else if (element.getName().equals("KeyName"))
+                    pub = parseKeyName(element);
+                else if (element.getName().equals("X509Data"))
+                    pub = parseX509(element);
             }
         }
         return pub;
     }
-    private PublicKey parseKeyName(final Element element){
-        final String name=element.getTextTrim();
+
+    private PublicKey parseKeyName(final Element element) {
+        final String name = element.getTextTrim();
         return KeyResolverFactory.getInstance().resolve(name);
     }
+
     private PublicKey parseX509(final Element element) throws XMLSecurityException {
         return extractX509(element).getPublicKey();
     }
+
     private X509Certificate extractX509(final Element element) throws XMLSecurityException {
-        Element x509Data=element.element("X509Certificate");
-        if (x509Data!=null){
+        Element x509Data = element.element("X509Certificate");
+        if (x509Data != null) {
             try {
-                byte encoded[]=XMLSecTools.decodeBase64Element(x509Data);
-                CertificateFactory fact=CertificateFactory.getInstance("X.509");
-                X509Certificate cert=(X509Certificate) fact.generateCertificate(new ByteArrayInputStream(encoded));
+                byte encoded[] = XMLSecTools.decodeBase64Element(x509Data);
+                CertificateFactory fact = CertificateFactory.getInstance("X.509");
+                X509Certificate cert = (X509Certificate) fact.generateCertificate(new ByteArrayInputStream(encoded));
                 return cert;
             } catch (CertificateException e) {
                 throw new XMLSecurityException(e);
 
             }
         }
-        return null;
+        throw new XMLSecurityException("No X509Certificate included");
     }
+
     private PublicKey parseKeyValue(final Element kvElement) throws XMLSecurityException {
         try {
             final KeyFactory keyFactory;
@@ -182,7 +189,7 @@ public final class KeyInfo extends AbstractXMLSigElement {
                         new RSAPublicKeySpec(XMLSecTools.decodeBigIntegerFromElement(mod), XMLSecTools.decodeBigIntegerFromElement(exp));
                 final PublicKey pk = keyFactory.generatePublic(rsaKeyspec);
 
-                return  pk;
+                return pk;
             } else if (algElement.getName().equalsIgnoreCase("DSAKeyValue")) {
                 keyFactory = KeyFactory.getInstance("DSA");
                 final Element p = algElement.element(XMLSecTools.createQName("P"));
@@ -198,9 +205,9 @@ public final class KeyInfo extends AbstractXMLSigElement {
                 return keyFactory.generatePublic(dsaPublicKeySpec);
             }
         } catch (NoSuchAlgorithmException ex) {
-            XMLSecTools.rethrowException(ex);
+            throw new XMLSecurityException(ex);
         } catch (InvalidKeySpecException ex) {
-            XMLSecTools.rethrowException(ex);
+            throw new XMLSecurityException(ex);
         }
         return null;
     }

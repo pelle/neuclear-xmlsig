@@ -1,5 +1,11 @@
-/* $Id: SignedElement.java,v 1.11 2004/03/08 23:51:03 pelle Exp $
+/* $Id: SignedElement.java,v 1.12 2004/03/19 22:21:51 pelle Exp $
  * $Log: SignedElement.java,v $
+ * Revision 1.12  2004/03/19 22:21:51  pelle
+ * Changes in the XMLSignature class, which is now Abstract there are currently 3 implementations for:
+ * - Enveloped
+ * - DataObjects - (Enveloping)
+ * - Any for interop testing mainly.
+ *
  * Revision 1.11  2004/03/08 23:51:03  pelle
  * More improvements on the XMLSignature. Now uses the Transforms properly, References properly.
  * All the major elements have been refactored to be cleaner and more correct.
@@ -143,7 +149,7 @@ package org.neuclear.xml.xmlsec;
 
 /**
  * @author pelleb
- * @version $Revision: 1.11 $
+ * @version $Revision: 1.12 $
  */
 
 import org.dom4j.Element;
@@ -157,7 +163,7 @@ import org.neuclear.xml.XMLException;
 
 
 public abstract class SignedElement extends AbstractElementProxy {
-    private XMLSignature sig;
+    private EnvelopedSignature sig;
 
     public SignedElement(final QName qname) {
         super(qname);
@@ -168,7 +174,7 @@ public abstract class SignedElement extends AbstractElementProxy {
         final Element sigElement = getElement().element(XMLSecTools.createQName("Signature"));
         if (sigElement != null)
             try {
-                sig = new XMLSignature(sigElement);
+                sig = new EnvelopedSignature(sigElement);
             } catch (XMLException e) {
                 throw new XMLSecurityException(e);
             } catch (InvalidSignatureException e) {
@@ -222,8 +228,11 @@ public abstract class SignedElement extends AbstractElementProxy {
 
     public boolean verify() throws XMLSecurityException {
         try {
-            sig = new XMLSignature(getElement().element(XMLSecTools.createQName("Signature")));
+            if (sig == null) ;
+            sig = new EnvelopedSignature(getElement());
+
             return true;
+
         } catch (InvalidSignatureException e) {
             return false;
         }
@@ -231,7 +240,7 @@ public abstract class SignedElement extends AbstractElementProxy {
 
     public final void sign(final String name, final Signer signer) throws XMLSecurityException, UserCancellationException, NonExistingSignerException {
         preSign();
-        sig = new XMLSignature(name, signer, getElement(), true);
+        sig = new EnvelopedSignature(name, signer, getElement());
         postSign();
     }
 

@@ -1,6 +1,12 @@
 /*
- * $Id: AbstractElementProxy.java,v 1.11 2004/03/02 23:30:43 pelle Exp $
+ * $Id: AbstractElementProxy.java,v 1.12 2004/03/19 22:21:51 pelle Exp $
  * $Log: AbstractElementProxy.java,v $
+ * Revision 1.12  2004/03/19 22:21:51  pelle
+ * Changes in the XMLSignature class, which is now Abstract there are currently 3 implementations for:
+ * - Enveloped
+ * - DataObjects - (Enveloping)
+ * - Any for interop testing mainly.
+ *
  * Revision 1.11  2004/03/02 23:30:43  pelle
  * Renamed SignatureInfo to SignedInfo as that is the name of the Element.
  * Made some changes in the Canonicalizer to make all the output verify in Aleksey's xmlsec library.
@@ -131,6 +137,7 @@ import org.dom4j.Element;
 import org.dom4j.Namespace;
 import org.dom4j.QName;
 import org.neuclear.xml.xmlsec.XMLSecTools;
+import org.neuclear.xml.xmlsec.XMLSecurityException;
 
 public abstract class AbstractElementProxy implements ElementProxy {
     protected AbstractElementProxy(final String name, final String prefix, final String nsURI) {
@@ -246,8 +253,8 @@ public abstract class AbstractElementProxy implements ElementProxy {
         return XMLTools.asXML(element);
     }
 
-    public byte[] canonicalize() throws XMLException {
-        return XMLSecTools.canonicalize(this);
+    public byte[] canonicalize() throws XMLSecurityException {
+        return XMLSecTools.canonicalize(element);
     }
 /*
 

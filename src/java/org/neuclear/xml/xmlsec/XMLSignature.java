@@ -1,5 +1,11 @@
-/* $Id: XMLSignature.java,v 1.15 2004/03/08 23:51:03 pelle Exp $
+/* $Id: XMLSignature.java,v 1.16 2004/03/19 22:21:51 pelle Exp $
  * $Log: XMLSignature.java,v $
+ * Revision 1.16  2004/03/19 22:21:51  pelle
+ * Changes in the XMLSignature class, which is now Abstract there are currently 3 implementations for:
+ * - Enveloped
+ * - DataObjects - (Enveloping)
+ * - Any for interop testing mainly.
+ *
  * Revision 1.15  2004/03/08 23:51:03  pelle
  * More improvements on the XMLSignature. Now uses the Transforms properly, References properly.
  * All the major elements have been refactored to be cleaner and more correct.
@@ -191,10 +197,9 @@ package org.neuclear.xml.xmlsec;
 
 /**
  * @author pelleb
- * @version $Revision: 1.15 $
+ * @version $Revision: 1.16 $
  */
 
-import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.neuclear.commons.crypto.Base64;
 import org.neuclear.commons.crypto.CryptoException;
@@ -212,39 +217,14 @@ import java.security.interfaces.RSAPublicKey;
  * Encapsulates a XML Digital Signature.    <p>
  * This is the base class of Digital Signatures
  */
-public class XMLSignature extends AbstractXMLSigElement {
-    /**
-     * Creates an Enveloped (Embedded) Signature object based on the given element root
-     *
-     * @param keypair
-     * @param root
-     * @throws XMLSecurityException
-     */
-    public XMLSignature(final KeyPair keypair, final Element root) throws XMLSecurityException {
-        this(keypair, root, true);
+abstract public class XMLSignature extends AbstractXMLSigElement {
+
+    protected XMLSignature(final PublicKey pub) throws XMLSecurityException {
+        this(pub, new SignedInfo(getSignatureAlgorithm(pub), 1));
     }
 
-
-    public XMLSignature(final KeyPair kp, final Element elem, final boolean embedded) throws XMLSecurityException {
-        this(kp.getPublic(), new SignedInfo(getSignatureAlgorithm(kp.getPublic()), 1));
-        if (embedded) {
-            si.setEnvelopedReference(elem);
-            elem.add(getElement());
-        } else
-            si.addEnvelopingReference(addDataObject("data", elem));
-
-        sign(kp);
-    }
-
-    public XMLSignature(final String name, final Signer signer, final Element elem, final boolean embedded) throws XMLSecurityException, UserCancellationException, NonExistingSignerException {
+    protected XMLSignature(final String name, final Signer signer) throws XMLSecurityException, NonExistingSignerException {
         this(getPublicKey(name, signer), new SignedInfo(getSignatureAlgorithm(getPublicKey(name, signer)), 1));
-        if (embedded) {
-            si.setEnvelopedReference(elem);
-            elem.add(getElement());
-        } else
-            si.addEnvelopingReference(addDataObject("data", elem));
-        sign(name, signer);
-
     }
 
     private XMLSignature(final PublicKey pub, final SignedInfo si) {
@@ -256,13 +236,13 @@ public class XMLSignature extends AbstractXMLSigElement {
             addElement(new KeyInfo(pub));
     }
 
-    public XMLSignature(final KeyPair kp, final SignedInfo si) throws XMLSecurityException, CryptoException {
+    protected XMLSignature(final KeyPair kp, final SignedInfo si) throws XMLSecurityException {
         this(kp.getPublic(), si);
         sign(kp);
     }
 
 
-    public XMLSignature(final String name, final Signer signer, final SignedInfo si) throws XMLSecurityException, UserCancellationException, NonExistingSignerException {
+    protected XMLSignature(final String name, final Signer signer, final SignedInfo si) throws XMLSecurityException, UserCancellationException, NonExistingSignerException {
         this(getPublicKey(name, signer), si);
         sign(name, signer);
     }
@@ -275,19 +255,24 @@ public class XMLSignature extends AbstractXMLSigElement {
      * @throws XMLSecurityException
      * @throws InvalidSignatureException
      */
-    public XMLSignature(final Element elem) throws XMLSecurityException, InvalidSignatureException {
+    protected XMLSignature(final Element elem) throws XMLSecurityException, InvalidSignatureException {
         super(elem);
         final Element siElem = elem.element(XMLSecTools.createQName("SignedInfo"));
-        if (!elem.getQName().equals(XMLSecTools.createQName(TAG_NAME)) || siElem == null)  // Not sure if equals is imeplemented properly for QNames
+        if (!elem.getQName().equals(XMLSecTools.createQName(TAG_NAME)))  // Not sure if equals is imeplemented properly for QNames
             throw new XMLSecurityException("Element: " + elem.getQualifiedName() + " is not a valid: " + XMLSecTools.NS_DS.getPrefix() + ":" + TAG_NAME);
+        if (siElem == null)
+            throw new XMLSecurityException("Signature does not contain a SignedInfo element");
         si = new SignedInfo(siElem);
+
+        verifyReferencesStructure();
+
         KeyInfo key = getKeyInfo();
         if (key == null)
             throw new XMLSecurityException("No included PublicKey, can not verify.");
 
         final byte[] sig = getSignature();
         final byte[] cansi = si.canonicalize();
-//        System.out.println("Canonicalized:");
+//        System.out.println("Verifying Canonicalized: ");
 //        System.out.println(new String(cansi));
 //        System.out.println("------");
 
@@ -299,37 +284,27 @@ public class XMLSignature extends AbstractXMLSigElement {
         }
     }
 
-    public XMLSignature(final Element elem, PublicKey pub) throws XMLSecurityException, InvalidSignatureException {
-        super(elem);
-        final Element siElem = elem.element(XMLSecTools.createQName("SignedInfo"));
-        if (!elem.getQName().equals(XMLSecTools.createQName(TAG_NAME)) || siElem == null)  // Not sure if equals is imeplemented properly for QNames
-            throw new XMLSecurityException("Element: " + elem.getQualifiedName() + " is not a valid: " + XMLSecTools.NS_DS.getPrefix() + ":" + TAG_NAME);
-        si = new SignedInfo(siElem);
-        final byte[] sig = getSignature();
-        if (!si.verify(pub, sig))
-            throw new InvalidSignatureException(pub);
+
+    /**
+     * This will be called by the constructor with Element parameter
+     * Override this for specific Signature models.
+     */
+    protected void verifyReferencesStructure() throws InvalidReferencesException {
+        ;
     }
 
     static private int getSignatureAlgorithm(final PublicKey pub) {
         return (pub instanceof RSAPublicKey) ? SignedInfo.SIG_ALG_RSA : SignedInfo.SIG_ALG_DSA;
     }
 
-    private void sign(final KeyPair kp) throws XMLSecurityException {
+    protected void sign(final KeyPair kp) throws XMLSecurityException {
         sigval.setText(Base64.encode(si.sign(kp.getPrivate())));
     }
 
-    private void sign(final String name, final Signer signer) throws XMLSecurityException, NonExistingSignerException, UserCancellationException {
+    protected void sign(final String name, final Signer signer) throws XMLSecurityException, NonExistingSignerException, UserCancellationException {
         sigval.setText(Base64.encode(si.sign(name, signer)));
     }
 
-    private Element addDataObject(final String id, final Element root) {
-        final Element objElem = XMLSecTools.createElementInSignatureSpace("Object");
-        objElem.addAttribute("Id", id);
-        DocumentHelper.createDocument(getElement());//As Signature Element is parent we will now add a doc
-        objElem.add(root);
-        getElement().add(objElem);
-        return objElem;
-    }
 
     private static PublicKey getPublicKey(final String name, final Signer signer) throws XMLSecurityException, NonExistingSignerException {
         if (!(signer instanceof PublicKeySource))
@@ -375,7 +350,11 @@ public class XMLSignature extends AbstractXMLSigElement {
         return si;
     }
 
-    private SignedInfo si;
+    public final Element getPrimaryReferenceElement() {
+        return si.getPrimaryReferenceElement();
+    }
+
+    protected SignedInfo si;
     private Element sigval;
     private KeyInfo ki;
     private static final String TAG_NAME = "Signature";
