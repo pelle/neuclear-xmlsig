@@ -25,28 +25,36 @@ public final class KeyInfo extends AbstractXMLSigElement {
         super(TAG_NAME);
         this.pub = pub;
         final Element kv = XMLSecTools.createElementInSignatureSpace("KeyValue");
-        getElement().add(kv);
+        addElement(kv);
         if (pub instanceof RSAPublicKey) {
             final RSAPublicKey rsakey = (RSAPublicKey) pub;
             final Element rsav = XMLSecTools.createElementInSignatureSpace("RSAKeyValue");
             kv.add(rsav);
+            kv.addText("\n");
             final Element mod = XMLSecTools.bigIntToElement("Modulus", rsakey.getModulus());
             rsav.add(mod);
+            rsav.addText("\n");
             final Element exp = XMLSecTools.bigIntToElement("Exponent", rsakey.getPublicExponent());
             rsav.add(exp);
+            rsav.addText("\n");
         } else if ( pub instanceof DSAPublicKey ) {
         	final DSAPublicKey dsaKey = (DSAPublicKey) pub;
         	final Element dsav = XMLSecTools.createElementInSignatureSpace("DSAKeyValue");
         	kv.add(dsav);
+            kv.addText("\n");
       		final DSAParams dsaParams = dsaKey.getParams();
         	final Element p = XMLSecTools.bigIntToElement("P", dsaParams.getP());
         	dsav.add(p); //optional and tied to Q
+            dsav.addText("\n");
         	final Element q = XMLSecTools.bigIntToElement("Q", dsaParams.getQ());
         	dsav.add(q); //optional and tied to P
+            dsav.addText("\n");
         	final Element g = XMLSecTools.bigIntToElement("G", dsaParams.getG());
         	dsav.add(g); //optional
+            dsav.addText("\n");
         	final Element y = XMLSecTools.bigIntToElement("Y", dsaKey.getY());
         	dsav.add(y);
+            dsav.addText("\n");
         	//J = (P-1) / Q
         	//seed and pgenCounter
         }

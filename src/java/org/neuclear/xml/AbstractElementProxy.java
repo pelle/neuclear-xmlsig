@@ -1,6 +1,10 @@
 /*
- * $Id: AbstractElementProxy.java,v 1.4 2003/12/10 23:57:05 pelle Exp $
+ * $Id: AbstractElementProxy.java,v 1.5 2003/12/11 16:16:05 pelle Exp $
  * $Log: AbstractElementProxy.java,v $
+ * Revision 1.5  2003/12/11 16:16:05  pelle
+ * Some changes to make the xml a bit more readable.
+ * Also added some helper methods in AbstractElementProxy to make it easier to build objects.
+ *
  * Revision 1.4  2003/12/10 23:57:05  pelle
  * Did some cleaning up in the builders
  * Fixed some stuff in IdentityCreator
@@ -120,15 +124,61 @@ public abstract class AbstractElementProxy implements ElementProxy {
         return element;
     }
 
-    protected final void addElement(final AbstractElementProxy child) throws XMLException {
+    /**
+     * Adds another AbstractElementProxy as a child element to this Element
+     * @param child
+     */
+    protected final Element addElement(final AbstractElementProxy child)  {
         addElement(child.getElement());
+        return child.getElement();
     }
 
-    protected final void addElement(final Element child) throws XMLException {
+    /**
+     * Adds another Element as a child element to this Element
+     * @param child
+     */
+    protected final Element addElement(final Element child)  {
         element.add(child);
+        addLineBreak();
+        return element;
+    }
+    /**
+     * Adds another Element with the given QName to this Element
+     * @param child
+     */
+    protected final Element addElement(final QName child)  {
+        Element element = DocumentHelper.createElement(child);
+        addElement(element);
+        return element;
+    }
+    /**
+     * Adds another Element with the given name and the same Namespace as this element to this element.
+     * @param child
+     */
+    protected final Element addElement(final String child)  {
+        Element element = DocumentHelper.createElement(createQName(child));
+        addElement(element);
+        return element;
+    }
+
+    /**
+     * Creates a QName in this object namespace
+     * @param child
+     * @return
+     */
+    protected QName createQName(final String child) {
+        return DocumentHelper.createQName(child,this.element.getNamespace());
+    }
+
+    /**
+     * Adds a linebreak to the xml, making it easier to read for humans
+     */
+    protected final void addLineBreak(){
         element.addText("\n");
     }
-
+    protected final void createAttribute(String name,String value){
+        element.addAttribute(createQName(name),value);
+    }
     public final QName getQName() {
         return new QName(getTagName(), getNS());
     }
