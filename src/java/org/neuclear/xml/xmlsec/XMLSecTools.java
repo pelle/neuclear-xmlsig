@@ -1,5 +1,8 @@
-/* $Id: XMLSecTools.java,v 1.2 2003/11/11 21:18:08 pelle Exp $
+/* $Id: XMLSecTools.java,v 1.3 2003/11/15 01:57:42 pelle Exp $
  * $Log: XMLSecTools.java,v $
+ * Revision 1.3  2003/11/15 01:57:42  pelle
+ * More work all around on web applications.
+ *
  * Revision 1.2  2003/11/11 21:18:08  pelle
  * Further vital reshuffling.
  * org.neudist.crypto.* and org.neudist.utils.* have been moved to respective areas under org.neuclear.commons
@@ -125,22 +128,22 @@ package org.neuclear.xml.xmlsec;
 
 /**
  * @author pelleb
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  */
 
 import org.dom4j.*;
 import org.dom4j.io.XMLWriter;
 import org.neuclear.commons.crypto.Base64;
 import org.neuclear.commons.crypto.CryptoException;
+import org.neuclear.xml.XMLException;
 import org.neuclear.xml.c14.Canonicalizer;
 import org.neuclear.xml.c14.CanonicalizerWithoutSignature;
 
 import java.io.IOException;
 import java.io.StringWriter;
-import java.io.ByteArrayOutputStream;
+import java.math.BigInteger;
 import java.security.*;
 import java.security.cert.Certificate;
-import java.math.BigInteger;
 import java.util.Iterator;
 import java.util.StringTokenizer;
 
@@ -419,6 +422,18 @@ public class XMLSecTools {
     }
 
     /**
+     * Creates a textual representation of an element and encodes the results as a base64.<p>
+     * This is useful when passing xml as hidden html form fields.
+     * 
+     * @param elem SignedElement to Encode
+     * @return String containing Base64 encoded Element
+     * @throws XMLException 
+     */
+    public static String encodeElementBase64(SignedElement elem) throws XMLException {
+        return Base64.encode(elem.canonicalize());
+    }
+
+    /**
      * Decodes a Base64 encoded xml element.
      * 
      * @param b64 the Encoded string
@@ -441,9 +456,9 @@ public class XMLSecTools {
 
     /**
      * Method decodeBigIntegerFromElement
-     *
-     * @param element
-     * @return
+     * 
+     * @param element 
+     * @return 
      */
     public static BigInteger decodeBigIntegerFromElement(Element element)
             throws CryptoException {
@@ -452,9 +467,9 @@ public class XMLSecTools {
 
     /**
      * Method decodeBigIntegerFromText
-     *
-     * @param text
-     * @return
+     * 
+     * @param text 
+     * @return 
      */
     public static BigInteger decodeBigIntegerFromText(Text text)
             throws CryptoException {
@@ -464,8 +479,8 @@ public class XMLSecTools {
     /**
      * This method takes an (empty) Element and a BigInteger and adds the
      * base64 encoded BigInteger to the Element.
-     *
-     * @param biginteger
+     * 
+     * @param biginteger 
      * @return Text
      */
     public static Text createTextWithBigInteger(
@@ -482,12 +497,12 @@ public class XMLSecTools {
 
     /**
      * Method decodeBase64Element
-     *
+     * <p/>
      * Takes the <CODE>Text</CODE> children of the Element and interprets
      * them as input for the <CODE>Base64.decodeBase64Element()</CODE> function.
-     *
-     * @param element
-     * @return
+     * 
+     * @param element 
+     * @return 
      */
     public static byte[] decodeBase64Element(Element element) throws CryptoException {
 
@@ -497,8 +512,8 @@ public class XMLSecTools {
         while (iter.hasNext()) {
             Node node = (Node) iter.next();
             if (node instanceof Text) {
-                String text=node.getText();
-                StringTokenizer tok=new StringTokenizer(text," \n\r\t",false);
+                String text = node.getText();
+                StringTokenizer tok = new StringTokenizer(text, " \n\r\t", false);
                 while (tok.hasMoreTokens())
                     sb.append(tok.nextToken());
             }
@@ -509,10 +524,10 @@ public class XMLSecTools {
 
     /**
      * Method base64ToElement
-     *
-     * @param localName
-     * @param bytes
-     * @return
+     * 
+     * @param localName 
+     * @param bytes     
+     * @return 
      */
     public static Element base64ToElement(String localName,
                                           byte[] bytes) {
@@ -527,17 +542,17 @@ public class XMLSecTools {
 
     /**
      * Method base64ToElement
-     *
-     * @param localName
-     * @param big
-     * @return
+     * 
+     * @param localName 
+     * @param big       
+     * @return 
      */
     public static Element bigIntToElement(String localName,
                                           BigInteger big) {
 //        System.out.println("JDK toByteArray(): "+encode(big.toByteArray()));
 //        System.out.println("getBytes(): "+encode(getBytes(big)));
 
-        return base64ToElement(localName,Base64.getBytes(big));
+        return base64ToElement(localName, Base64.getBytes(big));
     }
 /*
     public static void main(String args[]){
