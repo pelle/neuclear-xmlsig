@@ -1,6 +1,10 @@
 /*
- * $Id: AbstractElementProxy.java,v 1.8 2003/12/16 15:04:49 pelle Exp $
+ * $Id: AbstractElementProxy.java,v 1.9 2004/02/18 00:13:49 pelle Exp $
  * $Log: AbstractElementProxy.java,v $
+ * Revision 1.9  2004/02/18 00:13:49  pelle
+ * Many, many clean ups. I've readded Targets in a new method.
+ * Gotten rid of NamedObjectBuilder and revamped Identity and Resolvers
+ *
  * Revision 1.8  2003/12/16 15:04:49  pelle
  * Added SignedMessage contract for signing simple textual contracts.
  * Added NeuSender, updated SmtpSender and Sender to take plain email addresses (without the mailto:)
@@ -181,6 +185,16 @@ public abstract class AbstractElementProxy implements ElementProxy {
         Element element = DocumentHelper.createElement(createQName(child));
         addElement(element);
         return element;
+    }
+    /**
+     * Adds another Element with the given name and the same Namespace as this element to this element.
+     *
+     * @param child
+     */
+    protected final Element addElement(final String child,final String text) {
+        Element elem=addElement(child);
+        elem.addText(text);
+        return elem;
     }
 
     /**
