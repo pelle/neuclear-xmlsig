@@ -1,7 +1,6 @@
 package org.neuclear.xml.transforms;
 
 import org.dom4j.Element;
-import org.dom4j.Node;
 import org.neuclear.xml.xmlsec.AbstractXMLSigElement;
 import org.neuclear.xml.xmlsec.XMLSecurityException;
 
@@ -15,7 +14,7 @@ import org.neuclear.xml.xmlsec.XMLSecurityException;
 public abstract class Transform extends AbstractXMLSigElement {
     public Transform(final String algorithm) {
         super(TAG_NAME);
-        getElement().addAttribute("Algorithm",algorithm);
+        createAttribute("Algorithm", algorithm);
     }
 
     public Transform(final Element elem) throws XMLSecurityException {
@@ -25,9 +24,5 @@ public abstract class Transform extends AbstractXMLSigElement {
 //    public abstract Node transformNode(Node in);
     public abstract Object transformNode(Object in);
 
-    public final String getTagName() {
-        return TAG_NAME;
-    }
-
-    private static final String TAG_NAME="Transform";
+    private static final String TAG_NAME = "Transform";
 }

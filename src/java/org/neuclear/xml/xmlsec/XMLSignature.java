@@ -1,5 +1,9 @@
-/* $Id: XMLSignature.java,v 1.4 2003/12/10 23:57:05 pelle Exp $
+/* $Id: XMLSignature.java,v 1.5 2003/12/11 23:56:53 pelle Exp $
  * $Log: XMLSignature.java,v $
+ * Revision 1.5  2003/12/11 23:56:53  pelle
+ * Trying to test the ReceiverServlet with cactus. Still no luck. Need to return a ElementProxy of some sort.
+ * Cleaned up some missing fluff in the ElementProxy interface. getTagName(), getQName() and getNameSpace() have been killed.
+ *
  * Revision 1.4  2003/12/10 23:57:05  pelle
  * Did some cleaning up in the builders
  * Fixed some stuff in IdentityCreator
@@ -135,7 +139,7 @@ package org.neuclear.xml.xmlsec;
 
 /**
  * @author pelleb
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.5 $
  */
 
 import org.dom4j.DocumentHelper;
@@ -224,7 +228,7 @@ public class XMLSignature extends AbstractXMLSigElement {
     public XMLSignature(final Element elem) throws XMLSecurityException {
         super(elem);
         final Element siElem = elem.element(XMLSecTools.createQName("SignedInfo"));
-        if (!elem.getQName().equals(getQName()) || siElem == null)  // Not sure if equals is imeplemented properly for QNames
+        if (!elem.getQName().equals(XMLSecTools.createQName(TAG_NAME)) || siElem == null)  // Not sure if equals is imeplemented properly for QNames
             throw new XMLSecurityException("Element: " + elem.getQualifiedName() + " is not a valid: " + XMLSecTools.NS_DS.getPrefix() + ":" + TAG_NAME);
         si = new SignatureInfo(this, siElem);
 

@@ -1,6 +1,10 @@
 /*
- * $Id: AbstractElementProxy.java,v 1.6 2003/12/11 16:29:19 pelle Exp $
+ * $Id: AbstractElementProxy.java,v 1.7 2003/12/11 23:56:53 pelle Exp $
  * $Log: AbstractElementProxy.java,v $
+ * Revision 1.7  2003/12/11 23:56:53  pelle
+ * Trying to test the ReceiverServlet with cactus. Still no luck. Need to return a ElementProxy of some sort.
+ * Cleaned up some missing fluff in the ElementProxy interface. getTagName(), getQName() and getNameSpace() have been killed.
+ *
  * Revision 1.6  2003/12/11 16:29:19  pelle
  * Updated various builders to use the new helper methods in AbstractElementProxy hopefully making them more readable.
  *
@@ -129,36 +133,42 @@ public abstract class AbstractElementProxy implements ElementProxy {
 
     /**
      * Adds another AbstractElementProxy as a child element to this Element
-     * @param child
+     * 
+     * @param child 
      */
-    protected final Element addElement(final AbstractElementProxy child)  {
+    protected final Element addElement(final AbstractElementProxy child) {
         addElement(child.getElement());
         return child.getElement();
     }
 
     /**
      * Adds another Element as a child element to this Element
-     * @param child
+     * 
+     * @param child 
      */
-    protected final Element addElement(final Element child)  {
+    protected final Element addElement(final Element child) {
         element.add(child);
         addLineBreak();
         return element;
     }
+
     /**
      * Adds another Element with the given QName to this Element
-     * @param child
+     * 
+     * @param child 
      */
-    protected final Element addElement(final QName child)  {
+    protected final Element addElement(final QName child) {
         Element element = DocumentHelper.createElement(child);
         addElement(element);
         return element;
     }
+
     /**
      * Adds another Element with the given name and the same Namespace as this element to this element.
-     * @param child
+     * 
+     * @param child 
      */
-    protected final Element addElement(final String child)  {
+    protected final Element addElement(final String child) {
         Element element = DocumentHelper.createElement(createQName(child));
         addElement(element);
         return element;
@@ -166,31 +176,36 @@ public abstract class AbstractElementProxy implements ElementProxy {
 
     /**
      * Creates a QName in this object namespace
-     * @param child
-     * @return
+     * 
+     * @param child 
+     * @return 
      */
-    protected QName createQName(final String child) {
-        return DocumentHelper.createQName(child,this.element.getNamespace());
+    protected final QName createQName(final String child) {
+        return DocumentHelper.createQName(child, this.element.getNamespace());
     }
 
     /**
      * Adds a linebreak to the xml, making it easier to read for humans
      */
-    protected final void addLineBreak(){
+    protected final void addLineBreak() {
         element.addText("\n");
     }
+
     /**
      * Adds an attribute with the same namespace as the elment
-     * @param name
-     * @param value
+     * 
+     * @param name  
+     * @param value 
      */
-    protected final void createAttribute(String name,String value){
-        element.addAttribute(createQName(name),value);
+    protected final void createAttribute(String name, String value) {
+        element.addAttribute(createQName(name), value);
     }
 
+/*
     public final QName getQName() {
-        return new QName(getTagName(), getNS());
+        return element.getQName();
     }
+*/
 
     public final String asXML() throws XMLException {
         return XMLTools.asXML(element);
@@ -199,10 +214,16 @@ public abstract class AbstractElementProxy implements ElementProxy {
     public byte[] canonicalize() throws XMLException {
         return XMLSecTools.canonicalize(this);
     }
+/*
 
-    public abstract String getTagName();
+    public final String getTagName() {
+        return element.getName();
+    }
 
-    public abstract Namespace getNS();
+    public final Namespace getNS() {
+        return element.getNamespace();
+    }
+*/
 
     static final Namespace XMLNS = DocumentHelper.createNamespace("xmlns", "http://www.w3.org/XML/1998/namespace");
 
