@@ -1,5 +1,8 @@
-/* $Id: XMLSignature.java,v 1.16 2004/03/19 22:21:51 pelle Exp $
+/* $Id: XMLSignature.java,v 1.17 2004/03/19 23:38:25 pelle Exp $
  * $Log: XMLSignature.java,v $
+ * Revision 1.17  2004/03/19 23:38:25  pelle
+ * I now know the problem is in the Reference element
+ *
  * Revision 1.16  2004/03/19 22:21:51  pelle
  * Changes in the XMLSignature class, which is now Abstract there are currently 3 implementations for:
  * - Enveloped
@@ -197,7 +200,7 @@ package org.neuclear.xml.xmlsec;
 
 /**
  * @author pelleb
- * @version $Revision: 1.16 $
+ * @version $Revision: 1.17 $
  */
 
 import org.dom4j.Element;
@@ -272,9 +275,9 @@ abstract public class XMLSignature extends AbstractXMLSigElement {
 
         final byte[] sig = getSignature();
         final byte[] cansi = si.canonicalize();
-//        System.out.println("Verifying Canonicalized: ");
-//        System.out.println(new String(cansi));
-//        System.out.println("------");
+        System.out.println("Verifying Canonicalized: ");
+        System.out.println(new String(cansi));
+        System.out.println("------");
 
         try {
             if (!CryptoTools.verify(key.getPublicKey(), cansi, sig))
