@@ -1,5 +1,8 @@
-/* $Id: SignedElement.java,v 1.14 2004/04/17 19:21:27 pelle Exp $
+/* $Id: SignedElement.java,v 1.15 2004/04/26 23:57:48 pelle Exp $
  * $Log: SignedElement.java,v $
+ * Revision 1.15  2004/04/26 23:57:48  pelle
+ * Trying to find the verifying error
+ *
  * Revision 1.14  2004/04/17 19:21:27  pelle
  * HTMLSignature can now process an Dom4j document as well.
  * SignedElement is now ensured that it has a Document
@@ -158,7 +161,7 @@ package org.neuclear.xml.xmlsec;
 
 /**
  * @author pelleb
- * @version $Revision: 1.14 $
+ * @version $Revision: 1.15 $
  */
 
 import org.dom4j.DocumentHelper;
@@ -226,15 +229,6 @@ public abstract class SignedElement extends AbstractElementProxy {
     }
 
     /**
-     * This is called after signing to handle any post signing tasks such as logging
-     * 
-     * @throws XMLSecurityException 
-     */
-    protected final void postSign() throws XMLSecurityException {
-        ;
-    }
-
-    /**
      * Checks if a SignedNamedObject contains a signature.<br>
      * IMPORTANT: True only indicates that it contains a signature, not that it is valid.
      */
@@ -269,7 +263,6 @@ public abstract class SignedElement extends AbstractElementProxy {
             sig = new HTMLSignature(name, signer, getElement().getDocument());
         } else
             sig = new EnvelopedSignature(name, signer, getElement());
-        postSign();
     }
 
     public final void sign(final BrowsableSigner signer) throws XMLSecurityException, UserCancellationException {
@@ -278,7 +271,6 @@ public abstract class SignedElement extends AbstractElementProxy {
             sig = new HTMLSignature(signer, getElement().getDocument());
         else
             sig = new EnvelopedSignature(signer, getElement());
-        postSign();
     }
 
 }

@@ -22,6 +22,8 @@ package org.neuclear.xml.xmlsec;
 
 import junit.framework.TestCase;
 import org.dom4j.Document;
+import org.dom4j.DocumentHelper;
+import org.dom4j.Element;
 import org.neuclear.commons.crypto.passphraseagents.UserCancellationException;
 import org.neuclear.commons.crypto.signers.NonExistingSignerException;
 import org.neuclear.commons.crypto.signers.Signer;
@@ -55,6 +57,24 @@ public class HTMLSignatureTest extends TestCase {
 
         Document doc = XMLTools.loadDocument(file);
         assertValidEnvelopedSignature(doc);
+
+    }
+
+    public void testCreateHTMLDocument() throws FileNotFoundException, XMLException, NonExistingSignerException, UserCancellationException {
+        final org.dom4j.Element html = DocumentHelper.createElement("html");
+        Document doc = DocumentHelper.createDocument(html);
+        Element head = html.addElement("head");
+        Element body = html.addElement("body");
+
+
+        XMLSignature sig = new HTMLSignature("bob", signer, doc);
+        assertNotNull(sig);
+        final File file = new File("target/testdata/html/bob.html");
+        file.getParentFile().mkdirs();
+        XMLTools.writeFile(file, sig.getPrimaryReferenceElement());
+
+        Document doc2 = XMLTools.loadDocument(file);
+        assertValidEnvelopedSignature(doc2);
 
     }
 

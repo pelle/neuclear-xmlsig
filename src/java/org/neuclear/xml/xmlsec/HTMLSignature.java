@@ -31,7 +31,6 @@ import org.neuclear.commons.crypto.signers.Signer;
 import org.w3c.tidy.Tidy;
 
 import java.io.InputStream;
-import java.security.KeyPair;
 import java.util.List;
 
 /**
@@ -74,21 +73,22 @@ public class HTMLSignature extends XMLSignature {
         html.add(getElement());
         sign(name, signer);
         sigval.addAttribute("style", SIGSTYLE);
-//        sigval.addAttribute("id", "dssigvalue");
         final Element ki = getElement().element("KeyInfo");
         if (ki != null) ki.addAttribute("style", KEYSTYLE);
-//        if (ki != null) ki.addAttribute("id", "dskeyinfo");
     }
 
-    private void createHTMLBadge(Element elem) {
-        Element head = elem.element("head");
-        Element body = elem.element("body");
-//        body.addElement("hr");
-        Element title = body.addElement("p");
-        title.addAttribute("id", "dsigtitle");
-        title.addAttribute("style", TITLESTYLE);
-        title.setText("This page has been digitally signed.");
-        body.addText("\n");
+
+    public HTMLSignature(BrowsableSigner signer, Document doc) throws XMLSecurityException, UserCancellationException {
+        super(new SignedInfo(SignedInfo.SIG_ALG_RSA, 1));
+        Element html = doc.getRootElement();
+        createHTMLBadge(html);
+        si.getElement().addAttribute("style", DIGESTSTYLE);
+        si.setEnvelopedReference(html);
+        html.add(getElement());
+        sign(signer);
+        sigval.addAttribute("style", SIGSTYLE);
+        final Element ki = getElement().element("KeyInfo");
+        if (ki != null) ki.addAttribute("style", KEYSTYLE);
     }
 
     /**
@@ -106,35 +106,16 @@ public class HTMLSignature extends XMLSignature {
         this(signer, parseHTML(is));
     }
 
-    public HTMLSignature(BrowsableSigner signer, Document doc) throws XMLSecurityException, UserCancellationException {
-        super(new SignedInfo(SignedInfo.SIG_ALG_RSA, 1));
-        Element html = doc.getRootElement();
-        createHTMLBadge(html);
-        si.getElement().addAttribute("style", DIGESTSTYLE);
-        si.setEnvelopedReference(html);
-        html.add(getElement());
-        sign(signer);
-        sigval.addAttribute("style", SIGSTYLE);
-//        sigval.addAttribute("id", "dssigvalue");
-        final Element ki = getElement().element("KeyInfo");
-        if (ki != null) ki.addAttribute("style", KEYSTYLE);
-//        if (ki != null) ki.addAttribute("id", "dskeyinfo");
-    }
 
-
-    /**
-     * Creates a standard Enveloped Signature within the given Element.
-     * Uses the provided KeyPair to sign it.
-     *
-     * @param kp
-     * @param elem
-     * @throws XMLSecurityException
-     */
-    public HTMLSignature(KeyPair kp, Element elem) throws XMLSecurityException {
-        super(kp.getPublic());
-        si.setEnvelopedReference(elem);
-        elem.add(getElement());
-        sign(kp);
+    private void createHTMLBadge(Element elem) {
+        Element head = elem.element("head");
+        Element body = elem.element("body");
+//        body.addElement("hr");
+        Element title = body.addElement("p");
+        title.addAttribute("id", "dsigtitle");
+        title.addAttribute("style", TITLESTYLE);
+        title.setText("This page has been digitally signed.");
+        body.addText("\n");
     }
 
     protected void verifyReferencesStructure() throws InvalidReferencesException {

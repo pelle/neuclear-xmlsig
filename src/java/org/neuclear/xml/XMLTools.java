@@ -1,6 +1,9 @@
 /*
- * $Id: XMLTools.java,v 1.7 2004/04/18 01:03:48 pelle Exp $
+ * $Id: XMLTools.java,v 1.8 2004/04/26 23:57:48 pelle Exp $
  * $Log: XMLTools.java,v $
+ * Revision 1.8  2004/04/26 23:57:48  pelle
+ * Trying to find the verifying error
+ *
  * Revision 1.7  2004/04/18 01:03:48  pelle
  * Added another varient of the id attribute to the getElementById method.
  *
@@ -144,12 +147,13 @@ package org.neuclear.xml;
 
 /**
  * @author pelleb
- * @version $Revision: 1.7 $
+ * @version $Revision: 1.8 $
  */
 
 import org.dom4j.*;
 import org.dom4j.dom.DOMDocument;
 import org.dom4j.io.*;
+import org.neuclear.xml.c14.Canonicalizer;
 
 import java.io.*;
 import java.net.MalformedURLException;
@@ -238,9 +242,13 @@ public final class XMLTools {
     public static void writeFile(final OutputStream out, final Element doc) throws XMLException {
 
         try {
-            final XMLWriter writer = new XMLWriter(out, getOutputFormat());
-            writer.write(doc);
-            writer.close();
+            final Canonicalizer canon = new Canonicalizer();
+            byte[] data = canon.canonicalize(doc);
+            out.write(data);
+            out.close();
+//            final XMLWriter writer = new XMLWriter(out, getOutputFormat());
+//            writer.write(doc);
+//            writer.close();
         } catch (IOException e) {
             rethrowException(e);
         }
@@ -260,6 +268,7 @@ public final class XMLTools {
 
     private static OutputFormat getOutputFormat() {
         final OutputFormat format = OutputFormat.createCompactFormat();
+        format.setEncoding("UTF-8");
         format.setExpandEmptyElements(false);
         format.setIndent(false);
         format.setNewlines(false);
