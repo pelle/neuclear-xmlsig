@@ -10,8 +10,11 @@ import org.neuclear.commons.crypto.signers.InvalidPassphraseException;
 import org.neuclear.commons.crypto.signers.TestCaseSigner;
 
 /*
-$Id: InteractiveXMLSignature.java,v 1.2 2004/04/12 15:28:00 pelle Exp $
+$Id: InteractiveXMLSignature.java,v 1.3 2004/04/20 23:32:54 pelle Exp $
 $Log: InteractiveXMLSignature.java,v $
+Revision 1.3  2004/04/20 23:32:54  pelle
+All unit tests (junit and cactus) work. The AssetControllerServlet is operational.
+
 Revision 1.2  2004/04/12 15:28:00  pelle
 Added Hibernate and Prevalent tests for Currency Controllers
 
@@ -47,6 +50,8 @@ public class InteractiveXMLSignature {
 
     }
 
+    private InteractiveXMLSignature() {
+    };
     final static String COMPLEX_XML = "<test xmlns=\"http://talk.org\"><test2></test2></test>";
 
 }
