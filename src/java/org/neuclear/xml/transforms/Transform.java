@@ -13,21 +13,21 @@ import org.neuclear.xml.xmlsec.XMLSecurityException;
  * To change this template use Options | File Templates.
  */
 public abstract class Transform extends AbstractXMLSigElement {
-    public Transform(String algorithm) {
+    public Transform(final String algorithm) {
         super(TAG_NAME);
         getElement().addAttribute("Algorithm",algorithm);
     }
 
-    public Transform(Element elem) throws XMLSecurityException {
+    public Transform(final Element elem) throws XMLSecurityException {
         super(elem);
     }
 
 //    public abstract Node transformNode(Node in);
     public abstract Object transformNode(Object in);
 
-    public String getTagName() {
+    public final String getTagName() {
         return TAG_NAME;
     }
 
-    private static String TAG_NAME="Transform";
+    private static final String TAG_NAME="Transform";
 }

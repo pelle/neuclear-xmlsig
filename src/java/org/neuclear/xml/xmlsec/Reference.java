@@ -1,5 +1,11 @@
-/* $Id: Reference.java,v 1.2 2003/11/19 23:33:17 pelle Exp $
+/* $Id: Reference.java,v 1.3 2003/11/21 04:44:31 pelle Exp $
  * $Log: Reference.java,v $
+ * Revision 1.3  2003/11/21 04:44:31  pelle
+ * EncryptedFileStore now works. It uses the PBECipher with DES3 afair.
+ * Otherwise You will Finaliate.
+ * Anything that can be final has been made final throughout everyting. We've used IDEA's Inspector tool to find all instance of variables that could be final.
+ * This should hopefully make everything more stable (and secure).
+ *
  * Revision 1.2  2003/11/19 23:33:17  pelle
  * Signers now can generatekeys via the generateKey() method.
  * Refactored the relationship between SignedNamedObject and NamedObjectBuilder a bit.
@@ -97,7 +103,7 @@ package org.neuclear.xml.xmlsec;
 
 /**
  * @author pelleb
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  */
 
 import org.dom4j.Element;
@@ -117,12 +123,12 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-public class Reference extends AbstractXMLSigElement {
+public final class Reference extends AbstractXMLSigElement {
 
     /**
      * Currently only RSA
      */
-    public Reference(Element root, String uri, SignatureInfo si, int sigtype) throws XMLException {
+    public Reference(Element root, final String uri, final SignatureInfo si, final int sigtype) throws XMLException {
         super(Reference.TAG_NAME);
         this.root = root;
         this.si = si;
@@ -139,13 +145,13 @@ public class Reference extends AbstractXMLSigElement {
         }
         addTransform("http://www.w3.org/TR/2001/REC-xml-c14n-20010315");
 
-        Element digMethod = XMLSecTools.createElementInSignatureSpace("DigestMethod");
+        final Element digMethod = XMLSecTools.createElementInSignatureSpace("DigestMethod");
         digMethod.addAttribute("Algorithm", "http://www.w3.org/2000/09/xmldsig#sha1");
         addElement(digMethod);
         setDigest();
     }
 
-    public Reference(Element elem, SignatureInfo si) throws XMLSecurityException {
+    public Reference(final Element elem, final SignatureInfo si) throws XMLSecurityException {
         super(elem);
         if (!elem.getQName().getName().equals(TAG_NAME))
             throw new XMLSecurityException("Element: " + elem.getQualifiedName() + " is not a valid: " + XMLSecTools.NS_DS.getPrefix() + ":" + TAG_NAME);
@@ -156,12 +162,12 @@ public class Reference extends AbstractXMLSigElement {
     }
 
     private void findRefElement() throws XMLSecurityException {
-        Element sigElement = si.getSig().getElement();
-        Element objectElem = sigElement.element(XMLSecTools.createQName("Object"));
+        final Element sigElement = si.getSig().getElement();
+        final Element objectElem = sigElement.element(XMLSecTools.createQName("Object"));
 
         if (objectElem != null) {  // Enveloping
             xmlsigType = XMLSIGTYPE_ENVELOPING;
-            List contents = objectElem.content();
+            final List contents = objectElem.content();
             if (contents.size() == 1)
                 root = contents.get(0);
             else
@@ -176,7 +182,7 @@ public class Reference extends AbstractXMLSigElement {
         }
     }
 
-    private void loadReference(String refuri) throws XMLSecurityException {
+    private void loadReference(final String refuri) throws XMLSecurityException {
         if (Utility.isEmpty(refuri))
             throw new XMLSecurityException("XMLSignature is not linked to Document");
         try {
@@ -186,7 +192,7 @@ public class Reference extends AbstractXMLSigElement {
         }
     }
 
-    private void addTransform(String algorithm) throws XMLException {
+    private void addTransform(final String algorithm) throws XMLException {
         if (transforms == null) {
             transforms = new LinkedList();
 //        if (transformsElement==null)
@@ -210,16 +216,16 @@ public class Reference extends AbstractXMLSigElement {
      * @return 
      * @throws XMLSecurityException 
      */
-    public byte[] getDigest() throws XMLSecurityException, CryptoException {
-        Element sv = (Element) getElement().element(XMLSecTools.createQName("DigestValue"));
+    public final byte[] getDigest() throws XMLSecurityException, CryptoException {
+        final Element sv = (Element) getElement().element(XMLSecTools.createQName("DigestValue"));
         if (sv != null)
             return XMLSecTools.decodeBase64Element(sv);
         return null;
     }
 
-    void setDigest() throws XMLSecurityException {
-        Element sv = (Element) getElement().element(XMLSecTools.createQName("DigestValue"));
-        byte dig[] = generateRefenceDigest();
+    final void setDigest() throws XMLSecurityException {
+        final Element sv = (Element) getElement().element(XMLSecTools.createQName("DigestValue"));
+        final byte[] dig = generateRefenceDigest();
         if (sv == null)
             getElement().add(XMLSecTools.base64ToElement("DigestValue", dig));
         else
@@ -230,9 +236,9 @@ public class Reference extends AbstractXMLSigElement {
     private final Object performTransforms() {
 //        Element subject = root;//(Element) root.clone();
         Object subject = root;
-        Iterator iter = transforms.iterator();
+        final Iterator iter = transforms.iterator();
         while (iter.hasNext() && root != null) {
-            Transform transform = (Transform) iter.next();
+            final Transform transform = (Transform) iter.next();
             subject = transform.transformNode(subject);
         }
         return subject;
@@ -262,18 +268,18 @@ public class Reference extends AbstractXMLSigElement {
         return CryptoTools.equalByteArrays(generateRefenceDigest(), getDigest());
     }
 
-    public String getTagName() {
+    public final String getTagName() {
         return TAG_NAME;
     }
 
-    public int getSigType() {
+    public final int getSigType() {
         return xmlsigType;
     }
 
     private Object root;
     private SignatureInfo si;
 
-    private static String TAG_NAME = "Reference";
+    private static final String TAG_NAME = "Reference";
     private List transforms;
     private Element transformsElement;
     private int xmlsigType = 0;

@@ -19,8 +19,14 @@ import java.security.interfaces.DSAPublicKey;
  * User: pelleb
  * Date: Jan 20, 2003
  * Time: 3:49:27 PM
- * $Id: SimpleXMLSigTest.java,v 1.4 2003/11/20 23:41:58 pelle Exp $
+ * $Id: SimpleXMLSigTest.java,v 1.5 2003/11/21 04:44:31 pelle Exp $
  * $Log: SimpleXMLSigTest.java,v $
+ * Revision 1.5  2003/11/21 04:44:31  pelle
+ * EncryptedFileStore now works. It uses the PBECipher with DES3 afair.
+ * Otherwise You will Finaliate.
+ * Anything that can be final has been made final throughout everyting. We've used IDEA's Inspector tool to find all instance of variables that could be final.
+ * This should hopefully make everything more stable (and secure).
+ *
  * Revision 1.4  2003/11/20 23:41:58  pelle
  * Getting all the tests to work in id
  * Removing usage of BC in CryptoTools as it was causing issues.
@@ -93,74 +99,74 @@ import java.security.interfaces.DSAPublicKey;
  * Revision 1.1  2003/01/21 03:14:12  pelle
  * Mainly clean ups through out and further documentation.
  */
-public class SimpleXMLSigTest extends TestCase {
-    public SimpleXMLSigTest(String s) throws SecurityException, NoSuchAlgorithmException, CryptoException {
+public final class SimpleXMLSigTest extends TestCase {
+    public SimpleXMLSigTest(final String s) throws SecurityException, NoSuchAlgorithmException, CryptoException {
         super(s);
         signer = JunitTools.getTestRSAKey();
         dsaSigner = JunitTools.getTestDSAKey();
         new File("target/testdata/homegrown").mkdirs();
     }
 
-    public void testRSASignXML() throws DocumentException, XMLException, CryptoException {
+    public final void testRSASignXML() throws DocumentException, XMLException, CryptoException {
         Document doc = DocumentHelper.parseText(TESTXML);
-        XMLSignature sig = new XMLSignature(signer, doc.getRootElement(), "http://testsigs");
-        File outputFile = new File("target/testdata/homegrown/signature-enveloped-rsa.xml");
+        final XMLSignature sig = new XMLSignature(signer, doc.getRootElement(), "http://testsigs");
+        final File outputFile = new File("target/testdata/homegrown/signature-enveloped-rsa.xml");
         XMLTools.writeFile(outputFile, doc);
 
         doc = XMLTools.loadDocument(outputFile);
         assertTrue("Test if Signature is valid", XMLSecTools.verifySignature(doc.getRootElement()));
     }
 
-    public void testRSAEnvelopingSignXML() throws DocumentException, XMLException, CryptoException {
+    public final void testRSAEnvelopingSignXML() throws DocumentException, XMLException, CryptoException {
         Document doc = DocumentHelper.parseText(TESTXML);
-        XMLSignature sig = new XMLSignature(signer, doc.getRootElement(), "http://testsigs", Reference.XMLSIGTYPE_ENVELOPING);
-        File outputFile = new File("target/testdata/homegrown/signature-enveloping-rsa.xml");
+        final XMLSignature sig = new XMLSignature(signer, doc.getRootElement(), "http://testsigs", Reference.XMLSIGTYPE_ENVELOPING);
+        final File outputFile = new File("target/testdata/homegrown/signature-enveloping-rsa.xml");
         XMLTools.writeFile(outputFile, sig.getElement());
 
         doc = XMLTools.loadDocument(outputFile);
         assertTrue("Test if Signature is valid", XMLSecTools.verifySignature(doc.getRootElement()));
     }
 
-    public void testDSAEnvelopingSignXML() throws DocumentException, XMLException, CryptoException {
+    public final void testDSAEnvelopingSignXML() throws DocumentException, XMLException, CryptoException {
         Document doc = DocumentHelper.parseText(TESTXML);
-        XMLSignature sig = new XMLSignature(dsaSigner, doc.getRootElement(), "http://testsigs", Reference.XMLSIGTYPE_ENVELOPING);
-        File outputFile = new File("target/testdata/homegrown/signature-enveloping-dsa.xml");
+        final XMLSignature sig = new XMLSignature(dsaSigner, doc.getRootElement(), "http://testsigs", Reference.XMLSIGTYPE_ENVELOPING);
+        final File outputFile = new File("target/testdata/homegrown/signature-enveloping-dsa.xml");
         XMLTools.writeFile(outputFile, sig.getElement());
 
         doc = XMLTools.loadDocument(outputFile);
         assertTrue("Test if Signature is valid", XMLSecTools.verifySignature(doc.getRootElement()));
     }
 
-    public void testDSASignXML()
+    public final void testDSASignXML()
             throws DocumentException, XMLException, CryptoException {
         assertTrue("Test if public key is really DSA", dsaSigner.getPublic() instanceof DSAPublicKey);
         Document doc = DocumentHelper.parseText(TESTXML);
-        XMLSignature sig = new XMLSignature(dsaSigner, doc.getRootElement(), "http://testDSAsigs");
+        final XMLSignature sig = new XMLSignature(dsaSigner, doc.getRootElement(), "http://testDSAsigs");
 
-        File outputFile = new File("target/testdata/homegrown/signature-enveloped-dsa.xml");
+        final File outputFile = new File("target/testdata/homegrown/signature-enveloped-dsa.xml");
         XMLTools.writeFile(outputFile, doc);
 
         doc = XMLTools.loadDocument(outputFile);
         assertTrue("Test if DSA Signature is valid", XMLSecTools.verifySignature(doc.getRootElement()));
     }
 
-    public void testQuickRSASignXML() throws DocumentException, XMLException, CryptoException {
+    public final void testQuickRSASignXML() throws DocumentException, XMLException, CryptoException {
         Document doc = DocumentHelper.parseText(TESTXML);
         XMLSecTools.signElement("http://testsigs", doc.getRootElement(), signer);
-        File outputFile = new File("target/testdata/homegrown/signature-enveloped-rsa-quick.xml");
+        final File outputFile = new File("target/testdata/homegrown/signature-enveloped-rsa-quick.xml");
         XMLTools.writeFile(outputFile, doc);
 
         doc = XMLTools.loadDocument(outputFile);
         assertTrue("Test if RSA Signature is valid", XMLSecTools.verifySignature(doc.getRootElement()));
     }
 
-    public void testQuickDSASignXML()
+    public final void testQuickDSASignXML()
             throws DocumentException, XMLException, CryptoException {
         assertTrue("Test if public key is really DSA", dsaSigner.getPublic() instanceof DSAPublicKey);
         Document doc = DocumentHelper.parseText(TESTXML);
         XMLSecTools.signElement("http://testDSAsigs", doc.getRootElement(), dsaSigner);
 
-        File outputFile = new File("target/testdata/homegrown/signature-enveloped-dsa-quick.xml");
+        final File outputFile = new File("target/testdata/homegrown/signature-enveloped-dsa-quick.xml");
         XMLTools.writeFile(outputFile, doc);
 
         doc = XMLTools.loadDocument(outputFile);
@@ -168,8 +174,8 @@ public class SimpleXMLSigTest extends TestCase {
     }
 
 
-    public void testBadSignXML() throws DocumentException, XMLException, CryptoException {
-        Document doc = DocumentHelper.parseText(TESTXML);
+    public final void testBadSignXML() throws DocumentException, XMLException, CryptoException {
+        final Document doc = DocumentHelper.parseText(TESTXML);
 
         XMLSecTools.signElement("http://testsigs", doc.getRootElement(), signer);
         assertTrue("Test if Signature is valid", XMLSecTools.verifySignature(doc.getRootElement(), signer.getPublic()));
@@ -178,9 +184,9 @@ public class SimpleXMLSigTest extends TestCase {
 
     }
 
-    public void testBadDSASignXML()
+    public final void testBadDSASignXML()
             throws DocumentException, XMLException, CryptoException {
-        Document doc = DocumentHelper.parseText(TESTXML);
+        final Document doc = DocumentHelper.parseText(TESTXML);
 
         XMLSecTools.signElement("http://testDSAsigs", doc.getRootElement(), dsaSigner);
         assertTrue("Test if DSA Signature is valid", XMLSecTools.verifySignature(doc.getRootElement(), dsaSigner.getPublic()));
@@ -188,7 +194,8 @@ public class SimpleXMLSigTest extends TestCase {
         assertTrue("Test that DSA Signature is invalid", !XMLSecTools.verifySignature(doc.getRootElement(), signer.getPublic()));
     }
 
-    KeyPair signer, dsaSigner;
+    final KeyPair signer;
+    final KeyPair dsaSigner;
     final static String TESTXML = "<test><test2></test2></test>";
 
 }

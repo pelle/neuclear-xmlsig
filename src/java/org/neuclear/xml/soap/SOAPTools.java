@@ -1,5 +1,11 @@
-/* $Id: SOAPTools.java,v 1.2 2003/11/19 23:33:16 pelle Exp $
+/* $Id: SOAPTools.java,v 1.3 2003/11/21 04:44:30 pelle Exp $
  * $Log: SOAPTools.java,v $
+ * Revision 1.3  2003/11/21 04:44:30  pelle
+ * EncryptedFileStore now works. It uses the PBECipher with DES3 afair.
+ * Otherwise You will Finaliate.
+ * Anything that can be final has been made final throughout everyting. We've used IDEA's Inspector tool to find all instance of variables that could be final.
+ * This should hopefully make everything more stable (and secure).
+ *
  * Revision 1.2  2003/11/19 23:33:16  pelle
  * Signers now can generatekeys via the generateKey() method.
  * Refactored the relationship between SignedNamedObject and NamedObjectBuilder a bit.
@@ -95,7 +101,7 @@ package org.neuclear.xml.soap;
 
 /**
  * @author pelleb
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  */
 
 import org.dom4j.Document;
@@ -110,10 +116,10 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 
-public class SOAPTools {
+public final class SOAPTools {
 
 
-    public static Element soapRequestElement(String endpoint, Element request, String soapAction) throws NeuClearException {
+    public static Element soapRequestElement(final String endpoint, final Element request, final String soapAction) throws NeuClearException {
         try {
             return soapRequestElement(new URL(endpoint), request, soapAction);
         } catch (MalformedURLException e) {
@@ -121,7 +127,7 @@ public class SOAPTools {
         }
     }
 
-    public static InputStream soapRequest(String endpoint, String request, String soapAction) throws NeuClearException {
+    public static InputStream soapRequest(final String endpoint, final String request, final String soapAction) throws NeuClearException {
         try {
             return soapRequest(new URL(endpoint), request, soapAction);
         } catch (MalformedURLException e) {
@@ -129,7 +135,7 @@ public class SOAPTools {
         }
     }
 
-    public static Element soapRequestElement(URL endpoint, Element request, String soapAction) throws NeuClearException {
+    public static Element soapRequestElement(final URL endpoint, final Element request, final String soapAction) throws NeuClearException {
         try {
             return soapRequestElement(endpoint.openConnection(), request, soapAction);
         } catch (IOException e) {
@@ -138,7 +144,7 @@ public class SOAPTools {
 
     }
 
-    public static InputStream soapRequest(URL endpoint, String request, String soapAction) throws NeuClearException {
+    public static InputStream soapRequest(final URL endpoint, final String request, final String soapAction) throws NeuClearException {
         try {
             return soapRequest(endpoint.openConnection(), request, soapAction);
         } catch (IOException e) {
@@ -146,11 +152,11 @@ public class SOAPTools {
         }
     }
 
-    public static InputStream soapRequest(URLConnection conn, Element request, String soapAction) throws NeuClearException {
+    public static InputStream soapRequest(final URLConnection conn, final Element request, final String soapAction) throws NeuClearException {
         return soapRequest(conn, request.asXML(), soapAction);
     }
 
-    public static InputStream soapRequest(URLConnection conn, String request, String soapAction) throws NeuClearException {
+    public static InputStream soapRequest(final URLConnection conn, final String request, final String soapAction) throws NeuClearException {
         try {
             //Set Headers
             conn.setDoOutput(true);
@@ -160,7 +166,7 @@ public class SOAPTools {
                 ((HttpURLConnection) conn).setRequestProperty("Content-type", "text/xml");
                 ((HttpURLConnection) conn).setRequestProperty("SOAPAction", soapAction);
             }
-            OutputStream out = conn.getOutputStream();
+            final OutputStream out = conn.getOutputStream();
             out.write(SOAP_START);
             out.write(request.getBytes());
             out.write(SOAP_END);
@@ -171,18 +177,18 @@ public class SOAPTools {
         }
     }
 
-    public static Element soapRequestElement(URLConnection conn, Element request, String soapAction) throws NeuClearException, IOException {
+    public static Element soapRequestElement(final URLConnection conn, final Element request, final String soapAction) throws NeuClearException, IOException {
         try {
-            BufferedReader in = new BufferedReader(
+            final BufferedReader in = new BufferedReader(
                     new InputStreamReader(
                             soapRequest(conn, request, soapAction)
                     ));
-            SAXReader reader = new SAXReader();
-            Document document = reader.read(in);
+            final SAXReader reader = new SAXReader();
+            final Document document = reader.read(in);
             in.close();
-            Element envelope = document.getRootElement();
+            final Element envelope = document.getRootElement();
             if (envelope.getName().equals("Envelope")) {
-                Element body = (Element) envelope.elements().get(0);
+                final Element body = (Element) envelope.elements().get(0);
                 if (body != null) {
                     return (Element) body.elements().get(0);
                 }

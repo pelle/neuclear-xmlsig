@@ -11,10 +11,17 @@ import org.dom4j.Node;
  * User: pelleb
  * Date: Jan 21, 2003
  * Time: 2:56:19 PM
- * $Id: AbstractTransformTest.java,v 1.1 2003/11/11 16:33:31 pelle Exp $
+ * $Id: AbstractTransformTest.java,v 1.2 2003/11/21 04:44:31 pelle Exp $
  * $Log: AbstractTransformTest.java,v $
- * Revision 1.1  2003/11/11 16:33:31  pelle
- * Initial revision
+ * Revision 1.2  2003/11/21 04:44:31  pelle
+ * EncryptedFileStore now works. It uses the PBECipher with DES3 afair.
+ * Otherwise You will Finaliate.
+ * Anything that can be final has been made final throughout everyting. We've used IDEA's Inspector tool to find all instance of variables that could be final.
+ * This should hopefully make everything more stable (and secure).
+ *
+ * Revision 1.1.1.1  2003/11/11 16:33:31  pelle
+ * Moved over from neudist.org
+ * Moved remaining common utilities into commons
  *
  * Revision 1.3  2003/02/22 16:54:30  pelle
  * Major structural changes in the whole processing framework.
@@ -35,7 +42,7 @@ import org.dom4j.Node;
  *
  */
 public abstract class AbstractTransformTest extends TestCase {
-    public AbstractTransformTest(String s) {
+    public AbstractTransformTest(final String s) {
         super(s);
         tr=createTransform();
     }
@@ -51,9 +58,9 @@ public abstract class AbstractTransformTest extends TestCase {
         return DocumentHelper.parseText("<test><test2>hello</test2></test>").getRootElement();
     }
 
-    public void testTransformElement() throws DocumentException {
-        Object result=tr.transformNode(getTestElement());
-        Node expected=getExpectedResult();
+    public final void testTransformElement() throws DocumentException {
+        final Object result=tr.transformNode(getTestElement());
+        final Node expected=getExpectedResult();
        if(expected==null)
           assertNull("The Transform did not return null as expected",result);
        else {
@@ -62,5 +69,5 @@ public abstract class AbstractTransformTest extends TestCase {
        }
     }
 
-    protected Transform tr;
+    protected final Transform tr;
 }

@@ -1,7 +1,14 @@
-/* $Id: SOAPServlet.java,v 1.1 2003/11/11 16:33:22 pelle Exp $
+/* $Id: SOAPServlet.java,v 1.2 2003/11/21 04:44:30 pelle Exp $
  * $Log: SOAPServlet.java,v $
- * Revision 1.1  2003/11/11 16:33:22  pelle
- * Initial revision
+ * Revision 1.2  2003/11/21 04:44:30  pelle
+ * EncryptedFileStore now works. It uses the PBECipher with DES3 afair.
+ * Otherwise You will Finaliate.
+ * Anything that can be final has been made final throughout everyting. We've used IDEA's Inspector tool to find all instance of variables that could be final.
+ * This should hopefully make everything more stable (and secure).
+ *
+ * Revision 1.1.1.1  2003/11/11 16:33:22  pelle
+ * Moved over from neudist.org
+ * Moved remaining common utilities into commons
  *
  * Revision 1.3  2003/11/09 03:27:09  pelle
  * More house keeping and shuffling about mainly pay
@@ -60,7 +67,7 @@ package org.neuclear.xml.soap;
 
 /**
  * @author pelleb
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 
 import org.dom4j.Document;
@@ -81,15 +88,15 @@ public abstract class SOAPServlet extends XMLInputStreamServlet {
 
     protected abstract Element handleSOAPRequest(Element request, String soapAction) throws SOAPException;
 
-    protected void handleInputStream(InputStream is, HttpServletRequest request, HttpServletResponse response) throws IOException {
+    protected final void handleInputStream(final InputStream is, final HttpServletRequest request, final HttpServletResponse response) throws IOException {
         try {
-            SAXReader reader = new SAXReader();
-            Document doc = reader.read(is);
+            final SAXReader reader = new SAXReader();
+            final Document doc = reader.read(is);
             System.out.println("RECEIVED:" + doc.asXML());
             System.out.println("NEUDIST: SOAP Post Request to " + this.getClass().getName());
-            Element bodyElement = doc.getRootElement().element(DocumentHelper.createQName("Body", DocumentHelper.createNamespace("SOAP-ENV", "http://schemas.xmlsoap.org/soap/envelope/")));
+            final Element bodyElement = doc.getRootElement().element(DocumentHelper.createQName("Body", DocumentHelper.createNamespace("SOAP-ENV", "http://schemas.xmlsoap.org/soap/envelope/")));
             //TODO: Check for null
-            Element requestElement = (Element) bodyElement.elements().get(0);
+            final Element requestElement = (Element) bodyElement.elements().get(0);
             if (requestElement == null) {
                 System.out.println("NEUDIST: SOAP Request was invalid");
                 System.out.println(doc.asXML());
@@ -107,10 +114,10 @@ public abstract class SOAPServlet extends XMLInputStreamServlet {
             if (respElement.getDocument() == null)
                 DocumentHelper.createDocument(respElement);
             response.setContentType("text/xml");
-            OutputStream out = response.getOutputStream();
+            final OutputStream out = response.getOutputStream();
 
 
-            XMLWriter writer = new XMLWriter(out, OutputFormat.createCompactFormat());
+            final XMLWriter writer = new XMLWriter(out, OutputFormat.createCompactFormat());
             writer.write(respElement);
             out.close();
         } catch (DocumentException e) {

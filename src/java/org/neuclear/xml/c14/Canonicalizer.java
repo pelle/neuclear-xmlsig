@@ -5,8 +5,14 @@ package org.neuclear.xml.c14;
  * User: pelleb
  * Date: Feb 3, 2003
  * Time: 5:56:42 AM
- * $Id: Canonicalizer.java,v 1.2 2003/11/11 21:18:07 pelle Exp $
+ * $Id: Canonicalizer.java,v 1.3 2003/11/21 04:44:30 pelle Exp $
  * $Log: Canonicalizer.java,v $
+ * Revision 1.3  2003/11/21 04:44:30  pelle
+ * EncryptedFileStore now works. It uses the PBECipher with DES3 afair.
+ * Otherwise You will Finaliate.
+ * Anything that can be final has been made final throughout everyting. We've used IDEA's Inspector tool to find all instance of variables that could be final.
+ * This should hopefully make everything more stable (and secure).
+ *
  * Revision 1.2  2003/11/11 21:18:07  pelle
  * Further vital reshuffling.
  * org.neudist.crypto.* and org.neudist.utils.* have been moved to respective areas under org.neuclear.commons
@@ -121,7 +127,7 @@ public class Canonicalizer extends XPathTransform {
         this(XPATH_WO_COMMENTS);
     }
 
-    protected Canonicalizer( String xpath) {
+    protected Canonicalizer( final String xpath) {
         super(xpath);
 
     }
@@ -146,7 +152,7 @@ public class Canonicalizer extends XPathTransform {
      * @param node 
      * @throws IOException 
      */
-    public byte [] canonicalize(Object node) throws IOException {
+    public final byte [] canonicalize(final Object node) throws IOException {
         init();
         write(node);
         return getBytes();
@@ -160,13 +166,13 @@ public class Canonicalizer extends XPathTransform {
      * @param xpath subset expression
      * @throws IOException 
      */
-    public byte[] canonicalizeSubset(Node node, String xpath) throws IOException {
+    public final byte[] canonicalizeSubset(final Node node, final String xpath) throws IOException {
         init();
-        XPath xpathSelector = DocumentHelper.createXPath(xpath);
-        Map nsmap = new HashMap();
+        final XPath xpathSelector = DocumentHelper.createXPath(xpath);
+        final Map nsmap = new HashMap();
         nsmap.put("ietf", "http://www.ietf.org");
         xpathSelector.setNamespaceURIs(nsmap);
-        List nl = xpathSelector.selectNodes(node);
+        final List nl = xpathSelector.selectNodes(node);
         write(nl);
         return getBytes();
     }
@@ -177,15 +183,15 @@ public class Canonicalizer extends XPathTransform {
         return bos.toByteArray();
     }
 
-    private void write(Object obj) throws IOException {
+    private void write(final Object obj) throws IOException {
         if (obj instanceof Node)
             writeNode((Node) obj);
         else if (obj instanceof ElementProxy) {
             writeNode(((ElementProxy) obj).getElement());
         } else if (obj instanceof List) {
-            Iterator iter = ((List) obj).iterator();
+            final Iterator iter = ((List) obj).iterator();
             while (iter.hasNext()) {
-                Node node = (Node) iter.next();
+                final Node node = (Node) iter.next();
                 write(node);
             }
         } else {
@@ -193,11 +199,11 @@ public class Canonicalizer extends XPathTransform {
         }
     }
 
-    private void writeNode(Node node) throws IOException {
+    private void writeNode(final Node node) throws IOException {
         if (!matches(node))
             return;
 
-        int nodeType = node.getNodeType();
+        final int nodeType = node.getNodeType();
 
         switch (nodeType) {
             case Node.ELEMENT_NODE:
@@ -237,30 +243,30 @@ public class Canonicalizer extends XPathTransform {
         notfirst = true;
     }
 
-    private void outputLF(Node node) throws IOException {
+    private void outputLF(final Node node) throws IOException {
         if (node.getParent() == null && notfirst) {
             writer.write(LF);
         }
     }
 
-    private void writeDocType(DocumentType documentType) {
+    private void writeDocType(final DocumentType documentType) {
     }
 
-    private void writeDocument(Document document) throws IOException {
+    private void writeDocument(final Document document) throws IOException {
         for (int i = 0, size = document.nodeCount(); i < size; i++) {
-            Node node = document.node(i);
+            final Node node = document.node(i);
             write(node);
         }
     }
 
-    private void writeComment(Comment comment) throws IOException {
+    private void writeComment(final Comment comment) throws IOException {
         outputLF(comment);
         writer.write("<!--");
         writer.write(comment.getText());
         writer.write("-->");
     }
 
-    private void writeProcessingInstruction(ProcessingInstruction processingInstruction) throws IOException {
+    private void writeProcessingInstruction(final ProcessingInstruction processingInstruction) throws IOException {
         outputLF(processingInstruction);
         writer.write("<?");
         writer.write(processingInstruction.getName());
@@ -271,13 +277,13 @@ public class Canonicalizer extends XPathTransform {
         writer.write("?>");
     }
 
-    private void writeEntity(Entity entity) throws IOException {
-        String text = entity.getText();
-        int hashLoc = text.indexOf('#');
+    private void writeEntity(final Entity entity) throws IOException {
+        final String text = entity.getText();
+        final int hashLoc = text.indexOf('#');
         writer.write(entity.getText());    //TODO entities need to be expanded
     }
 
-    private void writeAttribute(Attribute attribute) throws IOException {
+    private void writeAttribute(final Attribute attribute) throws IOException {
         writer.write(" ");
         writer.write(attribute.getQualifiedName());
         writer.write("=\"");
@@ -287,16 +293,16 @@ public class Canonicalizer extends XPathTransform {
 
     }
 
-    private void writeElement(Element element) throws IOException {
+    private void writeElement(final Element element) throws IOException {
         outputLF(element);
 
-        String qualifiedName = element.getQualifiedName();
+        final String qualifiedName = element.getQualifiedName();
         writer.write("<");
         writer.write(qualifiedName);
 
-        int previouslyDeclaredNamespaces = namespaceStack.size();
-        Namespace ns = element.getNamespace();
-        TreeMap sorted = new TreeMap();
+        final int previouslyDeclaredNamespaces = namespaceStack.size();
+        final Namespace ns = element.getNamespace();
+        final TreeMap sorted = new TreeMap();
         if (isNamespaceDeclaration(ns)) {
             namespaceStack.push(ns);
             writeNamespace(ns, sorted);
@@ -304,9 +310,9 @@ public class Canonicalizer extends XPathTransform {
             writeNamespace(ns, sorted);
         }
 
-        Iterator nsiter = element.additionalNamespaces().iterator();
+        final Iterator nsiter = element.additionalNamespaces().iterator();
         while (nsiter.hasNext()) {
-            Namespace namespace = (Namespace) nsiter.next();
+            final Namespace namespace = (Namespace) nsiter.next();
             if (!namespaceStack.contains(namespace)) {
                 writeNamespace(namespace, sorted);
                 namespaceStack.push(namespace);
@@ -316,7 +322,7 @@ public class Canonicalizer extends XPathTransform {
 
         writer.write(">");
         for (int i = 0, size = element.nodeCount(); i < size; i++) {
-            Node node = element.node(i);
+            final Node node = element.node(i);
             write(node);
         }
         writer.write("</");
@@ -332,13 +338,13 @@ public class Canonicalizer extends XPathTransform {
 //           writer.write(LF);
     }
 
-    private void writeNamespace(Namespace namespace, TreeMap sorted) throws IOException {
+    private void writeNamespace(final Namespace namespace, final TreeMap sorted) throws IOException {
         if (namespace != null) {
             sorted.put("0" + namespace.getPrefix(), namespace);
         }
     }
 
-    private void writeAttributes(Element element, TreeMap sorted) throws IOException {
+    private void writeAttributes(final Element element, final TreeMap sorted) throws IOException {
 
         // I do not yet handle the case where the same prefix maps to
         // two different URIs. For attributes on the same element
@@ -348,12 +354,12 @@ public class Canonicalizer extends XPathTransform {
 
 
         for (int i = 0, size = element.attributeCount(); i < size; i++) {
-            Attribute attribute = element.attribute(i);
+            final Attribute attribute = element.attribute(i);
             sorted.put(attribute.getNamespaceURI() + ":" + attribute.getName(), attribute);
-            Namespace ns = attribute.getNamespace();
+            final Namespace ns = attribute.getNamespace();
             if (ns != null && ns != Namespace.NO_NAMESPACE && ns != Namespace.XML_NAMESPACE) {
-                String prefix = ns.getPrefix();
-                String uri = namespaceStack.getURI(prefix);
+                final String prefix = ns.getPrefix();
+                final String uri = namespaceStack.getURI(prefix);
                 if (!ns.getURI().equals(uri)) { // output a new namespace declaration
                     writeNamespace(ns, sorted);
                     namespaceStack.push(ns);
@@ -361,10 +367,10 @@ public class Canonicalizer extends XPathTransform {
             }
 
         }
-        Iterator iter = sorted.keySet().iterator();
+        final Iterator iter = sorted.keySet().iterator();
         while (iter.hasNext()) {
-            String name = (String) iter.next();
-            Node node = (Node) sorted.get(name);
+            final String name = (String) iter.next();
+            final Node node = (Node) sorted.get(name);
             if (node instanceof Attribute)
                 writeAttribute((Attribute) node);
             else if (node instanceof Namespace) {
@@ -374,8 +380,8 @@ public class Canonicalizer extends XPathTransform {
         }
     }
 
-    private void writeNSAttribute(Namespace namespace) throws IOException {
-        String prefix = namespace.getPrefix();
+    private void writeNSAttribute(final Namespace namespace) throws IOException {
+        final String prefix = namespace.getPrefix();
         writer.write(" xmlns");
         if (prefix != null && prefix.length() > 0) {
             writer.write(":");
@@ -386,9 +392,9 @@ public class Canonicalizer extends XPathTransform {
         writer.write("\"");
     }
 
-    private boolean isNamespaceDeclaration(Namespace ns) {
+    private boolean isNamespaceDeclaration(final Namespace ns) {
         if (ns != null && ns != Namespace.NO_NAMESPACE && ns != Namespace.XML_NAMESPACE) {
-            String uri = ns.getURI();
+            final String uri = ns.getURI();
             if (uri != null) {//&& uri.length() > 0 ) {
                 if (!namespaceStack.contains(ns)) {
                     return true;
@@ -404,9 +410,9 @@ public class Canonicalizer extends XPathTransform {
      * convert their character representation to the appropriate
      * entity reference, suitable for XML attributes.
      */
-    private void writeEscapedString(String text) throws IOException {
+    private void writeEscapedString(final String text) throws IOException {
         int i;
-        int size = text.length();
+        final int size = text.length();
 
         for (i = 0; i < size; i++) {
             switch (text.charAt(i)) {
@@ -435,9 +441,9 @@ public class Canonicalizer extends XPathTransform {
      * convert their character representation to the appropriate
      * entity reference, suitable for XML attributes.
      */
-    private void writeEscapedAttributeString(String text) throws IOException {
+    private void writeEscapedAttributeString(final String text) throws IOException {
         int i;
-        int size = text.length();
+        final int size = text.length();
         for (i = 0; i < size; i++) {
             switch (text.charAt(i)) {
                 case '<':

@@ -1,7 +1,14 @@
-/* $Id: AbstractXMLSigElement.java,v 1.1 2003/11/11 16:33:24 pelle Exp $
+/* $Id: AbstractXMLSigElement.java,v 1.2 2003/11/21 04:44:31 pelle Exp $
  * $Log: AbstractXMLSigElement.java,v $
- * Revision 1.1  2003/11/11 16:33:24  pelle
- * Initial revision
+ * Revision 1.2  2003/11/21 04:44:31  pelle
+ * EncryptedFileStore now works. It uses the PBECipher with DES3 afair.
+ * Otherwise You will Finaliate.
+ * Anything that can be final has been made final throughout everyting. We've used IDEA's Inspector tool to find all instance of variables that could be final.
+ * This should hopefully make everything more stable (and secure).
+ *
+ * Revision 1.1.1.1  2003/11/11 16:33:24  pelle
+ * Moved over from neudist.org
+ * Moved remaining common utilities into commons
  *
  * Revision 1.2  2003/02/08 18:48:37  pelle
  * The Signature phase has been rewritten.
@@ -25,7 +32,7 @@ package org.neuclear.xml.xmlsec;
 
 /**
  * @author pelleb
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 
 import org.dom4j.Element;
@@ -33,19 +40,19 @@ import org.dom4j.Namespace;
 import org.neuclear.xml.AbstractElementProxy;
 
 public abstract class AbstractXMLSigElement extends AbstractElementProxy {
-    protected AbstractXMLSigElement(String name) {
+    protected AbstractXMLSigElement(final String name) {
         super(name, XMLSecTools.NS_DS);
     }
 //    protected AbstractXMLSigElement() {
 //        ;
 //    }
-    protected AbstractXMLSigElement(Element elem) throws XMLSecurityException {
+    protected AbstractXMLSigElement(final Element elem) throws XMLSecurityException {
         super(elem);
         if (!elem.getNamespaceURI().equalsIgnoreCase(XMLSecTools.NS_DS.getURI()))
             throw new XMLSecurityException("Element: " + elem.getQualifiedName() + " is not part of XML NS: " + XMLSecTools.NS_DS.getURI());
     }
 
-    public Namespace getNS() {
+    public final Namespace getNS() {
         return XMLSecTools.NS_DS;
     }
 }

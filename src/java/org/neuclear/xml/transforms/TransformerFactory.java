@@ -17,16 +17,16 @@ import java.util.HashMap;
  */
 public final class TransformerFactory {
 
-    public static final Transform make(Element elem) throws XMLTransformNotFoundException{
+    public static final Transform make(final Element elem) throws XMLTransformNotFoundException{
         if (elem==null)
             throw new XMLTransformNotFoundException("The Transform element was emtpy");
-        String name=elem.attributeValue("Algorithm");
-        Class imp=(Class)instance().implementations.get(name);
+        final String name=elem.attributeValue("Algorithm");
+        final Class imp=(Class)instance().implementations.get(name);
         if (imp==null)
             throw new XMLTransformNotFoundException("The Transform: "+name+" wasnt found");
-        Class params[]= new Class[] { Element.class};
+        final Class[] params= new Class[] { Element.class};
         try {
-            Constructor constructor=imp.getConstructor(params);
+            final Constructor constructor=imp.getConstructor(params);
             return (Transform)constructor.newInstance(new Element[] {elem});
         } catch (NoSuchMethodException e) {
             e.printStackTrace();  //To change body of catch statement use Options | File Templates.
@@ -42,8 +42,8 @@ public final class TransformerFactory {
 
         return null;
     }
-    public static final Transform make(String algorithm) throws XMLTransformNotFoundException {
-        Class imp=(Class)instance().implementations.get(algorithm);
+    public static final Transform make(final String algorithm) throws XMLTransformNotFoundException {
+        final Class imp=(Class)instance().implementations.get(algorithm);
         if (imp==null) {
 
             throw new XMLTransformNotFoundException("The Transform: "+algorithm+" wasnt found");
@@ -63,7 +63,7 @@ public final class TransformerFactory {
 
     }
 
-    public static final void registerTransformer(String algorithm, Class implementation) {
+    public static final void registerTransformer(final String algorithm, final Class implementation) {
         instance().implementations.put(algorithm,implementation);
     }
 
@@ -82,12 +82,12 @@ public final class TransformerFactory {
         }
         return singleton;
     }
-    private HashMap implementations;
+    private final HashMap implementations;
     private static TransformerFactory singleton;
 
     // This is just to make sure that they register themselves
-    private static Class touch=DropSignatureTransform.class;
-    {
+    static {
+        Class touch=DropSignatureTransform.class;
         touch=Canonicalizer.class;
         touch=CanonicalizerWithComments.class;
 

@@ -1,6 +1,12 @@
 /*
- * $Id: XMLTools.java,v 1.2 2003/11/19 23:33:17 pelle Exp $
+ * $Id: XMLTools.java,v 1.3 2003/11/21 04:44:31 pelle Exp $
  * $Log: XMLTools.java,v $
+ * Revision 1.3  2003/11/21 04:44:31  pelle
+ * EncryptedFileStore now works. It uses the PBECipher with DES3 afair.
+ * Otherwise You will Finaliate.
+ * Anything that can be final has been made final throughout everyting. We've used IDEA's Inspector tool to find all instance of variables that could be final.
+ * This should hopefully make everything more stable (and secure).
+ *
  * Revision 1.2  2003/11/19 23:33:17  pelle
  * Signers now can generatekeys via the generateKey() method.
  * Refactored the relationship between SignedNamedObject and NamedObjectBuilder a bit.
@@ -121,7 +127,7 @@ package org.neuclear.xml;
 
 /**
  * @author pelleb
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  */
 
 import org.dom4j.Document;
@@ -135,7 +141,7 @@ import java.io.*;
 import java.net.MalformedURLException;
 
 
-public class XMLTools {
+public final class XMLTools {
     /**
      * public static void writeDom(Document doc,OutputStream out) throws IOException{
      * try {
@@ -157,7 +163,7 @@ public class XMLTools {
      * //            serializer.serialize(doc);
      * }
      */
-    public static boolean isAttributeTrue(Element elem, String name) {
+    public static boolean isAttributeTrue(final Element elem, final String name) {
         return isTrue(elem.attributeValue(name), false);
     }
 
@@ -165,9 +171,9 @@ public class XMLTools {
         return DocumentHelper.createDocument();
     }
 
-    public static Document loadDocument(InputStream is) throws XMLException {
+    public static Document loadDocument(final InputStream is) throws XMLException {
         try {
-            SAXReader xmlReader = new SAXReader();
+            final SAXReader xmlReader = new SAXReader();
             return xmlReader.read(is);
         } catch (Exception e) {
             rethrowException(e);
@@ -175,8 +181,8 @@ public class XMLTools {
         return null;
     }
 
-    public static Document loadDocument(File f) throws XMLException {
-        SAXReader xmlReader = new SAXReader();
+    public static Document loadDocument(final File f) throws XMLException {
+        final SAXReader xmlReader = new SAXReader();
         try {
             return xmlReader.read(f);
         } catch (DocumentException e) {
@@ -187,11 +193,11 @@ public class XMLTools {
         return null;
     }
 
-    public static void writeFile(File outputFile, Document doc) throws XMLException {
+    public static void writeFile(final File outputFile, final Document doc) throws XMLException {
         writeFile(outputFile, doc.getRootElement());
     }
 
-    public static void writeFile(File outputFile, Element doc) throws XMLException {
+    public static void writeFile(final File outputFile, final Element doc) throws XMLException {
         try {
             writeFile(new FileOutputStream(outputFile), doc);
         } catch (FileNotFoundException e) {
@@ -199,10 +205,10 @@ public class XMLTools {
         }
     }
 
-    public static void writeFile(OutputStream out, Element doc) throws XMLException {
+    public static void writeFile(final OutputStream out, final Element doc) throws XMLException {
 
         try {
-            XMLWriter writer = new XMLWriter(out, getOutputFormat());
+            final XMLWriter writer = new XMLWriter(out, getOutputFormat());
             writer.write(doc);
             writer.close();
         } catch (IOException e) {
@@ -210,10 +216,10 @@ public class XMLTools {
         }
     }
 
-    public static String asXML(Element doc) throws XMLException {
-        StringWriter ow = new StringWriter();
+    public static String asXML(final Element doc) throws XMLException {
+        final StringWriter ow = new StringWriter();
         try {
-            XMLWriter writer = new XMLWriter(ow, getOutputFormat());
+            final XMLWriter writer = new XMLWriter(ow, getOutputFormat());
             writer.write(doc);
             writer.close();
         } catch (IOException e) {
@@ -223,7 +229,7 @@ public class XMLTools {
     }
 
     private static OutputFormat getOutputFormat() {
-        OutputFormat format = OutputFormat.createCompactFormat();
+        final OutputFormat format = OutputFormat.createCompactFormat();
         format.setExpandEmptyElements(false);
         format.setIndent(false);
         format.setNewlines(false);
@@ -232,10 +238,10 @@ public class XMLTools {
         return format;
     }
 
-    public org.w3c.dom.Document doc2dom(Document doc) throws XMLException {
+    public final org.w3c.dom.Document doc2dom(final Document doc) throws XMLException {
         if (!(doc instanceof DOMDocument)) {
             try {
-                DOMWriter domWriter = new DOMWriter();
+                final DOMWriter domWriter = new DOMWriter();
                 return domWriter.write(doc);
             } catch (DocumentException e) {
                 rethrowException(e);
@@ -244,27 +250,27 @@ public class XMLTools {
         return (org.w3c.dom.Document) doc;
     }
 
-    public Document dom2doc(org.w3c.dom.Document dom) {
+    public final Document dom2doc(final org.w3c.dom.Document dom) {
         if (dom instanceof DOMDocument)
             return (DOMDocument) dom;
         else {
-            DOMReader domReader = new DOMReader();
+            final DOMReader domReader = new DOMReader();
             return domReader.read(dom);
         }
     }
 
-    public static boolean isTrue(String clause, boolean defaultVal) {
+    public static boolean isTrue(String clause, final boolean defaultVal) {
         if (isEmpty(clause))
             return defaultVal;
         clause = clause.toLowerCase();
         return (clause.equals("yes") || clause.equals("y") || clause.equals("1") || clause.equals("true"));
     }
 
-    public static boolean isEmpty(Object obj) {
+    public static boolean isEmpty(final Object obj) {
         return (obj == null || obj.toString().equals(""));
     }
 
-    public static void rethrowException(Throwable e) throws XMLException {
+    public static void rethrowException(final Throwable e) throws XMLException {
         throw new XMLException(e);
     }
 

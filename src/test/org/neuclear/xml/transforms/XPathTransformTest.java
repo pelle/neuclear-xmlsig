@@ -6,10 +6,17 @@ package org.neuclear.xml.transforms;
  * User: pelleb
  * Date: Jan 21, 2003
  * Time: 3:12:00 PM
- * $Id: XPathTransformTest.java,v 1.1 2003/11/11 16:33:31 pelle Exp $
+ * $Id: XPathTransformTest.java,v 1.2 2003/11/21 04:44:31 pelle Exp $
  * $Log: XPathTransformTest.java,v $
- * Revision 1.1  2003/11/11 16:33:31  pelle
- * Initial revision
+ * Revision 1.2  2003/11/21 04:44:31  pelle
+ * EncryptedFileStore now works. It uses the PBECipher with DES3 afair.
+ * Otherwise You will Finaliate.
+ * Anything that can be final has been made final throughout everyting. We've used IDEA's Inspector tool to find all instance of variables that could be final.
+ * This should hopefully make everything more stable (and secure).
+ *
+ * Revision 1.1.1.1  2003/11/11 16:33:31  pelle
+ * Moved over from neudist.org
+ * Moved remaining common utilities into commons
  *
  * Revision 1.2  2003/02/22 16:54:30  pelle
  * Major structural changes in the whole processing framework.
@@ -35,20 +42,20 @@ import org.dom4j.*;
 
 import java.util.Iterator;
 
-public class XPathTransformTest extends AbstractTransformTest {
-    public XPathTransformTest(String s) {
+public final class XPathTransformTest extends AbstractTransformTest {
+    public XPathTransformTest(final String s) {
         super(s);
     }
 
-    public Transform createTransform() {
+    public final Transform createTransform() {
         return new XPathTransform("/test");
     }
 
-    public Element getExpectedResult() throws DocumentException {
+    public final Element getExpectedResult() throws DocumentException {
         return DocumentHelper.parseText("<test/>").getRootElement();
     }
 
-    public void testXPathFun() throws DocumentException {
+    public final void testXPathFun() throws DocumentException {
         doc=DocumentHelper.parseText("<test><test2><test one=\"1\">text</test></test2></test>");
         System.out.println("testXPathFun");
 //        System.out.println(tr.transformNode(getTestElement()).asXML());
@@ -62,18 +69,18 @@ public class XPathTransformTest extends AbstractTransformTest {
 
 
     }
-    public void testNoDoc() throws DocumentException {
-        Element elem=DocumentHelper.createElement("test");
+    public final void testNoDoc() throws DocumentException {
+        final Element elem=DocumentHelper.createElement("test");
         assertNotNull(tr.transformNode(elem));
     }
 
-    private void listXPath(String expr) {
+    private void listXPath(final String expr) {
         System.out.println("Testing: "+expr);
-        XPath xp=DocumentHelper.createXPath(expr);
-        Iterator iter=xp.selectNodes(doc).iterator();
+        final XPath xp=DocumentHelper.createXPath(expr);
+        final Iterator iter=xp.selectNodes(doc).iterator();
 
         while (iter.hasNext()) {
-            Node node = (Node) iter.next();
+            final Node node = (Node) iter.next();
             System.out.println("Matched: "+node.toString());
         }
     }

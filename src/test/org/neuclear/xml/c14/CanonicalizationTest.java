@@ -4,8 +4,14 @@ package org.neuclear.xml.c14;
  * User: pelleb
  * Date: Feb 3, 2003
  * Time: 6:54:20 AM
- * $Id: CanonicalizationTest.java,v 1.2 2003/11/11 21:18:08 pelle Exp $
+ * $Id: CanonicalizationTest.java,v 1.3 2003/11/21 04:44:31 pelle Exp $
  * $Log: CanonicalizationTest.java,v $
+ * Revision 1.3  2003/11/21 04:44:31  pelle
+ * EncryptedFileStore now works. It uses the PBECipher with DES3 afair.
+ * Otherwise You will Finaliate.
+ * Anything that can be final has been made final throughout everyting. We've used IDEA's Inspector tool to find all instance of variables that could be final.
+ * This should hopefully make everything more stable (and secure).
+ *
  * Revision 1.2  2003/11/11 21:18:08  pelle
  * Further vital reshuffling.
  * org.neudist.crypto.* and org.neudist.utils.* have been moved to respective areas under org.neuclear.commons
@@ -61,8 +67,8 @@ import org.neuclear.xml.xmlsec.XMLSecTools;
 import java.io.*;
 import java.net.URL;
 
-public class CanonicalizationTest extends TestCase {
-    public CanonicalizationTest(String s) {
+public final class CanonicalizationTest extends TestCase {
+    public CanonicalizationTest(final String s) {
         super(s);
         reader=new SAXReader(false);
         reader.setMergeAdjacentText(false);
@@ -78,20 +84,20 @@ public class CanonicalizationTest extends TestCase {
 //        runDirectoryTest("src/testdata/c14");
     }
 */
-    public void testMerlin() throws IOException, DocumentException {
+    public final void testMerlin() throws IOException, DocumentException {
         runDirectoryTest("src/testdata/merlin-xmldsig-eight");
     }
 
-    public void runDirectoryTest(String path) throws DocumentException, IOException, FileNotFoundException {
-        File dir=new File(path).getAbsoluteFile();
+    public final void runDirectoryTest(final String path) throws DocumentException, IOException, FileNotFoundException {
+        final File dir=new File(path).getAbsoluteFile();
         if (!dir.exists()) {
             System.out.println("Doesnt exist");
             return;
         }
 
         //FilenameFilter filter=FilenameFilter;
-        File xmlfiles[]=dir.listFiles(new FilenameFilter(){
-           public boolean accept(File dirf, String name) {
+        final File[] xmlfiles=dir.listFiles(new FilenameFilter(){
+           public boolean accept(final File dirf, final String name) {
                 return name.endsWith(".xml");
             }
 
@@ -99,28 +105,28 @@ public class CanonicalizationTest extends TestCase {
 
         for (int i = 0; i < xmlfiles.length; i++) {
 
-            File xmlfile = xmlfiles[i];
+            final File xmlfile = xmlfiles[i];
             System.out.println("Testing file: "+xmlfile.getName());
-            File c14file=getC14Name(xmlfile);
+            final File c14file=getC14Name(xmlfile);
             if (c14file.exists()&&!hasXPath(xmlfile)){ //Just disabling the XPath Subset functionality until I hear from the Dom4J guys
 
                 try {
                     if (xmlfile.getName().equals("example-6.xml"))
                         System.out.println("Here we go");
-                    Document doc=reader.read(xmlfile.toURL());
+                    final Document doc=reader.read(xmlfile.toURL());
                     byte[] ourbytes=null;
                     if (hasXPath(xmlfile)) {
-                        File xpathFile=getXPathFileName(xmlfile);
-                        FileReader xpreader=new FileReader(xpathFile);
-                        char xpathc[]=new char[(int)xpathFile.length()];
+                        final File xpathFile=getXPathFileName(xmlfile);
+                        final FileReader xpreader=new FileReader(xpathFile);
+                        final char[] xpathc=new char[(int)xpathFile.length()];
                         xpreader.read(xpathc,0,xpathc.length);
                         xpreader.close();
-                        String xpath=new String(xpathc);
+                        final String xpath=new String(xpathc);
                         System.out.println("XPATH="+xpath);
                         ourbytes=XMLSecTools.canonicalizeSubset(doc,xpath);
                     } else
                         ourbytes=XMLSecTools.canonicalize(doc);
-                    FileOutputStream fos=new FileOutputStream(getC14OutputName(xmlfile));
+                    final FileOutputStream fos=new FileOutputStream(getC14OutputName(xmlfile));
                     fos.write(ourbytes);
                     fos.close();
                     compareFileWithByteArray(c14file, ourbytes);
@@ -137,10 +143,10 @@ public class CanonicalizationTest extends TestCase {
 
     }
 
-    private void compareFileWithByteArray(File c14file, byte[] ourbytes) throws IOException {
-        byte[] theirbytes=new byte[(int)c14file.length()];
+    private void compareFileWithByteArray(final File c14file, final byte[] ourbytes) throws IOException {
+        final byte[] theirbytes=new byte[(int)c14file.length()];
 
-        FileInputStream fis=new FileInputStream(c14file);
+        final FileInputStream fis=new FileInputStream(c14file);
         fis.read(theirbytes);
         boolean equal=ourbytes.length==theirbytes.length;
         if (!equal) {
@@ -164,21 +170,21 @@ public class CanonicalizationTest extends TestCase {
         assertTrue(equal);
     }
 
-    private File getC14Name(File file){
-        String newname=file.getName();
+    private File getC14Name(final File file){
+        final String newname=file.getName();
         return new File(file.getParentFile(),newname.substring(0,newname.length()-3)+"c14n");
     }
-    private File getC14OutputName(File file){
-        String newname=file.getName();
+    private File getC14OutputName(final File file){
+        final String newname=file.getName();
         return new File(file.getParentFile(),newname.substring(0,newname.length()-3)+"out");
     }
-    private File getXPathFileName(File file){
-        String newname=file.getName();
+    private File getXPathFileName(final File file){
+        final String newname=file.getName();
         return new File(file.getParentFile(),newname.substring(0,newname.length()-3)+"xpath");
     }
-    private boolean hasXPath(File file) {
+    private boolean hasXPath(final File file) {
         return getXPathFileName(file).exists();
     }
 
-    SAXReader reader;
+    final SAXReader reader;
 }

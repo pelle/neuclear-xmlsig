@@ -1,5 +1,11 @@
-/* $Id: XMLSecTools.java,v 1.3 2003/11/15 01:57:42 pelle Exp $
+/* $Id: XMLSecTools.java,v 1.4 2003/11/21 04:44:31 pelle Exp $
  * $Log: XMLSecTools.java,v $
+ * Revision 1.4  2003/11/21 04:44:31  pelle
+ * EncryptedFileStore now works. It uses the PBECipher with DES3 afair.
+ * Otherwise You will Finaliate.
+ * Anything that can be final has been made final throughout everyting. We've used IDEA's Inspector tool to find all instance of variables that could be final.
+ * This should hopefully make everything more stable (and secure).
+ *
  * Revision 1.3  2003/11/15 01:57:42  pelle
  * More work all around on web applications.
  *
@@ -128,7 +134,7 @@ package org.neuclear.xml.xmlsec;
 
 /**
  * @author pelleb
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  */
 
 import org.dom4j.*;
@@ -158,9 +164,9 @@ import java.util.StringTokenizer;
  * </pre>
  * In addition there are handy methods for dealing with KeyInfo elements for generating Key's from xml.
  */
-public class XMLSecTools {
-    public static String XMLDSIG_NAMESPACE = "http://www.w3.org/2000/09/xmldsig#";
-    public static Namespace NS_DS = DocumentHelper.createNamespace("ds", XMLDSIG_NAMESPACE);
+public final class XMLSecTools {
+    public static final String XMLDSIG_NAMESPACE = "http://www.w3.org/2000/09/xmldsig#";
+    public static final Namespace NS_DS = DocumentHelper.createNamespace("ds", XMLDSIG_NAMESPACE);
 
 
     /**
@@ -171,8 +177,8 @@ public class XMLSecTools {
      * @param keypair RSA/DSA KeyPair
      * @throws XMLSecurityException 
      */
-    public static XMLSignature signElement(String baseURI, Element root, KeyPair keypair) throws XMLSecurityException, CryptoException {//, KeyStoreException {
-        XMLSignature sig = new QuickEmbeddedSignature(keypair, root, baseURI);
+    public static XMLSignature signElement(final String baseURI, final Element root, final KeyPair keypair) throws XMLSecurityException, CryptoException {//, KeyStoreException {
+        final XMLSignature sig = new QuickEmbeddedSignature(keypair, root, baseURI);
         return sig;
     }
 
@@ -184,8 +190,8 @@ public class XMLSecTools {
      * @param key     RSA Private Key
      * @throws XMLSecurityException 
      */
-    public static XMLSignature signElement(String baseURI, Element root, PrivateKey key) throws XMLSecurityException, CryptoException {//, KeyStoreException {
-        XMLSignature sig = new QuickEmbeddedSignature(key, root, baseURI);
+    public static XMLSignature signElement(final String baseURI, final Element root, final PrivateKey key) throws XMLSecurityException, CryptoException {//, KeyStoreException {
+        final XMLSignature sig = new QuickEmbeddedSignature(key, root, baseURI);
         return sig;
     }
 
@@ -198,8 +204,8 @@ public class XMLSecTools {
      * @param signer  NeuClear Signer
      * @throws XMLSecurityException 
      */
-    public static XMLSignature signElement(String baseURI, Element root, String name, org.neuclear.commons.crypto.signers.Signer signer) throws XMLSecurityException, CryptoException {//, KeyStoreException {
-        XMLSignature sig = new QuickEmbeddedSignature(name, signer, root, baseURI);
+    public static XMLSignature signElement(final String baseURI, final Element root, final String name, final org.neuclear.commons.crypto.signers.Signer signer) throws XMLSecurityException, CryptoException {//, KeyStoreException {
+        final XMLSignature sig = new QuickEmbeddedSignature(name, signer, root, baseURI);
         return sig;
     }
 
@@ -211,8 +217,8 @@ public class XMLSecTools {
      * @param keypair RSA/DSA KeyPair
      * @throws XMLSecurityException 
      */
-    public static XMLSignature signElementEnveloping(String baseURI, Element root, KeyPair keypair) throws XMLSecurityException, CryptoException {//, KeyStoreException {
-        XMLSignature sig = new XMLSignature(keypair, root, baseURI, Reference.XMLSIGTYPE_ENVELOPING);
+    public static XMLSignature signElementEnveloping(final String baseURI, final Element root, final KeyPair keypair) throws XMLSecurityException, CryptoException {//, KeyStoreException {
+        final XMLSignature sig = new XMLSignature(keypair, root, baseURI, Reference.XMLSIGTYPE_ENVELOPING);
         return sig;
     }
 
@@ -224,8 +230,8 @@ public class XMLSecTools {
      * @param key     RSA Private Key
      * @throws XMLSecurityException 
      */
-    public static XMLSignature signElementEnveloping(String baseURI, Element root, PrivateKey key) throws XMLSecurityException, CryptoException {//, KeyStoreException {
-        XMLSignature sig = new XMLSignature(key, null, root, baseURI, Reference.XMLSIGTYPE_ENVELOPING);
+    public static XMLSignature signElementEnveloping(final String baseURI, final Element root, final PrivateKey key) throws XMLSecurityException, CryptoException {//, KeyStoreException {
+        final XMLSignature sig = new XMLSignature(key, null, root, baseURI, Reference.XMLSIGTYPE_ENVELOPING);
         return sig;
     }
 
@@ -237,7 +243,7 @@ public class XMLSecTools {
      * @return Element containg valid KeyInfo
      * @throws KeyStoreException 
      */
-    public static Element createKeyInfo(KeyStore ks, String s) throws KeyStoreException {
+    public static Element createKeyInfo(final KeyStore ks, final String s) throws KeyStoreException {
         Certificate puk = null;
         puk = ks.getCertificate(s);
         return createKeyInfo(puk.getPublicKey());
@@ -249,8 +255,8 @@ public class XMLSecTools {
      * @param pub RSA PublicKey to encode
      * @return Element containg valid KeyInfo
      */
-    public static Element createKeyInfo(PublicKey pub) {//throws KeyStoreException {
-        KeyInfo ki = new KeyInfo(pub);
+    public static Element createKeyInfo(final PublicKey pub) {//throws KeyStoreException {
+        final KeyInfo ki = new KeyInfo(pub);
         return ki.getElement();
     }
 
@@ -260,7 +266,7 @@ public class XMLSecTools {
      * @param name 
      * @return valid QName
      */
-    public static QName createQName(String name) {
+    public static QName createQName(final String name) {
         return DocumentHelper.createQName(name, NS_DS);
     }
 
@@ -270,7 +276,7 @@ public class XMLSecTools {
      * @param elementName 
      * @return 
      */
-    public static org.dom4j.Element createElementInSignatureSpace(String elementName) {
+    public static org.dom4j.Element createElementInSignatureSpace(final String elementName) {
         return DocumentHelper.createElement(createQName(elementName));
     }
 
@@ -281,8 +287,8 @@ public class XMLSecTools {
      * @return XMLSignature object
      * @throws XMLSecurityException 
      */
-    public static XMLSignature getXMLSignature(Element elem) throws XMLSecurityException {
-        QName qname = XMLSecTools.createQName("Signature");
+    public static XMLSignature getXMLSignature(final Element elem) throws XMLSecurityException {
+        final QName qname = XMLSecTools.createQName("Signature");
         Element xmlSigElement = elem.element(qname);
         if (xmlSigElement == null || (isInXMLSigNS(xmlSigElement))) {
             if (elem.getQName().equals(qname)) // This is an Enveloping Signature
@@ -293,7 +299,7 @@ public class XMLSecTools {
         return new XMLSignature(xmlSigElement);
     }
 
-    public static boolean isInXMLSigNS(Element xmlSigElement) {
+    public static boolean isInXMLSigNS(final Element xmlSigElement) {
         return !xmlSigElement.getNamespaceURI().equals(XMLSecTools.XMLDSIG_NAMESPACE);
     }
 
@@ -305,8 +311,8 @@ public class XMLSecTools {
      * @return true if it verifies
      * @throws XMLSecurityException 
      */
-    public static boolean verifySignature(Element elem, PublicKey pub) throws XMLSecurityException, CryptoException {
-        XMLSignature sig = getXMLSignature(elem);
+    public static boolean verifySignature(final Element elem, final PublicKey pub) throws XMLSecurityException, CryptoException {
+        final XMLSignature sig = getXMLSignature(elem);
         return sig.verifySignature(pub);
     }
 
@@ -318,8 +324,8 @@ public class XMLSecTools {
      * @return true if it verifies
      * @throws XMLSecurityException 
      */
-    public static boolean verifySignature(Element elem, PublicKey pubs[]) throws XMLSecurityException, CryptoException {
-        XMLSignature sig = getXMLSignature(elem);
+    public static boolean verifySignature(final Element elem, final PublicKey[] pubs) throws XMLSecurityException, CryptoException {
+        final XMLSignature sig = getXMLSignature(elem);
         return sig.verifySignature(pubs);
     }
 
@@ -331,8 +337,8 @@ public class XMLSecTools {
      * @return true if it verifies
      * @throws XMLSecurityException 
      */
-    public static boolean verifySignature(Element elem) throws XMLSecurityException, CryptoException {
-        XMLSignature sig = getXMLSignature(elem);
+    public static boolean verifySignature(final Element elem) throws XMLSecurityException, CryptoException {
+        final XMLSignature sig = getXMLSignature(elem);
         return sig.verifySignature();
     }
 
@@ -342,10 +348,10 @@ public class XMLSecTools {
      * @param node Dom4J node to canonicalize
      * @return byte array of signature
      */
-    public static byte[] getElementBytes(Node node) {
+    public static byte[] getElementBytes(final Node node) {
         try {
-            StringWriter out = new StringWriter();
-            XMLWriter writer = new XMLWriter(out);
+            final StringWriter out = new StringWriter();
+            final XMLWriter writer = new XMLWriter(out);
             writer.write(node);
             return out.toString().getBytes();
         } catch (IOException e) {
@@ -360,7 +366,7 @@ public class XMLSecTools {
      * @param node Dom4J node to canonicalize
      * @return byte array of signature
      */
-    public static byte[] canonicalize(Object node) {
+    public static byte[] canonicalize(final Object node) {
         return canonicalize(new Canonicalizer(), node);
     }
 
@@ -370,7 +376,7 @@ public class XMLSecTools {
      * @param node 
      * @return 
      */
-    public static byte[] canonicalizeEmbeddedSignature(Object node) {
+    public static byte[] canonicalizeEmbeddedSignature(final Object node) {
         return canonicalize(new CanonicalizerWithoutSignature(), node);
     }
 
@@ -381,7 +387,7 @@ public class XMLSecTools {
      * @param node  
      * @return 
      */
-    public static byte[] canonicalize(Canonicalizer canon, Object node) {
+    public static byte[] canonicalize(final Canonicalizer canon, final Object node) {
         try {
 
             return canon.canonicalize(node);
@@ -399,10 +405,10 @@ public class XMLSecTools {
      * @param xpath 
      * @return 
      */
-    public static byte[] canonicalizeSubset(Node node, String xpath) {
+    public static byte[] canonicalizeSubset(final Node node, final String xpath) {
         try {
 
-            Canonicalizer canon = new Canonicalizer();
+            final Canonicalizer canon = new Canonicalizer();
             return canon.canonicalizeSubset(node, xpath);
         } catch (IOException e) {
             throw new RuntimeException("Weird IOException while generating textual representation: " + e.getMessage());
@@ -417,7 +423,7 @@ public class XMLSecTools {
      * @param elem Element to Encode
      * @return String containing Base64 encoded Element
      */
-    public static String encodeElementBase64(Element elem) {
+    public static String encodeElementBase64(final Element elem) {
         return Base64.encode(getElementBytes(elem));
     }
 
@@ -429,7 +435,7 @@ public class XMLSecTools {
      * @return String containing Base64 encoded Element
      * @throws XMLException 
      */
-    public static String encodeElementBase64(SignedElement elem) throws XMLException {
+    public static String encodeElementBase64(final SignedElement elem) throws XMLException {
         return Base64.encode(elem.canonicalize());
     }
 
@@ -440,9 +446,9 @@ public class XMLSecTools {
      * @return Element
      * @throws XMLSecurityException is thrown if there is a problem parsing the string
      */
-    public static Element decodeElementBase64(String b64) throws XMLSecurityException, CryptoException {
+    public static Element decodeElementBase64(final String b64) throws XMLSecurityException, CryptoException {
         try {
-            byte xmlbytes[] = Base64.decode(b64);
+            final byte[] xmlbytes = Base64.decode(b64);
             return DocumentHelper.parseText(new String(xmlbytes)).getRootElement();
         } catch (DocumentException e) {
             throw new XMLSecurityException(e);
@@ -450,7 +456,7 @@ public class XMLSecTools {
 
     }
 
-    public static void rethrowException(Throwable e) throws XMLSecurityException {
+    public static void rethrowException(final Throwable e) throws XMLSecurityException {
         throw new XMLSecurityException(e);
     }
 
@@ -460,7 +466,7 @@ public class XMLSecTools {
      * @param element 
      * @return 
      */
-    public static BigInteger decodeBigIntegerFromElement(Element element)
+    public static BigInteger decodeBigIntegerFromElement(final Element element)
             throws CryptoException {
         return new BigInteger(1, decodeBase64Element(element));
     }
@@ -471,7 +477,7 @@ public class XMLSecTools {
      * @param text 
      * @return 
      */
-    public static BigInteger decodeBigIntegerFromText(Text text)
+    public static BigInteger decodeBigIntegerFromText(final Text text)
             throws CryptoException {
         return new BigInteger(1, Base64.decode(text.getText()));
     }
@@ -484,7 +490,7 @@ public class XMLSecTools {
      * @return Text
      */
     public static Text createTextWithBigInteger(
-            BigInteger biginteger) {
+            final BigInteger biginteger) {
 
         String encodedInt = Base64.encode(biginteger);
 
@@ -504,16 +510,16 @@ public class XMLSecTools {
      * @param element 
      * @return 
      */
-    public static byte[] decodeBase64Element(Element element) throws CryptoException {
+    public static byte[] decodeBase64Element(final Element element) throws CryptoException {
 
-        Iterator iter = element.nodeIterator();
-        StringBuffer sb = new StringBuffer();
+        final Iterator iter = element.nodeIterator();
+        final StringBuffer sb = new StringBuffer();
 
         while (iter.hasNext()) {
-            Node node = (Node) iter.next();
+            final Node node = (Node) iter.next();
             if (node instanceof Text) {
-                String text = node.getText();
-                StringTokenizer tok = new StringTokenizer(text, " \n\r\t", false);
+                final String text = node.getText();
+                final StringTokenizer tok = new StringTokenizer(text, " \n\r\t", false);
                 while (tok.hasMoreTokens())
                     sb.append(tok.nextToken());
             }
@@ -529,11 +535,11 @@ public class XMLSecTools {
      * @param bytes     
      * @return 
      */
-    public static Element base64ToElement(String localName,
-                                          byte[] bytes) {
+    public static Element base64ToElement(final String localName,
+                                          final byte[] bytes) {
 
-        Element el = createElementInSignatureSpace(localName);
-        Text text = DocumentHelper.createText(Base64.encodeClean(bytes));
+        final Element el = createElementInSignatureSpace(localName);
+        final Text text = DocumentHelper.createText(Base64.encodeClean(bytes));
 
         el.add(text);
 
@@ -547,8 +553,8 @@ public class XMLSecTools {
      * @param big       
      * @return 
      */
-    public static Element bigIntToElement(String localName,
-                                          BigInteger big) {
+    public static Element bigIntToElement(final String localName,
+                                          final BigInteger big) {
 //        System.out.println("JDK toByteArray(): "+encode(big.toByteArray()));
 //        System.out.println("getBytes(): "+encode(getBytes(big)));
 

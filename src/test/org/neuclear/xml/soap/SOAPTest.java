@@ -13,18 +13,18 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.neuclear.commons.NeuClearException;
 
-public class SOAPTest extends TestCase {
-    public SOAPTest(String name) {
+public final class SOAPTest extends TestCase {
+    public SOAPTest(final String name) {
         super(name);
     }
 
 
 
-    public void testGetQuote() throws NeuClearException {
-        Element getQuote = DocumentHelper.createElement(DocumentHelper.createQName("getQuote", DocumentHelper.createNamespace("ns1", "urn:xmethods-delayed-quotes")));
+    public final void testGetQuote() throws NeuClearException {
+        final Element getQuote = DocumentHelper.createElement(DocumentHelper.createQName("getQuote", DocumentHelper.createNamespace("ns1", "urn:xmethods-delayed-quotes")));
         getQuote.addElement(DocumentHelper.createQName("symbol", DocumentHelper.createNamespace("ns1", "urn:xmethods-delayed-quotes"))).addText("MSFT");
 //            Element response=soapRequest("http://localhost/cgi-bin/xmlenv",getQuote,"urn:xmethods-delayed-quotes#getQuote");
-        Element response = SOAPTools.soapRequestElement("http://66.28.98.121:9090/soap", getQuote, "urn:xmethods-delayed-quotes#getQuote");
+        final Element response = SOAPTools.soapRequestElement("http://66.28.98.121:9090/soap", getQuote, "urn:xmethods-delayed-quotes#getQuote");
         System.out.println("testGetQuote:");
         System.out.println(response.asXML());
         assertNotNull(response);

@@ -5,10 +5,17 @@ package org.neuclear.xml.transforms;
  * User: pelleb
  * Date: Jan 21, 2003
  * Time: 3:28:14 PM
- * $Id: TransformFactoryTest.java,v 1.1 2003/11/11 16:33:31 pelle Exp $
+ * $Id: TransformFactoryTest.java,v 1.2 2003/11/21 04:44:31 pelle Exp $
  * $Log: TransformFactoryTest.java,v $
- * Revision 1.1  2003/11/11 16:33:31  pelle
- * Initial revision
+ * Revision 1.2  2003/11/21 04:44:31  pelle
+ * EncryptedFileStore now works. It uses the PBECipher with DES3 afair.
+ * Otherwise You will Finaliate.
+ * Anything that can be final has been made final throughout everyting. We've used IDEA's Inspector tool to find all instance of variables that could be final.
+ * This should hopefully make everything more stable (and secure).
+ *
+ * Revision 1.1.1.1  2003/11/11 16:33:31  pelle
+ * Moved over from neudist.org
+ * Moved remaining common utilities into commons
  *
  * Revision 1.3  2003/02/11 14:50:26  pelle
  * Trying onemore time. Added the benchmarking code.
@@ -30,8 +37,8 @@ import junit.framework.TestCase;
 import org.dom4j.Element;
 import org.neuclear.xml.xmlsec.XMLSecTools;
 
-public class TransformFactoryTest extends TestCase{
-    public TransformFactoryTest(String s) {
+public final class TransformFactoryTest extends TestCase{
+    public TransformFactoryTest(final String s) {
         super(s);
         {
             ClearTransform.class.toString();
@@ -39,7 +46,7 @@ public class TransformFactoryTest extends TestCase{
             OpaqueTransform.class.toString();
         }
     }
-    public void testCreateFromAlgorithmName() throws XMLTransformNotFoundException {
+    public final void testCreateFromAlgorithmName() throws XMLTransformNotFoundException {
         assertNotNull(TransformerFactory.make("uri:neuclear-test-clear-transform"));
         assertNotNull(TransformerFactory.make("uri:neuclear-test-opaque-transform"));
         try {
@@ -50,16 +57,16 @@ public class TransformFactoryTest extends TestCase{
         }
 
     }
-    public void testCreateFromElement() throws XMLTransformNotFoundException {
-        Element clear=XMLSecTools.createElementInSignatureSpace("Transform");
+    public final void testCreateFromElement() throws XMLTransformNotFoundException {
+        final Element clear=XMLSecTools.createElementInSignatureSpace("Transform");
         clear.addAttribute("Algorithm","uri:neuclear-test-clear-transform");
         assertNotNull(TransformerFactory.make(clear));
 
-        Element opaque=XMLSecTools.createElementInSignatureSpace("Transform");
+        final Element opaque=XMLSecTools.createElementInSignatureSpace("Transform");
         opaque.addAttribute("Algorithm","uri:neuclear-test-opaque-transform");
         assertNotNull(TransformerFactory.make(opaque));
 
-        Element dud=XMLSecTools.createElementInSignatureSpace("Transform");
+        final Element dud=XMLSecTools.createElementInSignatureSpace("Transform");
         dud.addAttribute("Algorithm","uri:neuclear-test-non-existent");
         try {
             TransformerFactory.make(dud);

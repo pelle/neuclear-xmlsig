@@ -1,5 +1,11 @@
-/* $Id: SignedElement.java,v 1.3 2003/11/19 23:33:17 pelle Exp $
+/* $Id: SignedElement.java,v 1.4 2003/11/21 04:44:31 pelle Exp $
  * $Log: SignedElement.java,v $
+ * Revision 1.4  2003/11/21 04:44:31  pelle
+ * EncryptedFileStore now works. It uses the PBECipher with DES3 afair.
+ * Otherwise You will Finaliate.
+ * Anything that can be final has been made final throughout everyting. We've used IDEA's Inspector tool to find all instance of variables that could be final.
+ * This should hopefully make everything more stable (and secure).
+ *
  * Revision 1.3  2003/11/19 23:33:17  pelle
  * Signers now can generatekeys via the generateKey() method.
  * Refactored the relationship between SignedNamedObject and NamedObjectBuilder a bit.
@@ -93,7 +99,7 @@ package org.neuclear.xml.xmlsec;
 
 /**
  * @author pelleb
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  */
 
 import org.dom4j.Element;
@@ -111,13 +117,13 @@ import java.security.PublicKey;
 public abstract class SignedElement extends AbstractElementProxy {
     private XMLSignature sig;
 
-    public SignedElement(QName qname) {
+    public SignedElement(final QName qname) {
         super(qname);
     }
 
-    public SignedElement(Element elem) throws XMLSecurityException {
+    public SignedElement(final Element elem) throws XMLSecurityException {
         super(elem);
-        Element sigElement = getElement().element(XMLSecTools.createQName("Signature"));
+        final Element sigElement = getElement().element(XMLSecTools.createQName("Signature"));
         if (sigElement != null)
             try {
                 sig = new XMLSignature(sigElement);
@@ -127,11 +133,11 @@ public abstract class SignedElement extends AbstractElementProxy {
 
     }
 
-    public SignedElement(String name, Namespace ns) {
+    public SignedElement(final String name, final Namespace ns) {
         super(name, ns);
     }
 
-    public SignedElement(String name, String prefix, String nsURI) {
+    public SignedElement(final String name, final String prefix, final String nsURI) {
         super(name, prefix, nsURI);
     }
 
@@ -149,7 +155,7 @@ public abstract class SignedElement extends AbstractElementProxy {
      * 
      * @throws XMLSecurityException 
      */
-    protected void postSign() throws XMLSecurityException {
+    protected final void postSign() throws XMLSecurityException {
         ;
     }
 
@@ -173,7 +179,7 @@ public abstract class SignedElement extends AbstractElementProxy {
     /**
      * This verifies the signature of the object.
      */
-    public final boolean verifySignature(PublicKey pub) throws XMLSecurityException, CryptoException {
+    public final boolean verifySignature(final PublicKey pub) throws XMLSecurityException, CryptoException {
         if (sig == null)
             throw new XMLSecurityException("The object can not be verified as it doesnt contain a signature");
         return sig.verifySignature(pub);
@@ -182,13 +188,13 @@ public abstract class SignedElement extends AbstractElementProxy {
     /**
      * Sign object using given PrivateKey. This also adds a timestamp to the root element prior to signing
      */
-    public final void sign(PrivateKey priv) throws XMLSecurityException, CryptoException {
+    public final void sign(final PrivateKey priv) throws XMLSecurityException, CryptoException {
         preSign();
         sig = XMLSecTools.signElement(getURI(), getElement(), priv);
         postSign();
     }
 
-    public final void sign(String name, Signer signer) throws XMLSecurityException, CryptoException {
+    public final void sign(final String name, final Signer signer) throws XMLSecurityException, CryptoException {
         preSign();
         sig = XMLSecTools.signElement(getURI(), getElement(), name, signer);
         postSign();

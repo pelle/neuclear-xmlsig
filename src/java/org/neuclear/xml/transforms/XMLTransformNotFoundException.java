@@ -6,10 +6,17 @@ package org.neuclear.xml.transforms;
  * User: pelleb
  * Date: Jan 21, 2003
  * Time: 4:38:57 PM
- * $Id: XMLTransformNotFoundException.java,v 1.1 2003/11/11 16:33:24 pelle Exp $
+ * $Id: XMLTransformNotFoundException.java,v 1.2 2003/11/21 04:44:30 pelle Exp $
  * $Log: XMLTransformNotFoundException.java,v $
- * Revision 1.1  2003/11/11 16:33:24  pelle
- * Initial revision
+ * Revision 1.2  2003/11/21 04:44:30  pelle
+ * EncryptedFileStore now works. It uses the PBECipher with DES3 afair.
+ * Otherwise You will Finaliate.
+ * Anything that can be final has been made final throughout everyting. We've used IDEA's Inspector tool to find all instance of variables that could be final.
+ * This should hopefully make everything more stable (and secure).
+ *
+ * Revision 1.1.1.1  2003/11/11 16:33:24  pelle
+ * Moved over from neudist.org
+ * Moved remaining common utilities into commons
  *
  * Revision 1.1  2003/01/21 22:01:43  pelle
  * Added a bunch of test cases for Transforms.
@@ -20,16 +27,16 @@ package org.neuclear.xml.transforms;
  */
 import org.neuclear.xml.xmlsec.XMLSecurityException;
 
-public class XMLTransformNotFoundException extends XMLSecurityException {
-    public XMLTransformNotFoundException(String message) {
+public final class XMLTransformNotFoundException extends XMLSecurityException {
+    public XMLTransformNotFoundException(final String message) {
         super(message);
     }
 
-    public XMLTransformNotFoundException(String message, Throwable t) {
+    public XMLTransformNotFoundException(final String message, final Throwable t) {
         super(message, t);
     }
 
-    public XMLTransformNotFoundException(Throwable t) {
+    public XMLTransformNotFoundException(final Throwable t) {
         super(t);
     }
 }

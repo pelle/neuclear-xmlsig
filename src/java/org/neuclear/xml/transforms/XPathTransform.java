@@ -20,16 +20,16 @@ public class XPathTransform extends Transform {
     public XPathTransform() {
         super(ALGORITHM);
     }
-    public XPathTransform(String xpath) {
+    public XPathTransform(final String xpath) {
         super(ALGORITHM);
 //        this.xpath=xpath;
         setXPath(xpath);
-        Element xpElem=getElement().addElement("XPath");
+        final Element xpElem=getElement().addElement("XPath");
         xpElem.setText(xpath);
         xpElem.addAttribute("xmlns:dsig","&dsig;");
     }
 
-    private void setXPath(String xpath) {
+    private void setXPath(final String xpath) {
 //        XPathFilter=DocumentHelper.createXPath(xpath);
         xpathFilter=DocumentHelper.createXPath(xpath);
         xpathFilter.setNamespaceURIs(nsmap);
@@ -42,16 +42,16 @@ public class XPathTransform extends Transform {
 //        System.out.println("Set XPathFilter to: "+xpath);
     }
 
-    public XPathTransform(Element elem) throws XMLSecurityException {
+    public XPathTransform(final Element elem) throws XMLSecurityException {
         super(elem);
-        Element xpElement=elem.element("XPath");
+        final Element xpElement=elem.element("XPath");
         if (xpElement==null)
             throw new XMLSecurityException("XPath Element not found in Tranform");
-        String xpath=xpElement.getTextTrim();
+        final String xpath=xpElement.getTextTrim();
         setXPath(xpath);
     }
 
-    public Object transformNode(Object in) {
+    public final Object transformNode(final Object in) {
         // XPath needs a document. So if element doesnt have one we add it.
         if (in instanceof Element){
             if (((Element)in).getDocument()==null){
@@ -69,14 +69,14 @@ public class XPathTransform extends Transform {
             iter=((Branch)in).content().listIterator();
         if (iter!=null) {
             while (iter.hasNext()) {
-                Node node = (Node) iter.next();
+                final Node node = (Node) iter.next();
                 if (transformNode(node)==null)
                    iter.remove();
             }
         }
         return in;
     }
-    public boolean matches(Node node){
+    public final boolean matches(final Node node){
         return xpathFilter.matches(node);
     }
  //   private String xpath;

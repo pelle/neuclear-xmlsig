@@ -6,10 +6,17 @@ package org.neuclear.xml.transforms;
  * User: pelleb
  * Date: Jan 21, 2003
  * Time: 3:12:00 PM
- * $Id: DropSignatureTransformTest.java,v 1.1 2003/11/11 16:33:31 pelle Exp $
+ * $Id: DropSignatureTransformTest.java,v 1.2 2003/11/21 04:44:31 pelle Exp $
  * $Log: DropSignatureTransformTest.java,v $
- * Revision 1.1  2003/11/11 16:33:31  pelle
- * Initial revision
+ * Revision 1.2  2003/11/21 04:44:31  pelle
+ * EncryptedFileStore now works. It uses the PBECipher with DES3 afair.
+ * Otherwise You will Finaliate.
+ * Anything that can be final has been made final throughout everyting. We've used IDEA's Inspector tool to find all instance of variables that could be final.
+ * This should hopefully make everything more stable (and secure).
+ *
+ * Revision 1.1.1.1  2003/11/11 16:33:31  pelle
+ * Moved over from neudist.org
+ * Moved remaining common utilities into commons
  *
  * Revision 1.2  2003/02/11 14:50:26  pelle
  * Trying onemore time. Added the benchmarking code.
@@ -31,16 +38,16 @@ import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 
-public class DropSignatureTransformTest extends AbstractTransformTest {
-    public DropSignatureTransformTest(String s) {
+public final class DropSignatureTransformTest extends AbstractTransformTest {
+    public DropSignatureTransformTest(final String s) {
         super(s);
     }
 
-    public Transform createTransform() {
+    public final Transform createTransform() {
         return new DropSignatureTransform();
     }
 
-    public Element getTestElement() {
+    public final Element getTestElement() {
         try {
             return DocumentHelper.parseText(TESTELEMENT).getRootElement();
         } catch (DocumentException e) {
@@ -49,7 +56,7 @@ public class DropSignatureTransformTest extends AbstractTransformTest {
         }
     }
 
-    public Element getExpectedResult() {
+    public final Element getExpectedResult() {
         try {
             return DocumentHelper.parseText(TESTRESULT).getRootElement();
         } catch (DocumentException e) {
@@ -58,6 +65,6 @@ public class DropSignatureTransformTest extends AbstractTransformTest {
         }
     }
 
-    private static String TESTELEMENT="<test><test2/><ds:Signature xmlns:ds=\"http://www.w3.org/2000/09/xmldsig#\"/></test>";
-    private static String TESTRESULT="<test><test2/></test>";
+    private static final String TESTELEMENT="<test><test2/><ds:Signature xmlns:ds=\"http://www.w3.org/2000/09/xmldsig#\"/></test>";
+    private static final String TESTRESULT="<test><test2/></test>";
 }

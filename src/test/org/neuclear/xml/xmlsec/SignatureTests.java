@@ -4,10 +4,17 @@ package org.neuclear.xml.xmlsec;
  * User: pelleb
  * Date: Feb 3, 2003
  * Time: 6:54:20 AM
- * $Id: SignatureTests.java,v 1.1 2003/11/11 16:33:32 pelle Exp $
+ * $Id: SignatureTests.java,v 1.2 2003/11/21 04:44:31 pelle Exp $
  * $Log: SignatureTests.java,v $
- * Revision 1.1  2003/11/11 16:33:32  pelle
- * Initial revision
+ * Revision 1.2  2003/11/21 04:44:31  pelle
+ * EncryptedFileStore now works. It uses the PBECipher with DES3 afair.
+ * Otherwise You will Finaliate.
+ * Anything that can be final has been made final throughout everyting. We've used IDEA's Inspector tool to find all instance of variables that could be final.
+ * This should hopefully make everything more stable (and secure).
+ *
+ * Revision 1.1.1.1  2003/11/11 16:33:32  pelle
+ * Moved over from neudist.org
+ * Moved remaining common utilities into commons
  *
  * Revision 1.6  2003/10/21 22:30:33  pelle
  * Renamed NeudistException to NeuClearException and moved it to org.neuclear.commons where it makes more sense.
@@ -79,8 +86,8 @@ import org.neuclear.commons.NeuClearException;
 
 import java.io.*;
 
-public class SignatureTests extends TestCase {
-    public SignatureTests(String s) {
+public final class SignatureTests extends TestCase {
+    public SignatureTests(final String s) {
         super(s);
         reader=new SAXReader(false);
         reader.setMergeAdjacentText(false);
@@ -89,43 +96,43 @@ public class SignatureTests extends TestCase {
         reader.setIncludeInternalDTDDeclarations(true);
     }
 
-    public void testHomeGrown() throws IOException, DocumentException, NeuClearException {
+    public final void testHomeGrown() throws IOException, DocumentException, NeuClearException {
         runDirectoryTest("src/testdata/homegrown");
     }
 
-    public void testMerlin23() throws IOException, DocumentException, NeuClearException {
+    public final void testMerlin23() throws IOException, DocumentException, NeuClearException {
         runDirectoryTest("src/testdata/merlin-xmldsig-twenty-three");//,"signature-enveloping-dsa\\.xml");
     }
-    public void testPhaos() throws IOException, DocumentException, NeuClearException {
+    public final void testPhaos() throws IOException, DocumentException, NeuClearException {
 //        runDirectoryTest("src/testdata/phaos-xmldsig-two");
     }
 
-    public void runDirectoryTest(String path) throws DocumentException, IOException, FileNotFoundException, NeuClearException {
+    public final void runDirectoryTest(final String path) throws DocumentException, IOException, FileNotFoundException, NeuClearException {
         runDirectoryTest(path,null);
     }
 
-    public void runDirectoryTest(String path,String regex) throws DocumentException, IOException, FileNotFoundException, NeuClearException {
-        File dir=new File(path);
+    public final void runDirectoryTest(final String path,final String regex) throws DocumentException, IOException, FileNotFoundException, NeuClearException {
+        final File dir=new File(path);
         if (!dir.exists()) {
             System.out.println("Doesnt exist");
             return;
         }
-        FilenameFilter filter;
+        final FilenameFilter filter;
         if (regex==null)
             filter=new FilenameFilter(){
-                public boolean accept(File dirf, String name) {
+                public boolean accept(final File dirf, final String name) {
                     return name.endsWith(".xml");
                 }
             };
         else filter=new RegexFileNameFilter(regex);
 
-        File xmlfiles[]=dir.listFiles(filter);
+        final File[] xmlfiles=dir.listFiles(filter);
         System.out.println("There are "+xmlfiles.length+" files in the directory");
         for (int i = 0; i < xmlfiles.length; i++) {
 
-            File xmlfile = xmlfiles[i];
+            final File xmlfile = xmlfiles[i];
             System.out.print("Testing file: "+xmlfile.getName()+"... ");
-            Document doc=reader.read(xmlfile);
+            final Document doc=reader.read(xmlfile);
             System.out.print("root element: "+doc.getRootElement().getQualifiedName()+" ...");
             try {
                 if(XMLSecTools.verifySignature(doc.getRootElement()))
@@ -141,6 +148,6 @@ public class SignatureTests extends TestCase {
 
     }
 
-    SAXReader reader;
+    final SAXReader reader;
 
 }

@@ -1,5 +1,11 @@
-/* $Id: SignatureInfo.java,v 1.2 2003/11/11 21:18:07 pelle Exp $
+/* $Id: SignatureInfo.java,v 1.3 2003/11/21 04:44:31 pelle Exp $
  * $Log: SignatureInfo.java,v $
+ * Revision 1.3  2003/11/21 04:44:31  pelle
+ * EncryptedFileStore now works. It uses the PBECipher with DES3 afair.
+ * Otherwise You will Finaliate.
+ * Anything that can be final has been made final throughout everyting. We've used IDEA's Inspector tool to find all instance of variables that could be final.
+ * This should hopefully make everything more stable (and secure).
+ *
  * Revision 1.2  2003/11/11 21:18:07  pelle
  * Further vital reshuffling.
  * org.neudist.crypto.* and org.neudist.utils.* have been moved to respective areas under org.neuclear.commons
@@ -70,7 +76,7 @@ package org.neuclear.xml.xmlsec;
 
 /**
  * @author pelleb
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  */
 
 import org.dom4j.Element;
@@ -84,18 +90,18 @@ import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.Signature;
 
-public class SignatureInfo extends AbstractXMLSigElement {
-    public SignatureInfo(XMLSignature sig,Element root, String uri, int sigalg,int sigtype) throws XMLSecurityException {
+public final class SignatureInfo extends AbstractXMLSigElement {
+    public SignatureInfo(final XMLSignature sig,final Element root, final String uri, final int sigalg,final int sigtype) throws XMLSecurityException {
         super(SignatureInfo.TAG_NAME);
         this.sig=sig;
         this.algType=sigalg;
 
-        Element cm = XMLSecTools.createElementInSignatureSpace("CanonicalizationMethod");
+        final Element cm = XMLSecTools.createElementInSignatureSpace("CanonicalizationMethod");
         cm.addAttribute("Algorithm", "http://www.w3.org/TR/2001/REC-xml-c14n-20010315");
         try {
             addElement(cm);
 
-            Element sm = XMLSecTools.createElementInSignatureSpace("SignatureMethod");
+            final Element sm = XMLSecTools.createElementInSignatureSpace("SignatureMethod");
             if(sigalg==SignatureInfo.SIG_ALG_RSA)
                 sm.addAttribute("Algorithm", "http://www.w3.org/2000/09/xmldsig#rsa-sha1");
             else
@@ -109,15 +115,15 @@ public class SignatureInfo extends AbstractXMLSigElement {
         }
     }
 
-    public SignatureInfo(XMLSignature sig, Element elem) throws XMLSecurityException {
+    public SignatureInfo(final XMLSignature sig, final Element elem) throws XMLSecurityException {
         super(elem);
         if (!elem.getQName().equals(getQName()) )
             throw new XMLSecurityException("Element: " + elem.getQualifiedName() + " is not a valid: " + XMLSecTools.NS_DS.getPrefix() + ":" + TAG_NAME);
         this.sig=sig;
-        Element c14elem=elem.element(XMLSecTools.createQName("CanonicalizationMethod"));
+        final Element c14elem=elem.element(XMLSecTools.createQName("CanonicalizationMethod"));
         if (c14elem !=null && c14elem.attributeValue("Algorithm").equals("http://www.w3.org/TR/2001/REC-xml-c14n-20010315#WithComments"))
             c14nType=Canonicalizer.C14NTYPE_WITH_COMMENTS;
-        Element refElem = elem.element(XMLSecTools.createQName("Reference"));
+        final Element refElem = elem.element(XMLSecTools.createQName("Reference"));
         if (refElem != null)
             ref = new Reference(refElem,this);
         //Check reference element if signature is enveloped
@@ -130,11 +136,11 @@ public class SignatureInfo extends AbstractXMLSigElement {
      * @return
      * @throws XMLSecurityException
      */
-    public Reference getReference() throws XMLSecurityException {
+    public final Reference getReference() throws XMLSecurityException {
         return ref;
     }
 
-    Canonicalizer getCanonicalizer() {
+    final Canonicalizer getCanonicalizer() {
         if (ref.getSigType()==Reference.XMLSIGTYPE_ENVELOPED)
             return new CanonicalizerWithoutSignature();
         else if (c14nType==Canonicalizer.C14NTYPE_WITH_COMMENTS)
@@ -142,12 +148,12 @@ public class SignatureInfo extends AbstractXMLSigElement {
         return new Canonicalizer();
     }
 
-    XMLSignature getSig() {
+    final XMLSignature getSig() {
         return sig;
     }
 
     //TODO Ignore this bit for now
-    Signature getSignatureAlgorithm() throws XMLSecurityException {
+    final Signature getSignatureAlgorithm() throws XMLSecurityException {
         try {
             return Signature.getInstance("SHA1withRSA", "BC");
         } catch (NoSuchAlgorithmException e) {
@@ -162,11 +168,11 @@ public class SignatureInfo extends AbstractXMLSigElement {
         return XMLSecTools.canonicalize(getCanonicalizer(),getElement());
     }
 
-    public String getTagName() {
+    public final String getTagName() {
         return TAG_NAME;
     }
 
-    private static String TAG_NAME = "SignedInfo";
+    private static final String TAG_NAME = "SignedInfo";
     private Reference ref;
     private int c14nType=0;
     private int algType=0;

@@ -4,10 +4,17 @@ package org.neuclear.xml.transforms;
  * User: pelleb
  * Date: Jan 27, 2003
  * Time: 10:02:07 AM
- * $Id: DropSignatureTransform.java,v 1.1 2003/11/11 16:33:24 pelle Exp $
+ * $Id: DropSignatureTransform.java,v 1.2 2003/11/21 04:44:30 pelle Exp $
  * $Log: DropSignatureTransform.java,v $
- * Revision 1.1  2003/11/11 16:33:24  pelle
- * Initial revision
+ * Revision 1.2  2003/11/21 04:44:30  pelle
+ * EncryptedFileStore now works. It uses the PBECipher with DES3 afair.
+ * Otherwise You will Finaliate.
+ * Anything that can be final has been made final throughout everyting. We've used IDEA's Inspector tool to find all instance of variables that could be final.
+ * This should hopefully make everything more stable (and secure).
+ *
+ * Revision 1.1.1.1  2003/11/11 16:33:24  pelle
+ * Moved over from neudist.org
+ * Moved remaining common utilities into commons
  *
  * Revision 1.3  2003/02/22 16:54:29  pelle
  * Major structural changes in the whole processing framework.
@@ -33,23 +40,23 @@ import org.neuclear.xml.xmlsec.XMLSecurityException;
 
 import java.util.ListIterator;
 
-public class DropSignatureTransform extends Transform{
+public final class DropSignatureTransform extends Transform{
     public DropSignatureTransform() {
         super(ALGORITHM);
     }
 
-    public DropSignatureTransform(Element elem) throws XMLSecurityException {
+    public DropSignatureTransform(final Element elem) throws XMLSecurityException {
         super(elem);
     }
 
 
-    public Object transformNode(Object in) {
+    public final Object transformNode(final Object in) {
         if (in instanceof Document){
             transformNode(((Document)in).getRootElement());
         } else if (in instanceof Element){
-            ListIterator iter=((Branch)in).content().listIterator();
+            final ListIterator iter=((Branch)in).content().listIterator();
             while(iter.hasNext()) {
-                Node node=(Node)iter.next();
+                final Node node=(Node)iter.next();
                 if ((node instanceof Element)&&(((Element)node).getQName().equals(subject)) )
                     iter.remove();
 //                else if (node instanceof Branch) {

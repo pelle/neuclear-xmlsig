@@ -5,8 +5,14 @@ package org.neuclear.xml.xmlsec;
  * User: pelleb
  * Date: Feb 8, 2003
  * Time: 12:15:24 PM
- * $Id: QuickEmbeddedSignature.java,v 1.2 2003/11/11 21:18:07 pelle Exp $
+ * $Id: QuickEmbeddedSignature.java,v 1.3 2003/11/21 04:44:31 pelle Exp $
  * $Log: QuickEmbeddedSignature.java,v $
+ * Revision 1.3  2003/11/21 04:44:31  pelle
+ * EncryptedFileStore now works. It uses the PBECipher with DES3 afair.
+ * Otherwise You will Finaliate.
+ * Anything that can be final has been made final throughout everyting. We've used IDEA's Inspector tool to find all instance of variables that could be final.
+ * This should hopefully make everything more stable (and secure).
+ *
  * Revision 1.2  2003/11/11 21:18:07  pelle
  * Further vital reshuffling.
  * org.neudist.crypto.* and org.neudist.utils.* have been moved to respective areas under org.neuclear.commons
@@ -107,45 +113,45 @@ import java.util.Date;
 /**
  * This a class to quickly create NeuDist format standard signatures
  */
-public class QuickEmbeddedSignature extends XMLSignature {
-    public QuickEmbeddedSignature(KeyPair keypair, Element root, String uri) throws XMLSecurityException, CryptoException {
+public final class QuickEmbeddedSignature extends XMLSignature {
+    public QuickEmbeddedSignature(final KeyPair keypair, final Element root, final String uri) throws XMLSecurityException, CryptoException {
         this(keypair.getPrivate(), root, uri);
-        Element sig = getElement();
-        KeyInfo key = new KeyInfo(keypair.getPublic());
+        final Element sig = getElement();
+        final KeyInfo key = new KeyInfo(keypair.getPublic());
         sig.add(key.getElement());
     }
 
-    public QuickEmbeddedSignature(PrivateKey key, Element root, String uri) throws XMLSecurityException, CryptoException {
+    public QuickEmbeddedSignature(final PrivateKey key, final Element root, final String uri) throws XMLSecurityException, CryptoException {
         super(getSignatureElement(root, key));
-        Element sig = getElement();
+        final Element sig = getElement();
 
         getSi().getReference().setDigest();
 
-        byte[] canonicalizedSignedInfo = XMLSecTools.canonicalize(sig.element("SignedInfo"));
+        final byte[] canonicalizedSignedInfo = XMLSecTools.canonicalize(sig.element("SignedInfo"));
         sig.add(XMLSecTools.base64ToElement("SignatureValue", CryptoTools.sign(key, canonicalizedSignedInfo)));
     }
 
-    public QuickEmbeddedSignature(String name, Signer signer, Element root, String uri) throws XMLSecurityException, CryptoException {
+    public QuickEmbeddedSignature(final String name, final Signer signer, final Element root, final String uri) throws XMLSecurityException, CryptoException {
         super(getSignatureElement(root,signer.getKeyType(name)));
-        Element sig = getElement();
+        final Element sig = getElement();
 
         getSi().getReference().setDigest();
 
-        byte[] canonicalizedSignedInfo = XMLSecTools.canonicalize(sig.element("SignedInfo"));
+        final byte[] canonicalizedSignedInfo = XMLSecTools.canonicalize(sig.element("SignedInfo"));
         sig.add(XMLSecTools.base64ToElement("SignatureValue", signer.sign(name, canonicalizedSignedInfo)));
     }
 
 
-    private synchronized static Element getRSASigElement(Element root) throws DocumentException {
+    private synchronized static Element getRSASigElement(final Element root) throws DocumentException {
         if (SIGNATURETEMPLATE == null)
             SIGNATURETEMPLATE = DocumentHelper.parseText(SIGNATURETEMPLATE_TEXT).getRootElement();
-        Element sig = SIGNATURETEMPLATE.createCopy();
+        final Element sig = SIGNATURETEMPLATE.createCopy();
         root.add(sig);
         return sig;
     }
 
     //overloading, because maybe there is another class calling the original static method
-    private static Element getSignatureElement(Element root, PrivateKey key) throws XMLSecurityException {
+    private static Element getSignatureElement(final Element root, final PrivateKey key) throws XMLSecurityException {
         if (key instanceof RSAPrivateKey)
             return getSignatureElement(root,SignatureInfo.SIG_ALG_RSA);
         if (key instanceof DSAPrivateKey)
@@ -153,8 +159,8 @@ public class QuickEmbeddedSignature extends XMLSignature {
         throw new XMLSecurityException("We only handle RSA or DSA keys not: "+key.getClass().getName());
     }
     //overloading, because maybe there is another class calling the original static method
-    private static Element getSignatureElement(Element root, int keytype) throws XMLSecurityException {
-        Element signatureElement = null;
+    private static Element getSignatureElement(final Element root, final int keytype) throws XMLSecurityException {
+        final Element signatureElement = null;
         try {
             if (keytype == SignatureInfo.SIG_ALG_RSA)
                 return getRSASigElement(root);
@@ -167,8 +173,8 @@ public class QuickEmbeddedSignature extends XMLSignature {
         }
     }
 
-    private synchronized static Element getDSASigElement(Element root) throws DocumentException {
-        Element signatureElement;
+    private synchronized static Element getDSASigElement(final Element root) throws DocumentException {
+        final Element signatureElement;
         if (DSASIGNATURETEMPLATE == null)
             DSASIGNATURETEMPLATE =
                     DocumentHelper.parseText(DSASIGNATURETEMPLATE_TEXT).getRootElement();
@@ -178,7 +184,7 @@ public class QuickEmbeddedSignature extends XMLSignature {
     }
 
     private static Element SIGNATURETEMPLATE;
-    private static String SIGNATURETEMPLATE_TEXT = "<ds:Signature xmlns:ds=\"http://www.w3.org/2000/09/xmldsig#\">" +
+    private static final String SIGNATURETEMPLATE_TEXT = "<ds:Signature xmlns:ds=\"http://www.w3.org/2000/09/xmldsig#\">" +
             "<ds:SignedInfo>" +
             "<ds:CanonicalizationMethod Algorithm=\"http://www.w3.org/TR/2001/REC-xml-c14n-20010315\"/>" +
             "<ds:SignatureMethod Algorithm=\"http://www.w3.org/2000/09/xmldsig#rsa-sha1\"/>" +
@@ -189,7 +195,7 @@ public class QuickEmbeddedSignature extends XMLSignature {
             "</ds:SignedInfo></ds:Signature>";
 
     private static Element DSASIGNATURETEMPLATE;
-    private static String DSASIGNATURETEMPLATE_TEXT = "<ds:Signature xmlns:ds=\"http://www.w3.org/2000/09/xmldsig#\">" +
+    private static final String DSASIGNATURETEMPLATE_TEXT = "<ds:Signature xmlns:ds=\"http://www.w3.org/2000/09/xmldsig#\">" +
             "<ds:SignedInfo>" +
             "<ds:CanonicalizationMethod Algorithm=\"http://www.w3.org/TR/2001/REC-xml-c14n-20010315\"/>" +
             "<ds:SignatureMethod Algorithm=\"http://www.w3.org/2000/09/xmldsig#dsa-sha1\"/>" +
@@ -200,12 +206,12 @@ public class QuickEmbeddedSignature extends XMLSignature {
             "</ds:SignedInfo></ds:Signature>";
 
 
-    public static void main(String args[]) {
+    public static void main(final String[] args) {
         try {
-            KeyPair kp = CryptoTools.createKeyPair();
+            final KeyPair kp = CryptoTools.createKeyPair();
 //            KeyInfo keyinfo=new KeyInfo(kp.getPublic());
             Document doc = DocumentHelper.parseText("<test>One Two<test2/></test>");
-            XMLSignature xmlsig = new QuickEmbeddedSignature(kp, doc.getRootElement(), "uri:test");
+            final XMLSignature xmlsig = new QuickEmbeddedSignature(kp, doc.getRootElement(), "uri:test");
             doc.getRootElement().add(xmlsig.getElement());
             System.out.println(doc.asXML());
             System.out.println("Starting benchmarks");
@@ -216,7 +222,7 @@ public class QuickEmbeddedSignature extends XMLSignature {
             }
             long end = new Date().getTime();
             System.out.println("1000 signatures took " + (end - start) + "ms or " + (end - start) / 1000 + "ms per signature");
-            String signed = doc.asXML();
+            final String signed = doc.asXML();
             start = new Date().getTime();
             for (int i = 0; i < 1000; i++) {
                 doc = DocumentHelper.parseText(signed);

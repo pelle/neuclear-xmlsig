@@ -9,8 +9,14 @@ import java.io.Writer;
  * User: pelleb
  * Date: Feb 8, 2003
  * Time: 9:23:01 AM
- * $Id: CanonicalizerWithComments.java,v 1.2 2003/11/11 21:18:07 pelle Exp $
+ * $Id: CanonicalizerWithComments.java,v 1.3 2003/11/21 04:44:30 pelle Exp $
  * $Log: CanonicalizerWithComments.java,v $
+ * Revision 1.3  2003/11/21 04:44:30  pelle
+ * EncryptedFileStore now works. It uses the PBECipher with DES3 afair.
+ * Otherwise You will Finaliate.
+ * Anything that can be final has been made final throughout everyting. We've used IDEA's Inspector tool to find all instance of variables that could be final.
+ * This should hopefully make everything more stable (and secure).
+ *
  * Revision 1.2  2003/11/11 21:18:07  pelle
  * Further vital reshuffling.
  * org.neudist.crypto.* and org.neudist.utils.* have been moved to respective areas under org.neuclear.commons
@@ -33,7 +39,7 @@ import java.io.Writer;
  * a lot more efficient than the previous approach.
  *
  */
-public class CanonicalizerWithComments extends Canonicalizer{
+public final class CanonicalizerWithComments extends Canonicalizer{
     public CanonicalizerWithComments() {
         super(XPATH_W_COMMENTS);
     }

@@ -26,10 +26,17 @@ You should have received a copy of the GNU Lesser General Public
 License along with this library; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-$Id: XMLInputStreamServlet.java,v 1.1 2003/11/11 16:33:23 pelle Exp $
+$Id: XMLInputStreamServlet.java,v 1.2 2003/11/21 04:44:30 pelle Exp $
 $Log: XMLInputStreamServlet.java,v $
-Revision 1.1  2003/11/11 16:33:23  pelle
-Initial revision
+Revision 1.2  2003/11/21 04:44:30  pelle
+EncryptedFileStore now works. It uses the PBECipher with DES3 afair.
+Otherwise You will Finaliate.
+Anything that can be final has been made final throughout everyting. We've used IDEA's Inspector tool to find all instance of variables that could be final.
+This should hopefully make everything more stable (and secure).
+
+Revision 1.1.1.1  2003/11/11 16:33:23  pelle
+Moved over from neudist.org
+Moved remaining common utilities into commons
 
 Revision 1.2  2003/11/09 03:27:09  pelle
 More house keeping and shuffling about mainly pay
@@ -47,9 +54,9 @@ First real neuclear stuff in the payment package. Added TransferContract and Ass
  * Time: 1:07:57 PM
  */
 public abstract class XMLInputStreamServlet extends HttpServlet {
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doGet(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
         response.setContentType("text/html");
-        PrintWriter out = response.getWriter();
+        final PrintWriter out = response.getWriter();
         out.println("<html><head><title>SOAP Servlet</title></head><body>");
         out.println("<h3>");
         out.println(getClass().getName());
@@ -61,9 +68,9 @@ public abstract class XMLInputStreamServlet extends HttpServlet {
 
     }
 
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doPost(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
         if (request.getContentType().equals("text/xml")) {
-            InputStream is = request.getInputStream();
+            final InputStream is = request.getInputStream();
             handleInputStream(is, request, response);
         }
     }

@@ -1,7 +1,14 @@
-/* $Id: XMLSecurityException.java,v 1.1 2003/11/11 16:33:28 pelle Exp $
+/* $Id: XMLSecurityException.java,v 1.2 2003/11/21 04:44:31 pelle Exp $
  * $Log: XMLSecurityException.java,v $
- * Revision 1.1  2003/11/11 16:33:28  pelle
- * Initial revision
+ * Revision 1.2  2003/11/21 04:44:31  pelle
+ * EncryptedFileStore now works. It uses the PBECipher with DES3 afair.
+ * Otherwise You will Finaliate.
+ * Anything that can be final has been made final throughout everyting. We've used IDEA's Inspector tool to find all instance of variables that could be final.
+ * This should hopefully make everything more stable (and secure).
+ *
+ * Revision 1.1.1.1  2003/11/11 16:33:28  pelle
+ * Moved over from neudist.org
+ * Moved remaining common utilities into commons
  *
  * Revision 1.2  2003/02/08 18:48:38  pelle
  * The Signature phase has been rewritten.
@@ -25,21 +32,21 @@ package org.neuclear.xml.xmlsec;
 
 /**
  * @author pelleb
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 
 import org.neuclear.xml.XMLException;
 
 public class XMLSecurityException extends XMLException {
-    public XMLSecurityException(String message) {
+    public XMLSecurityException(final String message) {
         super(message);
     }
 
-    public XMLSecurityException(Throwable t) {
+    public XMLSecurityException(final Throwable t) {
         super(t);
     }
 
-    public XMLSecurityException(String message, Throwable t) {
+    public XMLSecurityException(final String message, final Throwable t) {
         super(message, t);
     }
 }
