@@ -142,21 +142,20 @@ public final class KeyInfo extends AbstractXMLSigElement {
         final String name=element.getTextTrim();
         return KeyResolverFactory.getInstance().resolve(name);
     }
-    private PublicKey parseX509(final Element element){
+    private PublicKey parseX509(final Element element) throws XMLSecurityException {
         return extractX509(element).getPublicKey();
     }
-    private X509Certificate extractX509(final Element element){
-        Element x509Data=element.element("X509Data");
+    private X509Certificate extractX509(final Element element) throws XMLSecurityException {
+        Element x509Data=element.element("X509Certificate");
         if (x509Data!=null){
             try {
                 byte encoded[]=XMLSecTools.decodeBase64Element(x509Data);
-                CertificateFactory fact=CertificateFactory.getInstance("X509v3");
+                CertificateFactory fact=CertificateFactory.getInstance("X.509");
                 X509Certificate cert=(X509Certificate) fact.generateCertificate(new ByteArrayInputStream(encoded));
                 return cert;
-            } catch (XMLSecurityException e) {
-                return null;
             } catch (CertificateException e) {
-                return null;
+                throw new XMLSecurityException(e);
+
             }
         }
         return null;

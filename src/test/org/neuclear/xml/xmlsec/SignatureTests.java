@@ -4,8 +4,12 @@ package org.neuclear.xml.xmlsec;
  * User: pelleb
  * Date: Feb 3, 2003
  * Time: 6:54:20 AM
- * $Id: SignatureTests.java,v 1.3 2004/01/14 16:34:27 pelle Exp $
+ * $Id: SignatureTests.java,v 1.4 2004/01/14 17:07:59 pelle Exp $
  * $Log: SignatureTests.java,v $
+ * Revision 1.4  2004/01/14 17:07:59  pelle
+ * KeyInfo containing X509Certificates now work correctly.
+ * 10 out of 16 of merlin's tests now work. The missing ones are largely due to key resolution issues. (Read X509)
+ *
  * Revision 1.3  2004/01/14 16:34:27  pelle
  * New model of references and signatures now pretty much works.
  * I am still not 100% sure on the created enveloping signatures. I need to do more testing.
@@ -147,7 +151,7 @@ public final class SignatureTests extends TestCase {
                     System.out.println("FAILED: "+(errors++));
             } catch (Exception e) {
                     System.out.println("ERROR: "+(errors++)+e.getMessage());
-//                e.printStackTrace();  //To change body of catch statement use Options | File Templates.
+                e.printStackTrace();  //To change body of catch statement use Options | File Templates.
             }
         }
         System.out.println(errors +" out of "+i+" documents failed");

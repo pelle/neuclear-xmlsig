@@ -1,5 +1,9 @@
-/* $Id: Reference.java,v 1.7 2004/01/14 16:34:27 pelle Exp $
+/* $Id: Reference.java,v 1.8 2004/01/14 17:07:59 pelle Exp $
  * $Log: Reference.java,v $
+ * Revision 1.8  2004/01/14 17:07:59  pelle
+ * KeyInfo containing X509Certificates now work correctly.
+ * 10 out of 16 of merlin's tests now work. The missing ones are largely due to key resolution issues. (Read X509)
+ *
  * Revision 1.7  2004/01/14 16:34:27  pelle
  * New model of references and signatures now pretty much works.
  * I am still not 100% sure on the created enveloping signatures. I need to do more testing.
@@ -122,7 +126,7 @@ package org.neuclear.xml.xmlsec;
  * The Reference class implements the W3C XML Signature Spec Reference Object.
  * The basic contract says that once it has been instantiated the digest value within is valid.
  * @author pelleb
- * @version $Revision: 1.7 $
+ * @version $Revision: 1.8 $
  */
 
 import org.dom4j.Element;
@@ -164,7 +168,7 @@ public final class Reference extends AbstractXMLSigElement {
         } else if (sigtype == XMLSIGTYPE_ENVELOPING){
 
             canon= new Canonicalizer();
-            object=DocumentHelper.createElement("Object");
+            object=getElement().getParent().getParent().addElement("Object");
             object.addAttribute("Id","data");
             object.add(root.createCopy());
         } else {
