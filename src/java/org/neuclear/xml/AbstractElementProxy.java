@@ -1,6 +1,9 @@
 /*
- * $Id: AbstractElementProxy.java,v 1.12 2004/03/19 22:21:51 pelle Exp $
+ * $Id: AbstractElementProxy.java,v 1.13 2004/03/22 20:09:17 pelle Exp $
  * $Log: AbstractElementProxy.java,v $
+ * Revision 1.13  2004/03/22 20:09:17  pelle
+ * Added simple ledger for unit testing and in memory use
+ *
  * Revision 1.12  2004/03/19 22:21:51  pelle
  * Changes in the XMLSignature class, which is now Abstract there are currently 3 implementations for:
  * - Enveloped
@@ -28,8 +31,8 @@
  * Added AbstractObjectCreationTest to make it quicker to write unit tests to verify
  * NamedObjectBuilder/SignedNamedObject Pairs.
  * Sample application has been expanded with a basic email application.
- * Updated docs for sample web app.
- * Added missing LGPL LICENSE.txt files to signer and sample app
+ * Updated docs for simple web app.
+ * Added missing LGPL LICENSE.txt files to signer and simple app
  *
  * Revision 1.7  2003/12/11 23:56:53  pelle
  * Trying to test the ReceiverServlet with cactus. Still no luck. Need to return a ElementProxy of some sort.
