@@ -29,8 +29,12 @@ You should have received a copy of the GNU Lesser General Public
 License along with this library; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-$Id: RefTest.java,v 1.5 2004/02/19 00:28:00 pelle Exp $
+$Id: RefTest.java,v 1.6 2004/03/02 18:39:57 pelle Exp $
 $Log: RefTest.java,v $
+Revision 1.6  2004/03/02 18:39:57  pelle
+Done some more minor fixes within xmlsig, but mainly I've removed the old Source and Store patterns and sub packages. This is because
+they really are no longer necessary with the new non naming naming system.
+
 Revision 1.5  2004/02/19 00:28:00  pelle
 Discovered several incompatabilities with the xmlsig implementation. Have been working on getting it working.
 Currently there is still a problem with enveloping signatures and it seems enveloped signatures done via signers.
@@ -61,7 +65,7 @@ public class RefTest extends TestCase {
     }
 
     public void testExternalReference() throws XMLException, CryptoException, MalformedURLException {
-        File rfile=new File("src/testdata/homegrown/signature-enveloped-rsa.xml");
+        File rfile=new File("project.xml");
         final String uri = rfile.toURL().toExternalForm();
         Reference ref=new Reference(uri);
         assertNotNull(ref);

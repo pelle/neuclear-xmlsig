@@ -19,8 +19,12 @@ import java.security.interfaces.DSAPublicKey;
  * User: pelleb
  * Date: Jan 20, 2003
  * Time: 3:49:27 PM
- * $Id: SimpleXMLSigTest.java,v 1.8 2004/02/19 00:28:00 pelle Exp $
+ * $Id: SimpleXMLSigTest.java,v 1.9 2004/03/02 18:39:57 pelle Exp $
  * $Log: SimpleXMLSigTest.java,v $
+ * Revision 1.9  2004/03/02 18:39:57  pelle
+ * Done some more minor fixes within xmlsig, but mainly I've removed the old Source and Store patterns and sub packages. This is because
+ * they really are no longer necessary with the new non naming naming system.
+ *
  * Revision 1.8  2004/02/19 00:28:00  pelle
  * Discovered several incompatabilities with the xmlsig implementation. Have been working on getting it working.
  * Currently there is still a problem with enveloping signatures and it seems enveloped signatures done via signers.

@@ -1,5 +1,9 @@
-/* $Id: Reference.java,v 1.10 2004/02/19 00:27:59 pelle Exp $
+/* $Id: Reference.java,v 1.11 2004/03/02 18:39:57 pelle Exp $
  * $Log: Reference.java,v $
+ * Revision 1.11  2004/03/02 18:39:57  pelle
+ * Done some more minor fixes within xmlsig, but mainly I've removed the old Source and Store patterns and sub packages. This is because
+ * they really are no longer necessary with the new non naming naming system.
+ *
  * Revision 1.10  2004/02/19 00:27:59  pelle
  * Discovered several incompatabilities with the xmlsig implementation. Have been working on getting it working.
  * Currently there is still a problem with enveloping signatures and it seems enveloped signatures done via signers.
@@ -133,7 +137,7 @@ package org.neuclear.xml.xmlsec;
  * The Reference class implements the W3C XML Signature Spec Reference Object.
  * The basic contract says that once it has been instantiated the digest value within is valid.
  * @author pelleb
- * @version $Revision: 1.10 $
+ * @version $Revision: 1.11 $
  */
 
 import org.dom4j.Element;
@@ -164,14 +168,17 @@ public final class Reference extends AbstractXMLSigElement {
     public Reference(final Element root, final int sigtype) throws XMLSecurityException {
         super(Reference.TAG_NAME);
         final Canonicalizer canon;
+        Object ref=null;
         Element transformsElement = addElement("Transforms");
 //        final Element object;
         if (sigtype == XMLSIGTYPE_ENVELOPED){
             createAttribute("URI","");
             canon=new CanonicalizerWithoutSignature();
             transformsElement.addElement(XMLSecTools.createQName("Transform")).addAttribute("Algorithm","http://www.w3.org/2000/09/xmldsig#enveloped-signature");
+            ref=root;
         } else if (sigtype == XMLSIGTYPE_ENVELOPING){
             canon= new Canonicalizer();
+            ref=root;
         } else {
             throw new XMLSecurityException("Unsupported Signature Method");
         }
@@ -182,7 +189,7 @@ public final class Reference extends AbstractXMLSigElement {
         if (!Utility.isEmpty(id))
             createAttribute("URI","#"+id);
 
-        addDigest(canon,root);
+        addDigest(canon,ref);
     }
 
 
@@ -246,7 +253,7 @@ public final class Reference extends AbstractXMLSigElement {
         if (!Utility.isEmpty(id)&&id.length()>1){
             if (id.startsWith("#")){
 //                System.out.println("Ref: "+id.substring(1));
-                return XMLTools.getByID(elem,id.substring(1));
+                return XMLTools.getByID(elem,id.substring(1));//.createCopy();
             }
             // Non Local URI, we need to load it
             return loadReference(id);

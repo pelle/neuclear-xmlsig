@@ -1,5 +1,9 @@
-/* $Id: XMLSignature.java,v 1.12 2004/02/19 00:27:59 pelle Exp $
+/* $Id: XMLSignature.java,v 1.13 2004/03/02 18:39:57 pelle Exp $
  * $Log: XMLSignature.java,v $
+ * Revision 1.13  2004/03/02 18:39:57  pelle
+ * Done some more minor fixes within xmlsig, but mainly I've removed the old Source and Store patterns and sub packages. This is because
+ * they really are no longer necessary with the new non naming naming system.
+ *
  * Revision 1.12  2004/02/19 00:27:59  pelle
  * Discovered several incompatabilities with the xmlsig implementation. Have been working on getting it working.
  * Currently there is still a problem with enveloping signatures and it seems enveloped signatures done via signers.
@@ -176,7 +180,7 @@ package org.neuclear.xml.xmlsec;
 
 /**
  * @author pelleb
- * @version $Revision: 1.12 $
+ * @version $Revision: 1.13 $
  */
 
 import org.dom4j.DocumentHelper;
@@ -310,9 +314,9 @@ public class XMLSignature extends AbstractXMLSigElement {
 
         final byte[] sig = getSignature();
         final byte[] cansi = si.canonicalize();
-        System.out.println("Canonicalized:");
-        System.out.println(new String(cansi));
-        System.out.println("------");
+//        System.out.println("Canonicalized:");
+//        System.out.println(new String(cansi));
+//        System.out.println("------");
 
         try {
             if (!CryptoTools.verify(key.getPublicKey(), cansi, sig))
