@@ -4,10 +4,17 @@ package org.neuclear.xml.c14;
  * User: pelleb
  * Date: Feb 3, 2003
  * Time: 6:54:20 AM
- * $Id: CanonicalizationTest.java,v 1.1 2003/11/11 16:33:30 pelle Exp $
+ * $Id: CanonicalizationTest.java,v 1.2 2003/11/11 21:18:08 pelle Exp $
  * $Log: CanonicalizationTest.java,v $
- * Revision 1.1  2003/11/11 16:33:30  pelle
- * Initial revision
+ * Revision 1.2  2003/11/11 21:18:08  pelle
+ * Further vital reshuffling.
+ * org.neudist.crypto.* and org.neudist.utils.* have been moved to respective areas under org.neuclear.commons
+ * org.neuclear.signers.* as well as org.neuclear.passphraseagents have been moved under org.neuclear.commons.crypto as well.
+ * Did a bit of work on the Canonicalizer and changed a few other minor bits.
+ *
+ * Revision 1.1.1.1  2003/11/11 16:33:30  pelle
+ * Moved over from neudist.org
+ * Moved remaining common utilities into commons
  *
  * Revision 1.5  2003/09/29 23:44:54  pelle
  * Trying to tweak Canonicalizer to function better.
@@ -52,6 +59,7 @@ import org.dom4j.io.SAXReader;
 import org.neuclear.xml.xmlsec.XMLSecTools;
 
 import java.io.*;
+import java.net.URL;
 
 public class CanonicalizationTest extends TestCase {
     public CanonicalizationTest(String s) {
@@ -61,6 +69,7 @@ public class CanonicalizationTest extends TestCase {
         reader.setStripWhitespaceText(false);
         reader.setIncludeExternalDTDDeclarations(true);
         reader.setIncludeInternalDTDDeclarations(true);
+
     }
 
 
@@ -74,11 +83,12 @@ public class CanonicalizationTest extends TestCase {
     }
 
     public void runDirectoryTest(String path) throws DocumentException, IOException, FileNotFoundException {
-        File dir=new File(path);
+        File dir=new File(path).getAbsoluteFile();
         if (!dir.exists()) {
             System.out.println("Doesnt exist");
             return;
         }
+
         //FilenameFilter filter=FilenameFilter;
         File xmlfiles[]=dir.listFiles(new FilenameFilter(){
            public boolean accept(File dirf, String name) {
@@ -97,7 +107,7 @@ public class CanonicalizationTest extends TestCase {
                 try {
                     if (xmlfile.getName().equals("example-6.xml"))
                         System.out.println("Here we go");
-                    Document doc=reader.read(xmlfile);
+                    Document doc=reader.read(xmlfile.toURL());
                     byte[] ourbytes=null;
                     if (hasXPath(xmlfile)) {
                         File xpathFile=getXPathFileName(xmlfile);

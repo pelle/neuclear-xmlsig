@@ -5,10 +5,17 @@ package org.neuclear.xml.xmlsec;
  * User: pelleb
  * Date: Feb 8, 2003
  * Time: 12:15:24 PM
- * $Id: QuickEmbeddedSignature.java,v 1.1 2003/11/11 16:33:28 pelle Exp $
+ * $Id: QuickEmbeddedSignature.java,v 1.2 2003/11/11 21:18:07 pelle Exp $
  * $Log: QuickEmbeddedSignature.java,v $
- * Revision 1.1  2003/11/11 16:33:28  pelle
- * Initial revision
+ * Revision 1.2  2003/11/11 21:18:07  pelle
+ * Further vital reshuffling.
+ * org.neudist.crypto.* and org.neudist.utils.* have been moved to respective areas under org.neuclear.commons
+ * org.neuclear.signers.* as well as org.neuclear.passphraseagents have been moved under org.neuclear.commons.crypto as well.
+ * Did a bit of work on the Canonicalizer and changed a few other minor bits.
+ *
+ * Revision 1.1.1.1  2003/11/11 16:33:28  pelle
+ * Moved over from neudist.org
+ * Moved remaining common utilities into commons
  *
  * Revision 1.12  2003/11/08 22:21:17  pelle
  * Fixed a few things with regards to the SOAPTools class.
@@ -87,7 +94,7 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.neuclear.commons.crypto.Base64;
 import org.neuclear.commons.crypto.CryptoTools;
-import org.neuclear.commons.crypto.Signer;
+import org.neuclear.commons.crypto.signers.Signer;
 import org.neuclear.commons.crypto.CryptoException;
 
 import java.security.KeyPair;
@@ -143,13 +150,13 @@ public class QuickEmbeddedSignature extends XMLSignature {
             return getSignatureElement(root,SignatureInfo.SIG_ALG_RSA);
         if (key instanceof DSAPrivateKey)
             return getSignatureElement(root,SignatureInfo.SIG_ALG_DSA);
-        return null;
+        throw new XMLSecurityException("We only handle RSA or DSA keys not: "+key.getClass().getName());
     }
     //overloading, because maybe there is another class calling the original static method
     private static Element getSignatureElement(Element root, int keytype) throws XMLSecurityException {
         Element signatureElement = null;
         try {
-            if (keytype == SignatureInfo.SIG_ALG_DSA)
+            if (keytype == SignatureInfo.SIG_ALG_RSA)
                 return getRSASigElement(root);
             if (keytype == SignatureInfo.SIG_ALG_DSA)
                 return getDSASigElement(root);

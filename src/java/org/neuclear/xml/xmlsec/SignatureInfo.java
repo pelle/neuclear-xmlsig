@@ -1,7 +1,14 @@
-/* $Id: SignatureInfo.java,v 1.1 2003/11/11 16:33:25 pelle Exp $
+/* $Id: SignatureInfo.java,v 1.2 2003/11/11 21:18:07 pelle Exp $
  * $Log: SignatureInfo.java,v $
- * Revision 1.1  2003/11/11 16:33:25  pelle
- * Initial revision
+ * Revision 1.2  2003/11/11 21:18:07  pelle
+ * Further vital reshuffling.
+ * org.neudist.crypto.* and org.neudist.utils.* have been moved to respective areas under org.neuclear.commons
+ * org.neuclear.signers.* as well as org.neuclear.passphraseagents have been moved under org.neuclear.commons.crypto as well.
+ * Did a bit of work on the Canonicalizer and changed a few other minor bits.
+ *
+ * Revision 1.1.1.1  2003/11/11 16:33:25  pelle
+ * Moved over from neudist.org
+ * Moved remaining common utilities into commons
  *
  * Revision 1.9  2003/11/08 20:27:02  pelle
  * Updated the Signer interface to return a key type to be used for XML SignatureInfo. Thus we now support DSA sigs yet again.
@@ -63,7 +70,7 @@ package org.neuclear.xml.xmlsec;
 
 /**
  * @author pelleb
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 
 import org.dom4j.Element;
@@ -71,7 +78,7 @@ import org.neuclear.xml.XMLException;
 import org.neuclear.xml.c14.Canonicalizer;
 import org.neuclear.xml.c14.CanonicalizerWithComments;
 import org.neuclear.xml.c14.CanonicalizerWithoutSignature;
-import org.neuclear.commons.crypto.Signer;
+import org.neuclear.commons.crypto.signers.Signer;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;

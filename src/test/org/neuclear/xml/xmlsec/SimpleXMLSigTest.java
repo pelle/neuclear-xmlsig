@@ -4,33 +4,32 @@ import junit.framework.TestCase;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
-import org.dom4j.Element;
-import org.neuclear.commons.crypto.CryptoTools;
 import org.neuclear.commons.crypto.CryptoException;
-import org.neuclear.commons.NeuClearException;
-import org.neuclear.test.JunitTools;
-import org.neuclear.xml.c14.Canonicalizer;
-import org.neuclear.xml.c14.CanonicalizerWithComments;
-import org.neuclear.xml.transforms.DropSignatureTransform;
-import org.neuclear.xml.XMLTools;
+import org.neuclear.commons.test.JunitTools;
 import org.neuclear.xml.XMLException;
+import org.neuclear.xml.XMLTools;
 
+import java.io.File;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
-import java.security.PublicKey;
 import java.security.interfaces.DSAPublicKey;
-import java.security.interfaces.RSAPublicKey;
-import java.io.File;
 
 /**
  * (C) 2003 Antilles Software Ventures SA
  * User: pelleb
  * Date: Jan 20, 2003
  * Time: 3:49:27 PM
- * $Id: SimpleXMLSigTest.java,v 1.1 2003/11/11 16:33:32 pelle Exp $
+ * $Id: SimpleXMLSigTest.java,v 1.2 2003/11/11 21:18:08 pelle Exp $
  * $Log: SimpleXMLSigTest.java,v $
- * Revision 1.1  2003/11/11 16:33:32  pelle
- * Initial revision
+ * Revision 1.2  2003/11/11 21:18:08  pelle
+ * Further vital reshuffling.
+ * org.neudist.crypto.* and org.neudist.utils.* have been moved to respective areas under org.neuclear.commons
+ * org.neuclear.signers.* as well as org.neuclear.passphraseagents have been moved under org.neuclear.commons.crypto as well.
+ * Did a bit of work on the Canonicalizer and changed a few other minor bits.
+ *
+ * Revision 1.1.1.1  2003/11/11 16:33:32  pelle
+ * Moved over from neudist.org
+ * Moved remaining common utilities into commons
  *
  * Revision 1.9  2003/10/21 22:30:34  pelle
  * Renamed NeudistException to NeuClearException and moved it to org.neuclear.commons where it makes more sense.

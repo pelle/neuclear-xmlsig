@@ -1,7 +1,14 @@
-/* $Id: XMLSecTools.java,v 1.1 2003/11/11 16:33:30 pelle Exp $
+/* $Id: XMLSecTools.java,v 1.2 2003/11/11 21:18:08 pelle Exp $
  * $Log: XMLSecTools.java,v $
- * Revision 1.1  2003/11/11 16:33:30  pelle
- * Initial revision
+ * Revision 1.2  2003/11/11 21:18:08  pelle
+ * Further vital reshuffling.
+ * org.neudist.crypto.* and org.neudist.utils.* have been moved to respective areas under org.neuclear.commons
+ * org.neuclear.signers.* as well as org.neuclear.passphraseagents have been moved under org.neuclear.commons.crypto as well.
+ * Did a bit of work on the Canonicalizer and changed a few other minor bits.
+ *
+ * Revision 1.1.1.1  2003/11/11 16:33:30  pelle
+ * Moved over from neudist.org
+ * Moved remaining common utilities into commons
  *
  * Revision 1.14  2003/11/09 03:27:09  pelle
  * More house keeping and shuffling about mainly pay
@@ -118,7 +125,7 @@ package org.neuclear.xml.xmlsec;
 
 /**
  * @author pelleb
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 
 import org.dom4j.*;
@@ -130,6 +137,7 @@ import org.neuclear.xml.c14.CanonicalizerWithoutSignature;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.io.ByteArrayOutputStream;
 import java.security.*;
 import java.security.cert.Certificate;
 import java.math.BigInteger;
@@ -187,7 +195,7 @@ public class XMLSecTools {
      * @param signer  NeuClear Signer
      * @throws XMLSecurityException 
      */
-    public static XMLSignature signElement(String baseURI, Element root, String name, org.neuclear.commons.crypto.Signer signer) throws XMLSecurityException, CryptoException {//, KeyStoreException {
+    public static XMLSignature signElement(String baseURI, Element root, String name, org.neuclear.commons.crypto.signers.Signer signer) throws XMLSecurityException, CryptoException {//, KeyStoreException {
         XMLSignature sig = new QuickEmbeddedSignature(name, signer, root, baseURI);
         return sig;
     }
@@ -372,10 +380,8 @@ public class XMLSecTools {
      */
     public static byte[] canonicalize(Canonicalizer canon, Object node) {
         try {
-            StringWriter out = new StringWriter();
-            canon.setWriter(out);
-            canon.canonicalize(node);
-            return out.toString().getBytes();
+
+            return canon.canonicalize(node);
         } catch (IOException e) {
             throw new RuntimeException("Weird IOException while generating textual representation: " + e.getMessage());
         }
@@ -392,10 +398,9 @@ public class XMLSecTools {
      */
     public static byte[] canonicalizeSubset(Node node, String xpath) {
         try {
-            StringWriter out = new StringWriter();
-            Canonicalizer canon = new Canonicalizer(out);
-            canon.canonicalizeSubset(node, xpath);
-            return out.toString().getBytes();
+
+            Canonicalizer canon = new Canonicalizer();
+            return canon.canonicalizeSubset(node, xpath);
         } catch (IOException e) {
             throw new RuntimeException("Weird IOException while generating textual representation: " + e.getMessage());
         }

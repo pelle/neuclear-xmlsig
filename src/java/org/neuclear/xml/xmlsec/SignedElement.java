@@ -1,7 +1,14 @@
-/* $Id: SignedElement.java,v 1.1 2003/11/11 16:33:28 pelle Exp $
+/* $Id: SignedElement.java,v 1.2 2003/11/11 21:18:07 pelle Exp $
  * $Log: SignedElement.java,v $
- * Revision 1.1  2003/11/11 16:33:28  pelle
- * Initial revision
+ * Revision 1.2  2003/11/11 21:18:07  pelle
+ * Further vital reshuffling.
+ * org.neudist.crypto.* and org.neudist.utils.* have been moved to respective areas under org.neuclear.commons
+ * org.neuclear.signers.* as well as org.neuclear.passphraseagents have been moved under org.neuclear.commons.crypto as well.
+ * Did a bit of work on the Canonicalizer and changed a few other minor bits.
+ *
+ * Revision 1.1.1.1  2003/11/11 16:33:28  pelle
+ * Moved over from neudist.org
+ * Moved remaining common utilities into commons
  *
  * Revision 1.6  2003/11/09 03:27:09  pelle
  * More house keeping and shuffling about mainly pay
@@ -77,13 +84,13 @@ package org.neuclear.xml.xmlsec;
 
 /**
  * @author pelleb
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 
 import org.dom4j.Element;
 import org.dom4j.Namespace;
 import org.dom4j.QName;
-import org.neuclear.commons.crypto.Signer;
+import org.neuclear.commons.crypto.signers.Signer;
 import org.neuclear.commons.crypto.CryptoException;
 import org.neuclear.xml.AbstractElementProxy;
 import org.neuclear.xml.XMLException;

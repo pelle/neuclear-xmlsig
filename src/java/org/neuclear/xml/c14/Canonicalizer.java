@@ -5,10 +5,17 @@ package org.neuclear.xml.c14;
  * User: pelleb
  * Date: Feb 3, 2003
  * Time: 5:56:42 AM
- * $Id: Canonicalizer.java,v 1.1 2003/11/11 16:33:22 pelle Exp $
+ * $Id: Canonicalizer.java,v 1.2 2003/11/11 21:18:07 pelle Exp $
  * $Log: Canonicalizer.java,v $
- * Revision 1.1  2003/11/11 16:33:22  pelle
- * Initial revision
+ * Revision 1.2  2003/11/11 21:18:07  pelle
+ * Further vital reshuffling.
+ * org.neudist.crypto.* and org.neudist.utils.* have been moved to respective areas under org.neuclear.commons
+ * org.neuclear.signers.* as well as org.neuclear.passphraseagents have been moved under org.neuclear.commons.crypto as well.
+ * Did a bit of work on the Canonicalizer and changed a few other minor bits.
+ *
+ * Revision 1.1.1.1  2003/11/11 16:33:22  pelle
+ * Moved over from neudist.org
+ * Moved remaining common utilities into commons
  *
  * Revision 1.12  2003/10/29 21:15:53  pelle
  * Refactored the whole signing process. Now we have an interface called Signer which is the old SignerStore.
@@ -94,9 +101,9 @@ import org.neuclear.xml.XMLTools;
 import org.neuclear.xml.transforms.TransformerFactory;
 import org.neuclear.xml.transforms.XPathTransform;
 
-import java.io.IOException;
-import java.io.Writer;
+import java.io.*;
 import java.util.*;
+import java.nio.charset.Charset;
 
 /**
  * XML Canonicalizer.
@@ -111,32 +118,27 @@ import java.util.*;
 public class Canonicalizer extends XPathTransform {
 
     public Canonicalizer() {
-        this(null);
+        this(XPATH_WO_COMMENTS);
     }
 
-    public Canonicalizer(Writer writer) {
-        this(writer, XPATH_WO_COMMENTS);
-    }
-
-    protected Canonicalizer(Writer writer, String xpath) {
+    protected Canonicalizer( String xpath) {
         super(xpath);
-        this.writer = writer;
+
     }
 
-    public void setWriter(Writer writer) {
-        this.writer = writer;
+    private void init() {
+        try {
+            bos = new ByteArrayOutputStream();
+            writer = new BufferedWriter(new OutputStreamWriter(bos,"UTF-8"));
+        } catch (UnsupportedEncodingException e) {
+            System.out.println("Strange... we do not have UTF-8");
+            throw new RuntimeException(e.getLocalizedMessage());
+        }
+        notfirst = false;
+        namespaceStack = new NamespaceStack();
+
     }
 
-//    public Canonicalizer(Writer writer,Element elem) throws XMLSecurityException {
-//        super(elem);
-//        writer
-//
-//    }
-
-//    public Canonicalizer(String algorithm) {
-//        // TODO pick XPath depending on algorithm
-//        super("(//. | //@* | //namespace::*)");
-//    }
 
     /**
      * Canonicalizes a node and outputs it to the writer
@@ -144,10 +146,10 @@ public class Canonicalizer extends XPathTransform {
      * @param node 
      * @throws IOException 
      */
-    public void canonicalize(Object node) throws IOException {
-        notfirst = false;
-        namespaceStack = new NamespaceStack();
+    public byte [] canonicalize(Object node) throws IOException {
+        init();
         write(node);
+        return getBytes();
     }
 
     /**
@@ -158,15 +160,21 @@ public class Canonicalizer extends XPathTransform {
      * @param xpath subset expression
      * @throws IOException 
      */
-    public void canonicalizeSubset(Node node, String xpath) throws IOException {
-        notfirst = false;
-        namespaceStack = new NamespaceStack();
+    public byte[] canonicalizeSubset(Node node, String xpath) throws IOException {
+        init();
         XPath xpathSelector = DocumentHelper.createXPath(xpath);
         Map nsmap = new HashMap();
         nsmap.put("ietf", "http://www.ietf.org");
         xpathSelector.setNamespaceURIs(nsmap);
         List nl = xpathSelector.selectNodes(node);
         write(nl);
+        return getBytes();
+    }
+
+    private byte[] getBytes() throws IOException {
+        writer.close();
+        bos.close();
+        return bos.toByteArray();
     }
 
     private void write(Object obj) throws IOException {
@@ -266,12 +274,7 @@ public class Canonicalizer extends XPathTransform {
     private void writeEntity(Entity entity) throws IOException {
         String text = entity.getText();
         int hashLoc = text.indexOf('#');
-        if (hashLoc >= 0) {
-            int end = text.indexOf(';', hashLoc);
-            int keyCode = Integer.parseInt(text.substring(hashLoc + 1, end - hashLoc));
-            writer.write(new Character((char) keyCode).toString());
-        } else
-            writer.write(entity.getText());    //TODO entities need to be expanded
+        writer.write(entity.getText());    //TODO entities need to be expanded
     }
 
     private void writeAttribute(Attribute attribute) throws IOException {
@@ -404,6 +407,7 @@ public class Canonicalizer extends XPathTransform {
     private void writeEscapedString(String text) throws IOException {
         int i;
         int size = text.length();
+
         for (i = 0; i < size; i++) {
             switch (text.charAt(i)) {
                 case '<':
@@ -413,13 +417,15 @@ public class Canonicalizer extends XPathTransform {
                     writer.write("&gt;");
                     break;
                 case '&':
-                    writer.write("&amp;");
+                      writer.write("&amp;");
                     break;
                 case 0x0d:
                     writer.write("&#xD;");
                     break;
                 default :
-                    writer.write(text.charAt(i));
+
+                    writer.write(text.charAt(i) );
+
             }
         }
     }
@@ -465,6 +471,7 @@ public class Canonicalizer extends XPathTransform {
     }
 
     private Writer writer;
+    private ByteArrayOutputStream bos;
     private boolean notfirst = false;
     private NamespaceStack namespaceStack = new NamespaceStack();
 
@@ -472,6 +479,7 @@ public class Canonicalizer extends XPathTransform {
     public static final String LF = new String(new byte[]{10});
     public final static int C14NTYPE_NORMAL = 0;
     public final static int C14NTYPE_WITH_COMMENTS = 1;
+    private final static Charset utf8=Charset.forName("UTF-8");
 
     public static final String ALGORITHM = "http://www.w3.org/TR/2001/REC-xml-c14n-20010315";
 

@@ -9,10 +9,17 @@ import java.io.Writer;
  * User: pelleb
  * Date: Feb 8, 2003
  * Time: 9:23:01 AM
- * $Id: CanonicalizerWithComments.java,v 1.1 2003/11/11 16:33:20 pelle Exp $
+ * $Id: CanonicalizerWithComments.java,v 1.2 2003/11/11 21:18:07 pelle Exp $
  * $Log: CanonicalizerWithComments.java,v $
- * Revision 1.1  2003/11/11 16:33:20  pelle
- * Initial revision
+ * Revision 1.2  2003/11/11 21:18:07  pelle
+ * Further vital reshuffling.
+ * org.neudist.crypto.* and org.neudist.utils.* have been moved to respective areas under org.neuclear.commons
+ * org.neuclear.signers.* as well as org.neuclear.passphraseagents have been moved under org.neuclear.commons.crypto as well.
+ * Did a bit of work on the Canonicalizer and changed a few other minor bits.
+ *
+ * Revision 1.1.1.1  2003/11/11 16:33:20  pelle
+ * Moved over from neudist.org
+ * Moved remaining common utilities into commons
  *
  * Revision 1.1  2003/02/08 18:48:07  pelle
  * The Signature phase has been rewritten.
@@ -28,10 +35,7 @@ import java.io.Writer;
  */
 public class CanonicalizerWithComments extends Canonicalizer{
     public CanonicalizerWithComments() {
-    }
-
-    public CanonicalizerWithComments(Writer writer) {
-        super(writer,XPATH_W_COMMENTS);
+        super(XPATH_W_COMMENTS);
     }
     public static final String XPATH_W_COMMENTS = "(//. | //@* | //namespace::*| self::processing-instruction()|self::comment())";
 
