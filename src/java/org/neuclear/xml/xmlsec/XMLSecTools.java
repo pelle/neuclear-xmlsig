@@ -1,5 +1,8 @@
-/* $Id: XMLSecTools.java,v 1.9 2004/02/19 00:27:59 pelle Exp $
+/* $Id: XMLSecTools.java,v 1.10 2004/02/19 15:30:09 pelle Exp $
  * $Log: XMLSecTools.java,v $
+ * Revision 1.10  2004/02/19 15:30:09  pelle
+ * Various cleanups and corrections
+ *
  * Revision 1.9  2004/02/19 00:27:59  pelle
  * Discovered several incompatabilities with the xmlsig implementation. Have been working on getting it working.
  * Currently there is still a problem with enveloping signatures and it seems enveloped signatures done via signers.
@@ -156,10 +159,9 @@ package org.neuclear.xml.xmlsec;
 
 /**
  * @author pelleb
- * @version $Revision: 1.9 $
+ * @version $Revision: 1.10 $
  */
 
-import org.dom4j.*;
 import org.dom4j.io.XMLWriter;
 import org.neuclear.commons.crypto.Base64;
 import org.neuclear.commons.crypto.CryptoException;
@@ -189,6 +191,9 @@ import java.util.StringTokenizer;
  * In addition there are handy methods for dealing with KeyInfo elements for generating Key's from xml.
  */
 public final class XMLSecTools {
+    private XMLSecTools() {
+    }
+
     public static final String XMLDSIG_NAMESPACE = "http://www.w3.org/2000/09/xmldsig#";
     public static final Namespace NS_DS = DocumentHelper.createNamespace("ds", XMLDSIG_NAMESPACE);
 
@@ -208,19 +213,19 @@ public final class XMLSecTools {
 
     /**
      * Signs an element with a given Private Key and "Envelopes" the signature within.
-     * 
-     * @param root    Element to be signed
-     * @param name    Alias of key to be used for signing
-     * @param signer  NeuClear Signer
-     * @throws XMLSecurityException 
+     *
+     * @param root   Element to be signed
+     * @param name   Alias of key to be used for signing
+     * @param signer NeuClear Signer
+     * @throws XMLSecurityException
      */
-    public static XMLSignature signElement( final Element root, final String name, final org.neuclear.commons.crypto.signers.Signer signer) throws XMLSecurityException, NonExistingSignerException, UserCancellationException {//, KeyStoreException {
-        return  new XMLSignature(name, signer, root,Reference.XMLSIGTYPE_ENVELOPED);
+    public static XMLSignature signElement(final Element root, final String name, final org.neuclear.commons.crypto.signers.Signer signer) throws XMLSecurityException, NonExistingSignerException, UserCancellationException {//, KeyStoreException {
+        return new XMLSignature(name, signer, root, Reference.XMLSIGTYPE_ENVELOPED);
     }
 
     /**
      * Signs an element with a given keypair and embeds the element within the Signature.
-     * 
+     *
      * @param root    Element to be signed
      * @param keypair RSA/DSA KeyPair
      * @throws XMLSecurityException
@@ -392,7 +397,7 @@ public final class XMLSecTools {
      * @return 
      */
     public static byte[] canonicalize(final Canonicalizer canon, final Object node) throws XMLSecurityException {
-           return canon.canonicalize(node);
+        return canon.canonicalize(node);
     }
 
     /**
@@ -486,8 +491,7 @@ public final class XMLSecTools {
      * @param biginteger 
      * @return Text
      */
-    public static Text createTextWithBigInteger(
-            final BigInteger biginteger) {
+    public static Text createTextWithBigInteger(final BigInteger biginteger) {
 
         String encodedInt = Base64.encode(biginteger);
 

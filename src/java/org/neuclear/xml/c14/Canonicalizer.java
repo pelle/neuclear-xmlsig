@@ -5,8 +5,11 @@ package org.neuclear.xml.c14;
  * User: pelleb
  * Date: Feb 3, 2003
  * Time: 5:56:42 AM
- * $Id: Canonicalizer.java,v 1.7 2004/02/19 00:27:59 pelle Exp $
+ * $Id: Canonicalizer.java,v 1.8 2004/02/19 15:30:08 pelle Exp $
  * $Log: Canonicalizer.java,v $
+ * Revision 1.8  2004/02/19 15:30:08  pelle
+ * Various cleanups and corrections
+ *
  * Revision 1.7  2004/02/19 00:27:59  pelle
  * Discovered several incompatabilities with the xmlsig implementation. Have been working on getting it working.
  * Currently there is still a problem with enveloping signatures and it seems enveloped signatures done via signers.
@@ -118,7 +121,6 @@ package org.neuclear.xml.c14;
  *
  */
 
-import org.dom4j.*;
 import org.dom4j.tree.NamespaceStack;
 import org.neuclear.xml.ElementProxy;
 import org.neuclear.xml.XMLTools;
@@ -512,7 +514,7 @@ public class Canonicalizer extends XPathTransform {
     public static final String LF = new String(new byte[]{10});
     public final static int C14NTYPE_NORMAL = 0;
     public final static int C14NTYPE_WITH_COMMENTS = 1;
-    private final static Charset utf8 = Charset.forName("UTF-8");
+    private final static Charset UTF8 = Charset.forName("UTF-8");
 
     public static final String ALGORITHM = "http://www.w3.org/TR/2001/REC-xml-c14n-20010315";
 

@@ -1,5 +1,8 @@
-/* $Id: SOAPTools.java,v 1.6 2003/12/12 12:32:49 pelle Exp $
+/* $Id: SOAPTools.java,v 1.7 2004/02/19 15:30:08 pelle Exp $
  * $Log: SOAPTools.java,v $
+ * Revision 1.7  2004/02/19 15:30:08  pelle
+ * Various cleanups and corrections
+ *
  * Revision 1.6  2003/12/12 12:32:49  pelle
  * Working on getting the SOAPServletTest working under cactus
  *
@@ -114,10 +117,9 @@ package org.neuclear.xml.soap;
 
 /**
  * @author pelleb
- * @version $Revision: 1.6 $
+ * @version $Revision: 1.7 $
  */
 
-import org.dom4j.*;
 import org.dom4j.io.SAXReader;
 import org.neuclear.commons.NeuClearException;
 
@@ -128,6 +130,8 @@ import java.net.URL;
 import java.net.URLConnection;
 
 public final class SOAPTools {
+    private SOAPTools() {
+    }
 
 
     public static Element soapRequestElement(final String endpoint, final Element request, final String soapAction) throws NeuClearException {
@@ -194,10 +198,7 @@ public final class SOAPTools {
 
     public static Element soapRequestElement(final URLConnection conn, final Element request, final String soapAction) throws NeuClearException, IOException {
         try {
-            final BufferedReader in = new BufferedReader(
-                    new InputStreamReader(
-                            soapRequest(conn, request, soapAction)
-                    ));
+            final BufferedReader in = new BufferedReader(new InputStreamReader(soapRequest(conn, request, soapAction)));
             final SAXReader reader = new SAXReader();
             final Document document = reader.read(in);
             in.close();

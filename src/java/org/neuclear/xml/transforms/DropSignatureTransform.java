@@ -1,11 +1,15 @@
 package org.neuclear.xml.transforms;
+
 /**
  * (C) 2003 Antilles Software Ventures SA
  * User: pelleb
  * Date: Jan 27, 2003
  * Time: 10:02:07 AM
- * $Id: DropSignatureTransform.java,v 1.2 2003/11/21 04:44:30 pelle Exp $
+ * $Id: DropSignatureTransform.java,v 1.3 2004/02/19 15:30:08 pelle Exp $
  * $Log: DropSignatureTransform.java,v $
+ * Revision 1.3  2004/02/19 15:30:08  pelle
+ * Various cleanups and corrections
+ *
  * Revision 1.2  2003/11/21 04:44:30  pelle
  * EncryptedFileStore now works. It uses the PBECipher with DES3 afair.
  * Otherwise You will Finaliate.
@@ -34,13 +38,12 @@ package org.neuclear.xml.transforms;
  *
  */
 
-import org.dom4j.*;
 import org.neuclear.xml.xmlsec.XMLSecTools;
 import org.neuclear.xml.xmlsec.XMLSecurityException;
 
 import java.util.ListIterator;
 
-public final class DropSignatureTransform extends Transform{
+public final class DropSignatureTransform extends Transform {
     public DropSignatureTransform() {
         super(ALGORITHM);
     }
@@ -51,24 +54,26 @@ public final class DropSignatureTransform extends Transform{
 
 
     public final Object transformNode(final Object in) {
-        if (in instanceof Document){
-            transformNode(((Document)in).getRootElement());
-        } else if (in instanceof Element){
-            final ListIterator iter=((Branch)in).content().listIterator();
-            while(iter.hasNext()) {
-                final Node node=(Node)iter.next();
-                if ((node instanceof Element)&&(((Element)node).getQName().equals(subject)) )
+        if (in instanceof Document) {
+            transformNode(((Document) in).getRootElement());
+        } else if (in instanceof Element) {
+            final ListIterator iter = ((Branch) in).content().listIterator();
+            while (iter.hasNext()) {
+                final Node node = (Node) iter.next();
+                if ((node instanceof Element) && (((Element) node).getQName().equals(SUBJECT)))
                     iter.remove();
 //                else if (node instanceof Branch) {
 //                    transformNode(in);
 //                }
             }
         }
-      return in;
+        return in;
     }
-    private static final QName subject=XMLSecTools.createQName("Signature");
-    public static final String ALGORITHM="http://www.w3.org/2000/09/xmldsig#enveloped-signature";
+
+    private static final QName SUBJECT = XMLSecTools.createQName("Signature");
+    public static final String ALGORITHM = "http://www.w3.org/2000/09/xmldsig#enveloped-signature";
+
     {
-        TransformerFactory.registerTransformer(ALGORITHM,DropSignatureTransform.class);
+        TransformerFactory.registerTransformer(ALGORITHM, DropSignatureTransform.class);
     }
 }
