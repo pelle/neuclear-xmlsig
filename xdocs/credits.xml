@@ -20,6 +20,10 @@
                     <li>
                         <a href="http://jakarta.apache.org/turbine/maven/">Maven - for Building</a>
                     </li>
+                    <li>
+                        <a href="http://jtidy.sourceforge.net/">JTidy</a>
+                    </li>
+
                 </ul>
 
             </p>

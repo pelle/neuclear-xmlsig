@@ -74,6 +74,28 @@ AQAB
     System.err.println("Invalid Signature");
 }            ]]></source>
         </section>
+        <section name="HTML Signatures">
+            <p>
+                With version 0.13 we have introduced HTMLSignatures. These are human viewable XMLSignatures that are enveloped
+                within an xhtml document. Have a look at
+                <a href="http://bux.neuclear.org/bux.html">bux.html</a> for an example of what it looks like.
+            </p>
+            <p>
+                The idea is to give a user a visual feedback that this document has been signed. The user will still have to verify
+                the signature via normal means.
+            </p>
+            <source><![CDATA[// First we will load the DefaultSigner
+DefaultSigner signer=new DefaultSigner(new SwingAgent());
+
+BufferedInputStream is=new BufferedInputStream(new FileInputStream("MyContract.html"));
+HTMLSignature html=new HTMLSignature(signer,is);
+System.out.println(sig.getPrimaryReferenceElement().asXML());]]>
+
+            </source>
+            <p>
+                This signed xhtml can now be verified as a normal EnvelopedSignature (see above).
+            </p>
+        </section>
         <section name="Data Object Signatures">
             <p>
                 Another common form of the XML Signature is the Data Object Signature. This is a type of signature

@@ -7,6 +7,22 @@
     </properties>
 
     <body>
+        <section name="[28th of April 2004] Release 0.13">
+            <p>
+                        Panama City, 28th of April 2004. We are happy to announce
+                        the 0.13 release of NeuClear XMLSIG. Major new features are:
+            </p>
+            <ul>
+                <li>Support for Interactive signing</li>
+                <li>HTML Signatures</li>
+            </ul>
+            <p>
+                <a href="http://jira.neuclear.org/secure/ReleaseNote.jspa?projectId=10020&amp;styleName=Html&amp;version=10052">See full list.</a>
+            </p>
+            <p>
+                <a href="http://sourceforge.net/project/showfiles.php?group_id=90470">Download it today and join in the NeuClear revolution</a>.
+            </p>
+        </section>
         <section name="[23rd of March 2004] Release 0.12">
             <p>
                         Panama City, 23rd of March 2004. We are happy to announce

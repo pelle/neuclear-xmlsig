@@ -34,16 +34,17 @@ import java.io.InputStream;
 import java.util.List;
 
 /**
- * This is a standard Enveloped Signature with only one Reference object.
+ * This is a standard Enveloped Signature with only one Reference object however it is done on an
+ * html document and not a plain XML document. Thus it first cleans up the HTML using <a href="http://jtidy.sourceforge.net">JTidy</a>
+ * and appends an html "badge" before the actual signature. This lets the user know that the document is signed.
  */
 public class HTMLSignature extends XMLSignature {
     /**
-     * Creates a standard Enveloped Signature within the given Element.
-     * Uses the provided Signer and Alias to sign it.
+     * Sign an HTML Document with the given alias and Signer
      *
-     * @param name
-     * @param signer
-     * @param is
+     * @param name   Alias to use within the Signer
+     * @param signer Signer to be used
+     * @param is     Input Stream containing an html document
      * @throws XMLSecurityException
      * @throws org.neuclear.commons.crypto.passphraseagents.UserCancellationException
      *
@@ -64,6 +65,16 @@ public class HTMLSignature extends XMLSignature {
         return doc;
     }
 
+    /**
+     * Sign a dynamically generated HTML Document.
+     *
+     * @param name   Alias to use within the Signer
+     * @param signer Signer to be used
+     * @param doc    A dynamically generated DOM4J Document
+     * @throws XMLSecurityException
+     * @throws UserCancellationException
+     * @throws NonExistingSignerException
+     */
     public HTMLSignature(String name, Signer signer, Document doc) throws XMLSecurityException, UserCancellationException, NonExistingSignerException {
         super(name, signer);
         Element html = doc.getRootElement();
@@ -77,7 +88,14 @@ public class HTMLSignature extends XMLSignature {
         if (ki != null) ki.addAttribute("style", KEYSTYLE);
     }
 
-
+    /**
+     * Sign a dynamically generated HTML Document.
+     *
+     * @param signer A Browsable Signer. You will most likely want to use a DefaultSigner with a SwingAgent
+     * @param doc    A dynamically generated DOM4J document
+     * @throws XMLSecurityException
+     * @throws UserCancellationException
+     */
     public HTMLSignature(BrowsableSigner signer, Document doc) throws XMLSecurityException, UserCancellationException {
         super(new SignedInfo(SignedInfo.SIG_ALG_RSA, 1));
         Element html = doc.getRootElement();
@@ -92,11 +110,10 @@ public class HTMLSignature extends XMLSignature {
     }
 
     /**
-     * Creates a standard Enveloped Signature within the given Element.
-     * Uses the provided Signer and Alias to sign it.
+     * Sign an HTML Document with the given alias and Signer
      *
-     * @param signer
-     * @param is
+     * @param signer A Browsable Signer. You will most likely want to use a DefaultSigner with a SwingAgent
+     * @param is     InputStream containing HTML document
      * @throws XMLSecurityException
      * @throws org.neuclear.commons.crypto.passphraseagents.UserCancellationException
      *

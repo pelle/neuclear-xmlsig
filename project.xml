@@ -18,7 +18,7 @@
     Implementation of XML Signature API
     </description>
 
-    <url>http://old.neuclear.org/xmlsig/</url>
+    <url>http://dev.neuclear.org/xmlsig/</url>
     <repository>
         <connection>
          scm:cvs:pserver:anonymous@cvs.neuclear.sourceforge.net:/cvsroot/neuclear:neuclear-xmlsig
@@ -28,7 +28,7 @@
         </url>
     </repository>
 
-    <siteAddress>old.neuclear.org</siteAddress>
+    <siteAddress>dev.neuclear.org</siteAddress>
     <siteDirectory>/home/sites/neuclear.org/public_html/xmlsig/</siteDirectory>
     <issueTrackingUrl>http://jira.neuclear.org</issueTrackingUrl>
     <mailingLists>

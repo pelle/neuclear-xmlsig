@@ -1,6 +1,10 @@
 /*
- * $Id: XMLTools.java,v 1.8 2004/04/26 23:57:48 pelle Exp $
+ * $Id: XMLTools.java,v 1.9 2004/04/28 17:36:57 pelle Exp $
  * $Log: XMLTools.java,v $
+ * Revision 1.9  2004/04/28 17:36:57  pelle
+ * Updated documentation for 0.13
+ * This will be release 0.13
+ *
  * Revision 1.8  2004/04/26 23:57:48  pelle
  * Trying to find the verifying error
  *
@@ -147,13 +151,12 @@ package org.neuclear.xml;
 
 /**
  * @author pelleb
- * @version $Revision: 1.8 $
+ * @version $Revision: 1.9 $
  */
 
 import org.dom4j.*;
 import org.dom4j.dom.DOMDocument;
 import org.dom4j.io.*;
-import org.neuclear.xml.c14.Canonicalizer;
 
 import java.io.*;
 import java.net.MalformedURLException;
@@ -242,13 +245,13 @@ public final class XMLTools {
     public static void writeFile(final OutputStream out, final Element doc) throws XMLException {
 
         try {
-            final Canonicalizer canon = new Canonicalizer();
-            byte[] data = canon.canonicalize(doc);
-            out.write(data);
-            out.close();
-//            final XMLWriter writer = new XMLWriter(out, getOutputFormat());
-//            writer.write(doc);
-//            writer.close();
+//            final Canonicalizer canon = new Canonicalizer();
+//            byte[] data = canon.canonicalize(doc);
+//            out.write(data);
+//            out.close();
+            final XMLWriter writer = new XMLWriter(out, getOutputFormat());
+            writer.write(doc);
+            writer.close();
         } catch (IOException e) {
             rethrowException(e);
         }

@@ -9,7 +9,7 @@
     <body>
         <section name="Requirements">
             <p>
-                The three main requirements for the library is:
+                The four main requirements for the library is:
                 <ul>
                     <li>
                         <a href="http://www.bouncycastle.org">Bouncy Castle Crypto</a>
@@ -18,7 +18,10 @@
                         <a href="http://www.dom4j.org">Dom4J</a>
                     </li>
                     <li>
-                        <a href="http://old.neuclear.org/commons/">NeuClear Commons</a>
+                        <a href="http://dev.neuclear.org/commons/">NeuClear Commons</a>
+                    </li>
+                    <li>
+                        <a href="http://jtidy.sourceforge.net/">JTidy</a>
                     </li>
                 </ul>
                 With Dom4J make sure you include the full jar in your classpath.
@@ -41,7 +44,7 @@
         <section name="Building">
             <p>
                 To build anything within the NeuClear framework you first need to install
-                <a href="http://jakarta.apache.org/turbine/maven/">Maven</a>.
+                <a href="http://maven.apache.org/">Maven</a>.
                 Follow their installation instructions and you should be ok. I haven't tried this under windows yet, but I'm guessing
                 it should work fine.
             </p>
