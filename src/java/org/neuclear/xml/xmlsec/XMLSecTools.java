@@ -1,5 +1,9 @@
-/* $Id: XMLSecTools.java,v 1.7 2004/01/14 06:42:38 pelle Exp $
+/* $Id: XMLSecTools.java,v 1.8 2004/01/14 16:34:27 pelle Exp $
  * $Log: XMLSecTools.java,v $
+ * Revision 1.8  2004/01/14 16:34:27  pelle
+ * New model of references and signatures now pretty much works.
+ * I am still not 100% sure on the created enveloping signatures. I need to do more testing.
+ *
  * Revision 1.7  2004/01/14 06:42:38  pelle
  * Got rid of the verifyXXX() methods
  *
@@ -148,7 +152,7 @@ package org.neuclear.xml.xmlsec;
 
 /**
  * @author pelleb
- * @version $Revision: 1.7 $
+ * @version $Revision: 1.8 $
  */
 
 import org.dom4j.*;
@@ -333,6 +337,7 @@ public final class XMLSecTools {
             final XMLSignature sig = getXMLSignature(elem);
             return true;
         } catch (InvalidSignatureException e) {
+            System.out.println(e.getLocalizedMessage());
             return false;
         }
     }

@@ -1,6 +1,10 @@
 /*
- * $Id: XMLTools.java,v 1.5 2004/01/13 23:37:59 pelle Exp $
+ * $Id: XMLTools.java,v 1.6 2004/01/14 16:34:27 pelle Exp $
  * $Log: XMLTools.java,v $
+ * Revision 1.6  2004/01/14 16:34:27  pelle
+ * New model of references and signatures now pretty much works.
+ * I am still not 100% sure on the created enveloping signatures. I need to do more testing.
+ *
  * Revision 1.5  2004/01/13 23:37:59  pelle
  * Refactoring parts of the core of XMLSignature. There shouldnt be any real API changes.
  *
@@ -137,13 +141,10 @@ package org.neuclear.xml;
 
 /**
  * @author pelleb
- * @version $Revision: 1.5 $
+ * @version $Revision: 1.6 $
  */
 
-import org.dom4j.Document;
-import org.dom4j.DocumentException;
-import org.dom4j.DocumentHelper;
-import org.dom4j.Element;
+import org.dom4j.*;
 import org.dom4j.dom.DOMDocument;
 import org.dom4j.io.*;
 
@@ -296,6 +297,31 @@ public final class XMLTools {
     public static void rethrowException(final Throwable e) throws XMLException {
         throw new XMLException(e);
     }
-
+    /**
+     * This is used to find an Elemente with a given ID.
+     * This is necessary because of Dom4j's use of the ID attribute
+     * and not the more common in XMLSignature Id attribute.
+     * @param elem
+     * @param id
+     * @return
+     */
+    public static Element getByID(Element elem,String id){
+        return getByID(elem.getDocument(),id);
+    }
+    /**
+     * This is used to find an Elemente with a given ID.
+     * This is necessary because of Dom4j's use of the ID attribute
+     * and not the more common in XMLSignature Id attribute.
+     * @param doc
+     * @param id
+     * @return
+     */
+    public static Element getByID(Document doc,String id){
+        Element object=doc.elementByID(id);
+        if (object!=null)
+            return object;
+        XPath xp=DocumentHelper.createXPath("//*[@Id='"+id+"']");
+        return (Element) xp.selectSingleNode(doc);
+    }
 
 }

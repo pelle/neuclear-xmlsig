@@ -4,8 +4,12 @@ package org.neuclear.xml.xmlsec;
  * User: pelleb
  * Date: Feb 3, 2003
  * Time: 6:54:20 AM
- * $Id: SignatureTests.java,v 1.2 2003/11/21 04:44:31 pelle Exp $
+ * $Id: SignatureTests.java,v 1.3 2004/01/14 16:34:27 pelle Exp $
  * $Log: SignatureTests.java,v $
+ * Revision 1.3  2004/01/14 16:34:27  pelle
+ * New model of references and signatures now pretty much works.
+ * I am still not 100% sure on the created enveloping signatures. I need to do more testing.
+ *
  * Revision 1.2  2003/11/21 04:44:31  pelle
  * EncryptedFileStore now works. It uses the PBECipher with DES3 afair.
  * Otherwise You will Finaliate.
@@ -128,7 +132,9 @@ public final class SignatureTests extends TestCase {
 
         final File[] xmlfiles=dir.listFiles(filter);
         System.out.println("There are "+xmlfiles.length+" files in the directory");
-        for (int i = 0; i < xmlfiles.length; i++) {
+        int errors=0;
+        int i=0;
+        for ( i = 0; i < xmlfiles.length; i++) {
 
             final File xmlfile = xmlfiles[i];
             System.out.print("Testing file: "+xmlfile.getName()+"... ");
@@ -138,12 +144,13 @@ public final class SignatureTests extends TestCase {
                 if(XMLSecTools.verifySignature(doc.getRootElement()))
                    System.out.println("Verified");
                 else
-                    System.out.println("FAILED");
+                    System.out.println("FAILED: "+(errors++));
             } catch (Exception e) {
-                    System.out.println("ERROR "+e.getMessage());
+                    System.out.println("ERROR: "+(errors++)+e.getMessage());
 //                e.printStackTrace();  //To change body of catch statement use Options | File Templates.
             }
         }
+        System.out.println(errors +" out of "+i+" documents failed");
 
 
     }

@@ -5,8 +5,12 @@ package org.neuclear.xml.c14;
  * User: pelleb
  * Date: Feb 3, 2003
  * Time: 5:56:42 AM
- * $Id: Canonicalizer.java,v 1.5 2004/01/14 06:42:37 pelle Exp $
+ * $Id: Canonicalizer.java,v 1.6 2004/01/14 16:34:27 pelle Exp $
  * $Log: Canonicalizer.java,v $
+ * Revision 1.6  2004/01/14 16:34:27  pelle
+ * New model of references and signatures now pretty much works.
+ * I am still not 100% sure on the created enveloping signatures. I need to do more testing.
+ *
  * Revision 1.5  2004/01/14 06:42:37  pelle
  * Got rid of the verifyXXX() methods
  *

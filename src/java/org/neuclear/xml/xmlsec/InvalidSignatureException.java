@@ -10,7 +10,7 @@ import java.security.PublicKey;
  * To change this template use Options | File Templates.
  */
 public class InvalidSignatureException extends Exception {
-    public InvalidSignatureException(String a,String b) {
+    public InvalidSignatureException(byte a[],byte b[]) {
         super("Digest: '"+a+"' not equal to: "+b);
     }
     public InvalidSignatureException(PublicKey pub){
