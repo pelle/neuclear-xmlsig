@@ -1,170 +1,170 @@
 <?xml version="1.0"?>
 <project>
 
-  <name>NeuDist XML Signature API</name>
-  <id>neuclear-xmlsig</id>
-  <currentVersion>0.11-SNAPSHOT</currentVersion>
-  <inceptionYear>2002</inceptionYear>
-  <package>org.neuclear</package>
-  <logo>/images/logo.gif</logo>
-  <shortDescription>NeuDist XML Signature API</shortDescription>
-	<organization>
-		<name>Antilles Software Ventures SA</name>
-		<url>http://neubia.com/</url>
+    <name>NeuDist XML Signature API</name>
+    <id>neuclear-xmlsig</id>
+    <currentVersion>0.11-SNAPSHOT</currentVersion>
+    <inceptionYear>2002</inceptionYear>
+    <package>org.neuclear</package>
+    <logo>/images/logo.gif</logo>
+    <shortDescription>NeuDist XML Signature API</shortDescription>
+    <organization>
+        <name>Antilles Software Ventures SA</name>
+        <url>http://neubia.com/</url>
 
-<!--	  <logo>/images/neubiasmallnotext.png</logo>-->
-	</organization>
-  <description>
+        <!--	  <logo>/images/neubiasmallnotext.png</logo>-->
+    </organization>
+    <description>
     Implementation of XML Signature API
-  </description>
+    </description>
 
-  <url>http://neuclear.org/</url>
+    <url>http://neuclear.org/</url>
     <repository>
-     <connection>
+        <connection>
          scm:cvs:pserver:anonymous@cvs.neuclear.sourceforge.net:/cvsroot/neuclear:neuclear-xmlsig
-     </connection>
-     <url>
+        </connection>
+        <url>
       http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/neuclear/neuclear-xmlsig/
-    </url>
-  </repository>
+        </url>
+    </repository>
 
-  <siteAddress>neuclear.org</siteAddress>
-  <siteDirectory>/home/sites/neuclear.org/public_html/xmlsig/</siteDirectory>
-  <issueTrackingUrl>http://neuclear.org:8080/jira/secure/BrowseProject.jspa</issueTrackingUrl>
+    <siteAddress>neuclear.org</siteAddress>
+    <siteDirectory>/home/sites/neuclear.org/public_html/xmlsig/</siteDirectory>
+    <issueTrackingUrl>http://neuclear.org:8080/jira/secure/BrowseProject.jspa</issueTrackingUrl>
     <mailingLists>
-      <mailingList>
-        <name>NeuClear Announce</name>
-        <subscribe>http://lists.sourceforge.net/lists/listinfo/neuclear-announce</subscribe>
-        <unsubscribe>http://lists.sourceforge.net/lists/listinfo/neuclear-announce</unsubscribe>
-        <archive>http://sourceforge.net/mailarchive/forum.php?forum=neuclear-announce</archive>
-      </mailingList>
-      <mailingList>
-        <name>NeuClear General</name>
-        <subscribe>http://lists.sourceforge.net/lists/listinfo/neuclear-general</subscribe>
-        <unsubscribe>http://lists.sourceforge.net/lists/listinfo/neuclear-general</unsubscribe>
-        <archive>http://sourceforge.net/mailarchive/forum.php?forum=neuclear-general</archive>
-      </mailingList>
         <mailingList>
-          <name>NeuClear Develop</name>
-          <subscribe>http://lists.sourceforge.net/lists/listinfo/neuclear-develop</subscribe>
-          <unsubscribe>http://lists.sourceforge.net/lists/listinfo/neuclear-develop</unsubscribe>
-          <archive>http://sourceforge.net/mailarchive/forum.php?forum=neuclear-develop</archive>
+            <name>NeuClear Announce</name>
+            <subscribe>http://lists.sourceforge.net/lists/listinfo/neuclear-announce</subscribe>
+            <unsubscribe>http://lists.sourceforge.net/lists/listinfo/neuclear-announce</unsubscribe>
+            <archive>http://sourceforge.net/mailarchive/forum.php?forum=neuclear-announce</archive>
+        </mailingList>
+        <mailingList>
+            <name>NeuClear General</name>
+            <subscribe>http://lists.sourceforge.net/lists/listinfo/neuclear-general</subscribe>
+            <unsubscribe>http://lists.sourceforge.net/lists/listinfo/neuclear-general</unsubscribe>
+            <archive>http://sourceforge.net/mailarchive/forum.php?forum=neuclear-general</archive>
+        </mailingList>
+        <mailingList>
+            <name>NeuClear Develop</name>
+            <subscribe>http://lists.sourceforge.net/lists/listinfo/neuclear-develop</subscribe>
+            <unsubscribe>http://lists.sourceforge.net/lists/listinfo/neuclear-develop</unsubscribe>
+            <archive>http://sourceforge.net/mailarchive/forum.php?forum=neuclear-develop</archive>
         </mailingList>
     </mailingLists>
 
 
-  <developers>
+    <developers>
 
-     <developer>
-      <name>Pelle Braendgaard</name>
-      <id>pelle</id>
-      <email>pelle@neubia.com</email>
-      <organization>Antilles Software Ventures SA</organization>
-    </developer>
-     <developer>
-      <name>Ramses Morales</name>
-      <id>ramses</id>
-      <email>ramses@computer.org</email>
-    </developer>
+        <developer>
+            <name>Pelle Braendgaard</name>
+            <id>pelle</id>
+            <email>pelle@neubia.com</email>
+            <organization>Antilles Software Ventures SA</organization>
+        </developer>
+        <developer>
+            <name>Ramses Morales</name>
+            <id>ramses</id>
+            <email>ramses@computer.org</email>
+        </developer>
 
-  </developers>
+    </developers>
 
 
-  <!-- Need to mark these as compile-time/run-time -->
-   <dependencies>
-       <dependency>
-          <id>neuclear-commons</id>
-       <name>neuclear-commons</name>
-       <version>0.5-SNAPSHOT</version>
-           <properties>
-                 <war.bundle>true</war.bundle>
-           </properties>
-       </dependency>
+    <!-- Need to mark these as compile-time/run-time -->
+    <dependencies>
+        <dependency>
+            <id>neuclear-commons</id>
+            <name>neuclear-commons</name>
+            <version>0.5-SNAPSHOT</version>
+            <properties>
+                <war.bundle>true</war.bundle>
+            </properties>
+        </dependency>
 
-    <dependency>
-      <id>dom4j</id>
-      <version>1.4</version>
-      <properties>
-            <war.bundle>true</war.bundle>
-      </properties>
-    </dependency>
-   <dependency>
-      <id>bouncycastle</id>
-      <name>bouncycastle</name>
-      <jar>bouncycastle-jce-jdk13-112.jar</jar>
-<!--	<jar>bcprov-jdk14-118.jar</jar>-->
-      <properties>
-            <war.bundle>false</war.bundle>
-      </properties>
-    </dependency>
-   <dependency>
-      <id>junit</id>
-      <name>junit</name>
-      <version>3.8.1</version>
-       <properties>
-             <war.bundle>true</war.bundle>
-       </properties>
-    </dependency>
-   <dependency>
-      <id>servletapi</id>
-      <name>servletapi</name>
-      <version>2.3</version>
-    </dependency>
-       <dependency>
-           <id>cactus</id>
-           <version>13-1.5-rc1</version>
-       </dependency>
-<!--
-       <dependency>
-         <id>xmlpull</id>
-         <name>xmlpull</name>
-         <version>1.1.2.1</version>
-         <properties>
-               <war.bundle.jar>true</war.bundle.jar>
-         </properties>
-       </dependency>
-       <dependency>
-         <id>kxml2</id>
-         <name>kxml2</name>
-         <version>2.1.8</version>
-         <properties>
-               <war.bundle.jar>true</war.bundle.jar>
-         </properties>
-       </dependency>
--->
-  </dependencies>
-  <build>
+        <dependency>
+            <id>dom4j</id>
+            <version>1.4</version>
+            <properties>
+                <war.bundle>true</war.bundle>
+            </properties>
+        </dependency>
+        <dependency>
+            <id>bouncycastle</id>
+            <name>bouncycastle</name>
+            <version>120</version>
+            <jar>bcprov-jdk14-120.jar</jar>
+            <properties>
+                <war.bundle>false</war.bundle>
+            </properties>
+        </dependency>
+        <dependency>
+            <id>junit</id>
+            <name>junit</name>
+            <version>3.8.1</version>
+            <properties>
+                <war.bundle>true</war.bundle>
+            </properties>
+        </dependency>
+        <dependency>
+            <id>servletapi</id>
+            <name>servletapi</name>
+            <version>2.3</version>
+        </dependency>
+        <dependency>
+            <id>cactus</id>
+            <version>13-1.5-rc1</version>
+        </dependency>
+        <!--
+               <dependency>
+                 <id>xmlpull</id>
+                 <name>xmlpull</name>
+                 <version>1.1.2.1</version>
+                 <properties>
+                       <war.bundle.jar>true</war.bundle.jar>
+                 </properties>
+               </dependency>
+               <dependency>
+                 <id>kxml2</id>
+                 <name>kxml2</name>
+                 <version>2.1.8</version>
+                 <properties>
+                       <war.bundle.jar>true</war.bundle.jar>
+                 </properties>
+               </dependency>
+        -->
+    </dependencies>
+    <build>
 
-<!--    <sourceDirectories>-->
-      <sourceDirectory>src/java</sourceDirectory>
-<!--    </sourceDirectories>-->
+        <!--    <sourceDirectories>-->
+        <sourceDirectory>src/java</sourceDirectory>
+        <!--    </sourceDirectories>-->
 
-   <unitTestSourceDirectory>src/test</unitTestSourceDirectory>
-    <integrationUnitTestSourceDirectory/>
+        <unitTestSourceDirectory>src/test</unitTestSourceDirectory>
+        <integrationUnitTestSourceDirectory/>
 
-    <aspectSourceDirectory/>
+        <aspectSourceDirectory/>
 
-    <!-- Unit test cases -->
-    <unitTest>
-      <includes>
-        <include>**/*Test*.java</include>
+        <!-- Unit test cases -->
+        <unitTest>
+            <includes>
+                <include>**/*Test*.java</include>
 
-      </includes>
-      <excludes>
-        <exclude>**/Abstract*Test.java</exclude>
-      </excludes>
-    </unitTest>
+            </includes>
+            <excludes>
+                <exclude>**/Abstract*Test.java</exclude>
+            </excludes>
+        </unitTest>
 
-    <!-- J A R  R E S O U R C E S -->
-    <!-- Resources that are packaged up inside the JAR file -->
+        <!-- J A R  R E S O U R C E S -->
+        <!-- Resources that are packaged up inside the JAR file -->
 
-    <jarResources>
-    </jarResources>
+        <jarResources>
+        </jarResources>
 
-    <jars>
-<!--    <jar>lib/jce-jdk13-115.jar</jar>
-    <jar>lib/dom4j-1.3.jar</jar>-->
-    </jars>
-  </build>
+        <jars>
+            <!--    <jar>lib/jce-jdk13-115.jar</jar>
+                <jar>lib/dom4j-1.3.jar</jar>-->
+        </jars>
+    </build>
 </project>
 

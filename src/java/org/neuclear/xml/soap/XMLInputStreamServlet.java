@@ -2,8 +2,9 @@ package org.neuclear.xml.soap;
 
 import org.neuclear.commons.Utility;
 import org.neuclear.commons.crypto.Base64;
-import org.neuclear.commons.crypto.CryptoException;
 
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -31,8 +32,11 @@ You should have received a copy of the GNU Lesser General Public
 License along with this library; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-$Id: XMLInputStreamServlet.java,v 1.3 2003/11/22 00:23:18 pelle Exp $
+$Id: XMLInputStreamServlet.java,v 1.4 2003/11/28 00:12:36 pelle Exp $
 $Log: XMLInputStreamServlet.java,v $
+Revision 1.4  2003/11/28 00:12:36  pelle
+Getting the NeuClear web transactions working.
+
 Revision 1.3  2003/11/22 00:23:18  pelle
 All unit tests in commons, id and xmlsec now work.
 AssetController now successfully processes payments in the unit test.
@@ -64,6 +68,10 @@ First real neuclear stuff in the payment package. Added TransferContract and Ass
  * Time: 1:07:57 PM
  */
 public abstract class XMLInputStreamServlet extends HttpServlet {
+    public void init(ServletConfig servletConfig) throws ServletException {
+        ctx = servletConfig.getServletContext();
+    }
+
     protected void doGet(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
         response.setContentType("text/html");
         final PrintWriter out = response.getWriter();
@@ -83,17 +91,50 @@ public abstract class XMLInputStreamServlet extends HttpServlet {
             InputStream is = null;
 
             if (request.getContentType().equals("text/xml")) {
+                ctx.log("XMLSIG: Got xml encoded neuclear-request");
                 is = request.getInputStream();
             }
-            if (!Utility.isEmpty(request.getParameter("base64xml"))) {
-                is = new ByteArrayInputStream(Base64.decode(request.getParameter("base64xml")));
+            if (!Utility.isEmpty(request.getParameter("neuclear-request"))) {
+                ctx.log("XMLSIG: Got form encoded neuclear-request");
+                is = new ByteArrayInputStream(Base64.decode(request.getParameter("neuclear-request")));
             }
-            handleInputStream(is, request, response);
-        } catch (CryptoException e) {
-            throw new ServletException(e);
+            if (is != null)
+                handleInputStream(is, request, response);
+            else {
+                PrintWriter writer = response.getWriter();
+                final boolean isXML = request.getContentType().equals("text/xml");
+                if (isXML) {
+                    response.setContentType("text/xml");
+                } else {
+                    response.setContentType("text/html");
+                    writer.print("<html><head><title>XMLInputStreamServlet Error</title></head><body>");
+                }
+                writer.println("<h1>Error: Empty Request</h1><h3>");
+                writer.println("</h3><pre>");
+
+
+            }
+        } catch (Exception e) {
+            PrintWriter writer = response.getWriter();
+            final boolean isXML = request.getContentType().equals("text/xml");
+            if (isXML) {
+                response.setContentType("text/xml");
+            } else {
+                response.setContentType("text/html");
+                writer.print("<html><head><title>XMLInputStreamServlet Error</title></head><body>");
+            }
+            writer.println("<h1>Error</h1><h3>");
+            writer.println(e.getLocalizedMessage());
+            writer.println("</h3><pre>");
+            e.printStackTrace(writer);
+            writer.println("</pre>");
         }
 
     }
 
+
     protected abstract void handleInputStream(InputStream is, HttpServletRequest request, HttpServletResponse response) throws IOException;
+
+    protected ServletContext ctx;
+
 }
