@@ -20,8 +20,11 @@ You should have received a copy of the GNU Lesser General Public
 License along with this library; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-$Id: EchoSOAPServlet.java,v 1.1 2003/11/24 23:33:15 pelle Exp $
+$Id: EchoSOAPServlet.java,v 1.2 2003/12/12 12:32:49 pelle Exp $
 $Log: EchoSOAPServlet.java,v $
+Revision 1.2  2003/12/12 12:32:49  pelle
+Working on getting the SOAPServletTest working under cactus
+
 Revision 1.1  2003/11/24 23:33:15  pelle
 More Cactus unit testing going on.
 
@@ -33,7 +36,15 @@ More Cactus unit testing going on.
  * Time: 4:35:18 PM
  */
 public class EchoSOAPServlet extends SOAPServlet {
+
     protected Element handleSOAPRequest(Element request, String soapAction) throws SOAPException {
+        last=request;
         return request;
     }
+
+    public Element getLast() {
+        return last;
+    }
+
+    private Element last;
 }

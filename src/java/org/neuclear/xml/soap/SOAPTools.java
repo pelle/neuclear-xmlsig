@@ -1,5 +1,8 @@
-/* $Id: SOAPTools.java,v 1.5 2003/12/10 23:57:05 pelle Exp $
+/* $Id: SOAPTools.java,v 1.6 2003/12/12 12:32:49 pelle Exp $
  * $Log: SOAPTools.java,v $
+ * Revision 1.6  2003/12/12 12:32:49  pelle
+ * Working on getting the SOAPServletTest working under cactus
+ *
  * Revision 1.5  2003/12/10 23:57:05  pelle
  * Did some cleaning up in the builders
  * Fixed some stuff in IdentityCreator
@@ -111,7 +114,7 @@ package org.neuclear.xml.soap;
 
 /**
  * @author pelleb
- * @version $Revision: 1.5 $
+ * @version $Revision: 1.6 $
  */
 
 import org.dom4j.*;
@@ -175,14 +178,18 @@ public final class SOAPTools {
                 ((HttpURLConnection) conn).setRequestProperty("SOAPAction", soapAction);
             }
             final OutputStream out = conn.getOutputStream();
-            out.write(SOAP_START);
-            out.write(request.getBytes());
-            out.write(SOAP_END);
+            createSoapRequestString(out, request);
             out.close();
             return conn.getInputStream();
         } catch (IOException e) {
             throw new NeuClearException(e);
         }
+    }
+
+    public static void createSoapRequestString(final OutputStream out, final String request) throws IOException {
+        out.write(SOAP_START);
+        out.write(request.getBytes());
+        out.write(SOAP_END);
     }
 
     public static Element soapRequestElement(final URLConnection conn, final Element request, final String soapAction) throws NeuClearException, IOException {
