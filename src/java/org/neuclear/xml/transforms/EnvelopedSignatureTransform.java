@@ -5,8 +5,12 @@ package org.neuclear.xml.transforms;
  * User: pelleb
  * Date: Jan 27, 2003
  * Time: 10:02:07 AM
- * $Id: DropSignatureTransform.java,v 1.4 2004/02/19 19:37:34 pelle Exp $
- * $Log: DropSignatureTransform.java,v $
+ * $Id: EnvelopedSignatureTransform.java,v 1.1 2004/03/08 23:51:03 pelle Exp $
+ * $Log: EnvelopedSignatureTransform.java,v $
+ * Revision 1.1  2004/03/08 23:51:03  pelle
+ * More improvements on the XMLSignature. Now uses the Transforms properly, References properly.
+ * All the major elements have been refactored to be cleaner and more correct.
+ *
  * Revision 1.4  2004/02/19 19:37:34  pelle
  * At times IntelliJ IDEA can cause some real hassle. On my last checkin it optimized away all of the dom4j and command line imports.
  * We'll now, Ive added them all back.
@@ -42,43 +46,23 @@ package org.neuclear.xml.transforms;
  *
  */
 
-import org.neuclear.xml.xmlsec.XMLSecTools;
+import org.dom4j.Element;
 import org.neuclear.xml.xmlsec.XMLSecurityException;
-import org.dom4j.*;
 
-import java.util.ListIterator;
-
-public final class DropSignatureTransform extends Transform {
-    public DropSignatureTransform() {
-        super(ALGORITHM);
+public final class EnvelopedSignatureTransform extends XPathTransform {
+    public EnvelopedSignatureTransform() {
+        super(ALGORITHM, XPATH);
     }
 
-    public DropSignatureTransform(final Element elem) throws XMLSecurityException {
+    public EnvelopedSignatureTransform(final Element elem) throws XMLSecurityException {
         super(elem);
     }
 
 
-    public final Object transformNode(final Object in) {
-        if (in instanceof Document) {
-            transformNode(((Document) in).getRootElement());
-        } else if (in instanceof Element) {
-            final ListIterator iter = ((Branch) in).content().listIterator();
-            while (iter.hasNext()) {
-                final Node node = (Node) iter.next();
-                if ((node instanceof Element) && (((Element) node).getQName().equals(SUBJECT)))
-                    iter.remove();
-//                else if (node instanceof Branch) {
-//                    transformNode(in);
-//                }
-            }
-        }
-        return in;
-    }
-
-    private static final QName SUBJECT = XMLSecTools.createQName("Signature");
     public static final String ALGORITHM = "http://www.w3.org/2000/09/xmldsig#enveloped-signature";
+    public static final String XPATH = "(//. | //@* | //namespace::*| self::processing-instruction())[not(self::ds:Signature)]";
 
     {
-        TransformerFactory.registerTransformer(ALGORITHM, DropSignatureTransform.class);
+        TransformerFactory.registerTransformer(ALGORITHM, EnvelopedSignatureTransform.class);
     }
 }

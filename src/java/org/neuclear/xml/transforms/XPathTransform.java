@@ -1,8 +1,9 @@
 package org.neuclear.xml.transforms;
 
+import org.dom4j.*;
 import org.neuclear.xml.xmlsec.XMLSecTools;
 import org.neuclear.xml.xmlsec.XMLSecurityException;
-import org.dom4j.*;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
@@ -27,6 +28,12 @@ public class XPathTransform extends Transform {
         final Element xpElem = getElement().addElement("XPath");
         xpElem.setText(xpath);
         xpElem.addAttribute("xmlns:dsig", "&dsig;");
+    }
+
+    protected XPathTransform(final String algorithm, final String xpath) {
+        super(algorithm);
+//        this.xpath=xpath;
+        setXPath(xpath);
     }
 
     private void setXPath(final String xpath) {

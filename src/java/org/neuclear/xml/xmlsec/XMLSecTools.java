@@ -1,5 +1,9 @@
-/* $Id: XMLSecTools.java,v 1.12 2004/03/05 23:47:17 pelle Exp $
+/* $Id: XMLSecTools.java,v 1.13 2004/03/08 23:51:03 pelle Exp $
  * $Log: XMLSecTools.java,v $
+ * Revision 1.13  2004/03/08 23:51:03  pelle
+ * More improvements on the XMLSignature. Now uses the Transforms properly, References properly.
+ * All the major elements have been refactored to be cleaner and more correct.
+ *
  * Revision 1.12  2004/03/05 23:47:17  pelle
  * Attempting to make Reference and SignedInfo more compliant with the standard.
  * SignedInfo can now contain more than one reference.
@@ -169,7 +173,7 @@ package org.neuclear.xml.xmlsec;
 
 /**
  * @author pelleb
- * @version $Revision: 1.12 $
+ * @version $Revision: 1.13 $
  */
 
 import org.dom4j.*;
@@ -180,12 +184,14 @@ import org.neuclear.commons.crypto.passphraseagents.UserCancellationException;
 import org.neuclear.commons.crypto.signers.NonExistingSignerException;
 import org.neuclear.xml.XMLException;
 import org.neuclear.xml.c14.Canonicalizer;
-import org.neuclear.xml.c14.CanonicalizerWithoutSignature;
 
 import java.io.IOException;
 import java.io.StringWriter;
 import java.math.BigInteger;
-import java.security.*;
+import java.security.KeyPair;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.PublicKey;
 import java.security.cert.Certificate;
 import java.util.Iterator;
 import java.util.StringTokenizer;
@@ -231,7 +237,7 @@ public final class XMLSecTools {
      * @throws XMLSecurityException
      */
     public static XMLSignature signElement(final Element root, final String name, final org.neuclear.commons.crypto.signers.Signer signer) throws XMLSecurityException, NonExistingSignerException, UserCancellationException {//, KeyStoreException {
-        return new XMLSignature(name, signer, root, Reference.XMLSIGTYPE_ENVELOPED);
+        return new XMLSignature(name, signer, root, true);
     }
 
     /**
@@ -242,20 +248,7 @@ public final class XMLSecTools {
      * @throws XMLSecurityException
      */
     public static XMLSignature signElementEnveloping(final Element root, final KeyPair keypair) throws XMLSecurityException, CryptoException {//, KeyStoreException {
-        final XMLSignature sig = new XMLSignature(keypair, root, Reference.XMLSIGTYPE_ENVELOPING);
-        return sig;
-    }
-
-    /**
-     * Signs an element with a given Private Key and embeds the element within the Signature.
-     * 
-     * @param baseURI Unique ID of the Element to be signed
-     * @param root    Element to be signed
-     * @param key     RSA Private Key
-     * @throws XMLSecurityException 
-     */
-    public static XMLSignature signElementEnveloping(final String baseURI, final Element root, final PrivateKey key) throws XMLSecurityException, CryptoException {//, KeyStoreException {
-        final XMLSignature sig = new XMLSignature(key, null, root, Reference.XMLSIGTYPE_ENVELOPING);
+        final XMLSignature sig = new XMLSignature(keypair, root, false);
         return sig;
     }
 
@@ -388,16 +381,6 @@ public final class XMLSecTools {
      */
     public static byte[] canonicalize(final Object node) throws XMLSecurityException {
         return canonicalize(new Canonicalizer(), node);
-    }
-
-    /**
-     * This canonicalizes an object while leaving out any embedded signatures.
-     * 
-     * @param node 
-     * @return 
-     */
-    public static byte[] canonicalizeEmbeddedSignature(final Object node) throws XMLSecurityException {
-        return canonicalize(new CanonicalizerWithoutSignature(), node);
     }
 
     /**

@@ -4,6 +4,7 @@ import junit.framework.TestCase;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
+import org.neuclear.commons.Utility;
 import org.neuclear.commons.crypto.CryptoException;
 import org.neuclear.xml.XMLException;
 import org.neuclear.xml.XMLTools;
@@ -29,8 +30,12 @@ You should have received a copy of the GNU Lesser General Public
 License along with this library; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-$Id: RefTest.java,v 1.7 2004/03/05 23:47:17 pelle Exp $
+$Id: RefTest.java,v 1.8 2004/03/08 23:51:04 pelle Exp $
 $Log: RefTest.java,v $
+Revision 1.8  2004/03/08 23:51:04  pelle
+More improvements on the XMLSignature. Now uses the Transforms properly, References properly.
+All the major elements have been refactored to be cleaner and more correct.
+
 Revision 1.7  2004/03/05 23:47:17  pelle
 Attempting to make Reference and SignedInfo more compliant with the standard.
 SignedInfo can now contain more than one reference.
@@ -70,41 +75,58 @@ public class RefTest extends TestCase {
         super(string);
     }
 
-    public void testExternalReference() throws XMLException, CryptoException, IOException {
+    public void testExternalReference() throws XMLException, CryptoException, IOException, DocumentException {
         File rfile = new File("project.xml");
         final String uri = rfile.toURL().toExternalForm();
         Reference ref = new Reference(uri);
         assertNotNull(ref);
-//        assertNotNull(ref.getDigest());
+        assertNull(ref.getReferencedElement());
         assertEquals(uri, ref.getUri());
-        System.out.println(ref.asXML());
+        try {
+            Reference ref2 = new Reference(DocumentHelper.parseText(ref.asXML()).getRootElement());
+        } catch (InvalidSignatureException e) {
+            assertTrue(false);
+        }
+
     }
 
     public void testEnvelopedReference() throws DocumentException, XMLException, CryptoException {
-        Document doc = DocumentHelper.parseText("<test>hello</test>");
-        Reference ref = new Reference(doc.getRootElement(), Reference.XMLSIGTYPE_ENVELOPED);
+        Document doc = DocumentHelper.parseText("<test>hello<Signature xmlns=\"http://www.w3.org/2000/09/xmldsig#\"><SignedInfo/></Signature></test>");
+        Reference ref = new Reference(doc.getRootElement(), true);
+        doc.getRootElement().element("Signature").element("SignedInfo").add(ref.getElement());
+
         assertNotNull(ref);
-//        assertNotNull(ref.getDigest());
-        assertEquals("", ref.getUri());
-//        assertEquals(ref.);
-        System.out.println(ref.asXML());
+        assertNotNull(ref.getReferencedElement());
+        assertTrue(Utility.isEmpty(ref.getUri()));
+        try {
+            Reference ref2 = new Reference(DocumentHelper.parseText(doc.asXML()).getRootElement().element("Signature").element("SignedInfo").element("Reference"));
+            assertNotNull(ref2.getReferencedElement());
+            assertEquals("test", ref2.getReferencedElement().getName());
+        } catch (InvalidSignatureException e) {
+            assertTrue(false);
+        }
+
 
     }
 
     public void testEnvelopingReference() throws DocumentException, XMLException, CryptoException, InvalidSignatureException {
         Document doc = DocumentHelper.parseText("<Signature><SignedInfo/><Object Id=\"one\"><test>hello</test></Object></Signature>");
-        Reference ref = new Reference(doc.getRootElement().element("Object"), Reference.XMLSIGTYPE_ENVELOPING);
+        Reference ref = new Reference(doc.getRootElement().element("Object"), false);
         doc.getRootElement().element("SignedInfo").add(ref.getElement());
         assertNotNull(XMLTools.getByID(doc, "one"));
+        assertNotNull(ref.getReferencedElement());
         assertNotNull(ref);
-//        assertNotNull(ref.getDigest());
         assertEquals("#one", ref.getUri());
-        System.out.println(doc.asXML());
 
         Document doc2 = DocumentHelper.parseText(doc.asXML());
-        Reference ref2 = new Reference(doc2.getRootElement().element("SignedInfo").element("Reference"));
-//        assertEquals(ref.getDigest(),ref2.getDigest());
-        assertEquals(ref.getUri(), ref2.getUri());
+        try {
+            Reference ref2 = new Reference(doc2.getRootElement().element("SignedInfo").element("Reference"));
+            assertNotNull(ref.getReferencedElement());
+            assertEquals(ref.getUri(), ref2.getUri());
+            assertEquals("Object", ref2.getReferencedElement().getName());
+        } catch (InvalidSignatureException e) {
+            assertTrue(false);
+        }
 
 
     }

@@ -6,8 +6,12 @@ package org.neuclear.xml.transforms;
  * User: pelleb
  * Date: Jan 21, 2003
  * Time: 3:12:00 PM
- * $Id: DropSignatureTransformTest.java,v 1.2 2003/11/21 04:44:31 pelle Exp $
- * $Log: DropSignatureTransformTest.java,v $
+ * $Id: EnvelopedSignatureTransformTest.java,v 1.1 2004/03/08 23:51:03 pelle Exp $
+ * $Log: EnvelopedSignatureTransformTest.java,v $
+ * Revision 1.1  2004/03/08 23:51:03  pelle
+ * More improvements on the XMLSignature. Now uses the Transforms properly, References properly.
+ * All the major elements have been refactored to be cleaner and more correct.
+ *
  * Revision 1.2  2003/11/21 04:44:31  pelle
  * EncryptedFileStore now works. It uses the PBECipher with DES3 afair.
  * Otherwise You will Finaliate.
@@ -38,13 +42,13 @@ import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 
-public final class DropSignatureTransformTest extends AbstractTransformTest {
-    public DropSignatureTransformTest(final String s) {
+public final class EnvelopedSignatureTransformTest extends AbstractTransformTest {
+    public EnvelopedSignatureTransformTest(final String s) {
         super(s);
     }
 
     public final Transform createTransform() {
-        return new DropSignatureTransform();
+        return new EnvelopedSignatureTransform();
     }
 
     public final Element getTestElement() {
@@ -65,6 +69,6 @@ public final class DropSignatureTransformTest extends AbstractTransformTest {
         }
     }
 
-    private static final String TESTELEMENT="<test><test2/><ds:Signature xmlns:ds=\"http://www.w3.org/2000/09/xmldsig#\"/></test>";
-    private static final String TESTRESULT="<test><test2/></test>";
+    private static final String TESTELEMENT = "<test><test2/><ds:Signature xmlns:ds=\"http://www.w3.org/2000/09/xmldsig#\"/></test>";
+    private static final String TESTRESULT = "<test><test2/></test>";
 }

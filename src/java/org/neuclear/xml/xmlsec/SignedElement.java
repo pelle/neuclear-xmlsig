@@ -1,5 +1,9 @@
-/* $Id: SignedElement.java,v 1.10 2004/01/14 06:42:38 pelle Exp $
+/* $Id: SignedElement.java,v 1.11 2004/03/08 23:51:03 pelle Exp $
  * $Log: SignedElement.java,v $
+ * Revision 1.11  2004/03/08 23:51:03  pelle
+ * More improvements on the XMLSignature. Now uses the Transforms properly, References properly.
+ * All the major elements have been refactored to be cleaner and more correct.
+ *
  * Revision 1.10  2004/01/14 06:42:38  pelle
  * Got rid of the verifyXXX() methods
  *
@@ -139,21 +143,17 @@ package org.neuclear.xml.xmlsec;
 
 /**
  * @author pelleb
- * @version $Revision: 1.10 $
+ * @version $Revision: 1.11 $
  */
 
 import org.dom4j.Element;
 import org.dom4j.Namespace;
 import org.dom4j.QName;
-import org.neuclear.commons.crypto.CryptoException;
 import org.neuclear.commons.crypto.passphraseagents.UserCancellationException;
 import org.neuclear.commons.crypto.signers.NonExistingSignerException;
 import org.neuclear.commons.crypto.signers.Signer;
 import org.neuclear.xml.AbstractElementProxy;
 import org.neuclear.xml.XMLException;
-
-import java.security.PrivateKey;
-import java.security.PublicKey;
 
 
 public abstract class SignedElement extends AbstractElementProxy {
@@ -172,7 +172,7 @@ public abstract class SignedElement extends AbstractElementProxy {
             } catch (XMLException e) {
                 throw new XMLSecurityException(e);
             } catch (InvalidSignatureException e) {
-                throw new XMLSecurityException(e) ;
+                throw new XMLSecurityException(e);
             }
 
     }
@@ -219,17 +219,19 @@ public abstract class SignedElement extends AbstractElementProxy {
     public final XMLSignature getXMLSignature() throws XMLSecurityException {
         return sig;
     }
+
     public boolean verify() throws XMLSecurityException {
         try {
-            sig=new XMLSignature(getElement().element(XMLSecTools.createQName("Signature")));
+            sig = new XMLSignature(getElement().element(XMLSecTools.createQName("Signature")));
             return true;
         } catch (InvalidSignatureException e) {
             return false;
         }
     }
-    public final void sign(final String name, final Signer signer) throws XMLSecurityException, NonExistingSignerException, UserCancellationException {
+
+    public final void sign(final String name, final Signer signer) throws XMLSecurityException, UserCancellationException, NonExistingSignerException {
         preSign();
-        sig = new XMLSignature(name,signer, getElement(),Reference.XMLSIGTYPE_ENVELOPED);
+        sig = new XMLSignature(name, signer, getElement(), true);
         postSign();
     }
 

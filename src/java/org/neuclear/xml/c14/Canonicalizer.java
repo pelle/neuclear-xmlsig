@@ -5,8 +5,12 @@ package org.neuclear.xml.c14;
  * User: pelleb
  * Date: Feb 3, 2003
  * Time: 5:56:42 AM
- * $Id: Canonicalizer.java,v 1.12 2004/03/03 23:23:24 pelle Exp $
+ * $Id: Canonicalizer.java,v 1.13 2004/03/08 23:51:02 pelle Exp $
  * $Log: Canonicalizer.java,v $
+ * Revision 1.13  2004/03/08 23:51:02  pelle
+ * More improvements on the XMLSignature. Now uses the Transforms properly, References properly.
+ * All the major elements have been refactored to be cleaner and more correct.
+ *
  * Revision 1.12  2004/03/03 23:23:24  pelle
  * Interops with enveloped signatures.
  *
@@ -141,12 +145,12 @@ package org.neuclear.xml.c14;
 
 import org.dom4j.*;
 import org.dom4j.tree.NamespaceStack;
+import org.neuclear.commons.Utility;
 import org.neuclear.xml.ElementProxy;
 import org.neuclear.xml.XMLTools;
 import org.neuclear.xml.transforms.TransformerFactory;
 import org.neuclear.xml.transforms.XPathTransform;
 import org.neuclear.xml.xmlsec.XMLSecurityException;
-import org.neuclear.commons.Utility;
 
 import java.io.*;
 import java.nio.charset.Charset;
@@ -165,11 +169,11 @@ import java.util.*;
 public class Canonicalizer extends XPathTransform {
 
     public Canonicalizer() {
-        this(XPATH_WO_COMMENTS);
+        this(ALGORITHM, XPATH_WO_COMMENTS);
     }
 
-    protected Canonicalizer(final String xpath) {
-        super(xpath);
+    protected Canonicalizer(final String algorithm, final String xpath) {
+        super(algorithm, xpath);
 
     }
 

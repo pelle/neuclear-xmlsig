@@ -1,5 +1,9 @@
-/* $Id: SignedInfo.java,v 1.2 2004/03/05 23:47:17 pelle Exp $
+/* $Id: SignedInfo.java,v 1.3 2004/03/08 23:51:03 pelle Exp $
  * $Log: SignedInfo.java,v $
+ * Revision 1.3  2004/03/08 23:51:03  pelle
+ * More improvements on the XMLSignature. Now uses the Transforms properly, References properly.
+ * All the major elements have been refactored to be cleaner and more correct.
+ *
  * Revision 1.2  2004/03/05 23:47:17  pelle
  * Attempting to make Reference and SignedInfo more compliant with the standard.
  * SignedInfo can now contain more than one reference.
@@ -99,35 +103,52 @@ package org.neuclear.xml.xmlsec;
 
 /**
  * @author pelleb
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  */
 
 import org.dom4j.Element;
+import org.neuclear.commons.crypto.CryptoException;
+import org.neuclear.commons.crypto.CryptoTools;
+import org.neuclear.commons.crypto.passphraseagents.UserCancellationException;
+import org.neuclear.commons.crypto.signers.NonExistingSignerException;
 import org.neuclear.commons.crypto.signers.Signer;
 import org.neuclear.xml.XMLException;
 import org.neuclear.xml.c14.Canonicalizer;
 
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
-import java.security.Signature;
+import java.security.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 public final class SignedInfo extends AbstractXMLSigElement {
     public SignedInfo(Reference references[], final int sigalg) {
-        super(SignedInfo.TAG_NAME);
-        final ArrayList list = new ArrayList(references.length);
+        this(sigalg, references.length);
         for (int i = 0; i < references.length; i++) {
-            list.add(references[i]);
+            refs.add(references[i]);
             addElement(references[i]);
         }
-        this.refs = Collections.unmodifiableList(list);
     }
 
-    public SignedInfo(final Element root, final int sigalg, final int sigtype) throws XMLSecurityException {
+    public SignedInfo(final int sigalg, final int refcount) {
         super(SignedInfo.TAG_NAME);
         this.algType = sigalg;
+        refs = new ArrayList(refcount);
+
+        final Element cm = XMLSecTools.createElementInSignatureSpace("CanonicalizationMethod");
+        cm.addAttribute("Algorithm", "http://www.w3.org/TR/2001/REC-xml-c14n-20010315");
+        addElement(cm);
+
+        final Element sm = XMLSecTools.createElementInSignatureSpace("SignatureMethod");
+        if (sigalg == SignedInfo.SIG_ALG_RSA)
+            sm.addAttribute("Algorithm", "http://www.w3.org/2000/09/xmldsig#rsa-sha1");
+        else
+            sm.addAttribute("Algorithm", "http://www.w3.org/2000/09/xmldsig#dsa-sha1");
+
+        addElement(sm);
+    }
+
+    public SignedInfo(final Element root, final int sigalg, final boolean enveloped) throws XMLSecurityException {
+        this(sigalg, 1);
 
         final Element cm = XMLSecTools.createElementInSignatureSpace("CanonicalizationMethod");
         cm.addAttribute("Algorithm", "http://www.w3.org/TR/2001/REC-xml-c14n-20010315");
@@ -141,10 +162,8 @@ public final class SignedInfo extends AbstractXMLSigElement {
                 sm.addAttribute("Algorithm", "http://www.w3.org/2000/09/xmldsig#dsa-sha1");
 
             addElement(sm);
-            Reference ref = new Reference(root, sigtype);
-            List list = new ArrayList(1);
-            list.add(ref);
-            this.refs = Collections.unmodifiableList(list);
+            Reference ref = new Reference(root, enveloped);
+            refs.add(ref);
             addElement(ref);
         } catch (XMLException e) {
             throw new XMLSecurityException(e);
@@ -159,12 +178,33 @@ public final class SignedInfo extends AbstractXMLSigElement {
         if (c14elem != null && c14elem.attributeValue("Algorithm").equals("http://www.w3.org/TR/2001/REC-xml-c14n-20010315#WithComments"))
             c14nType = Canonicalizer.C14NTYPE_WITH_COMMENTS;
         final List list = elem.elements(XMLSecTools.createQName("Reference"));
-        final List refList = new ArrayList(list.size());
+        refs = new ArrayList(list.size());
         for (int i = 0; i < list.size(); i++) {
             Element element = (Element) list.get(i);
-            refList.add(new Reference(element));
+            refs.add(new Reference(element));
         }
-        this.refs = Collections.unmodifiableList(refList);
+    }
+
+    /**
+     * @param elem
+     * @throws XMLSecurityException
+     */
+    public void setEnvelopedReference(final Element elem) throws XMLSecurityException {
+        Reference ref = Reference.createEnvelopedReference(elem);
+        this.refs.add(ref);
+        addElement(ref);
+    }
+
+    public void addEnvelopingReference(final Element elem) throws XMLSecurityException {
+        Reference ref = Reference.createEnvelopingObjectReference(elem);
+        this.refs.add(ref);
+        addElement(ref);
+    }
+
+    public void addExternalReference(final String url) throws XMLSecurityException {
+        Reference ref = Reference.createExternalReference(url);
+        this.refs.add(ref);
+        addElement(ref);
     }
 
     /**
@@ -175,7 +215,16 @@ public final class SignedInfo extends AbstractXMLSigElement {
      * @throws XMLSecurityException 
      */
     public final List getReferences() throws XMLSecurityException {
-        return refs;
+        return Collections.unmodifiableList(refs);
+    }
+
+    /**
+     * Returns the Element of the first Reference
+     *
+     * @return
+     */
+    public final Element getPrimaryReference() {
+        return ((Reference) refs.get(0)).getReferencedElement();
     }
 
     final Canonicalizer getCanonicalizer() {
@@ -200,6 +249,33 @@ public final class SignedInfo extends AbstractXMLSigElement {
 
     public final byte[] canonicalize() throws XMLSecurityException {
         return XMLSecTools.canonicalize(getCanonicalizer(), getElement());
+    }
+
+    /**
+     * Signs the SignedInfo and returns the signature
+     *
+     * @param key
+     * @return
+     * @throws XMLSecurityException
+     */
+    public final byte[] sign(PrivateKey key) throws XMLSecurityException {
+        try {
+            return CryptoTools.sign(key, canonicalize());
+        } catch (CryptoException e) {
+            throw new XMLSecurityException(e);
+        }
+    }
+
+    public final byte[] sign(String name, Signer signer) throws XMLSecurityException, NonExistingSignerException, UserCancellationException {
+        return signer.sign(name, canonicalize());
+    }
+
+    public final boolean verify(PublicKey pub, byte[] sig) throws XMLSecurityException {
+        try {
+            return CryptoTools.verify(pub, canonicalize(), sig);
+        } catch (CryptoException e) {
+            throw new XMLSecurityException(e);
+        }
     }
 
     public final String getTagName() {
