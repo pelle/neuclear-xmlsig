@@ -5,8 +5,15 @@ package org.neuclear.xml.xmlsec;
  * User: pelleb
  * Date: Feb 8, 2003
  * Time: 12:15:24 PM
- * $Id: QuickEmbeddedSignature.java,v 1.4 2003/12/19 18:03:07 pelle Exp $
+ * $Id: QuickEmbeddedSignature.java,v 1.5 2004/01/07 23:11:51 pelle Exp $
  * $Log: QuickEmbeddedSignature.java,v $
+ * Revision 1.5  2004/01/07 23:11:51  pelle
+ * XMLSig now has various added features:
+ * -  KeyInfo supports X509v3 (untested)
+ * -  KeyInfo supports KeyName
+ * -  When creating a XMLSignature and signing it with a Signer, it adds the alias to the KeyName
+ * Added KeyResolver interface and KeyResolverFactory Class. At the moment no implementations.
+ *
  * Revision 1.4  2003/12/19 18:03:07  pelle
  * Revamped a lot of exception handling throughout the framework, it has been simplified in most places:
  * - For most cases the main exception to worry about now is InvalidNamedObjectException.
@@ -144,6 +151,7 @@ public final class QuickEmbeddedSignature extends XMLSignature {
     public QuickEmbeddedSignature(final String name, final Signer signer, final Element root, final String uri) throws XMLSecurityException, UserCancellationException, NonExistingSignerException {
         super(getSignatureElement(root,signer.getKeyType(name)));
         final Element sig = getElement();
+        addElement(new KeyInfo(name)); // Add the signers name
 
         getSi().getReference().setDigest();
 
@@ -194,26 +202,26 @@ public final class QuickEmbeddedSignature extends XMLSignature {
     }
 
     private static Element SIGNATURETEMPLATE;
-    private static final String SIGNATURETEMPLATE_TEXT = "<ds:Signature xmlns:ds=\"http://www.w3.org/2000/09/xmldsig#\">" +
-            "<ds:SignedInfo>" +
-            "<ds:CanonicalizationMethod Algorithm=\"http://www.w3.org/TR/2001/REC-xml-c14n-20010315\"/>" +
-            "<ds:SignatureMethod Algorithm=\"http://www.w3.org/2000/09/xmldsig#rsa-sha1\"/>" +
-            "<ds:Reference URI=\"\">" +
-            "<ds:Transforms><ds:Transform Algorithm=\"http://www.w3.org/2000/09/xmldsig#enveloped-signature\"/>" +
-            "</ds:Transforms><ds:DigestMethod Algorithm=\"http://www.w3.org/2000/09/xmldsig#sha1\"/>" +
-            "</ds:Reference>" +
-            "</ds:SignedInfo></ds:Signature>";
+    private static final String SIGNATURETEMPLATE_TEXT = "\n<ds:Signature xmlns:ds=\"http://www.w3.org/2000/09/xmldsig#\">" +
+            "\n<ds:SignedInfo>" +
+            "\n<ds:CanonicalizationMethod Algorithm=\"http://www.w3.org/TR/2001/REC-xml-c14n-20010315\"/>" +
+            "\n<ds:SignatureMethod Algorithm=\"http://www.w3.org/2000/09/xmldsig#rsa-sha1\"/>" +
+            "\n<ds:Reference URI=\"\">" +
+            "\n<ds:Transforms><ds:Transform Algorithm=\"http://www.w3.org/2000/09/xmldsig#enveloped-signature\"/>" +
+            "\n</ds:Transforms><ds:DigestMethod Algorithm=\"http://www.w3.org/2000/09/xmldsig#sha1\"/>" +
+            "\n</ds:Reference>" +
+            "\n</ds:SignedInfo>\n</ds:Signature>";
 
     private static Element DSASIGNATURETEMPLATE;
-    private static final String DSASIGNATURETEMPLATE_TEXT = "<ds:Signature xmlns:ds=\"http://www.w3.org/2000/09/xmldsig#\">" +
-            "<ds:SignedInfo>" +
-            "<ds:CanonicalizationMethod Algorithm=\"http://www.w3.org/TR/2001/REC-xml-c14n-20010315\"/>" +
-            "<ds:SignatureMethod Algorithm=\"http://www.w3.org/2000/09/xmldsig#dsa-sha1\"/>" +
-            "<ds:Reference URI=\"\">" +
-            "<ds:Transforms><ds:Transform Algorithm=\"http://www.w3.org/2000/09/xmldsig#enveloped-signature\"/>" +
-            "</ds:Transforms><ds:DigestMethod Algorithm=\"http://www.w3.org/2000/09/xmldsig#sha1\"/>" +
-            "</ds:Reference>" +
-            "</ds:SignedInfo></ds:Signature>";
+    private static final String DSASIGNATURETEMPLATE_TEXT = "\n<ds:Signature xmlns:ds=\"http://www.w3.org/2000/09/xmldsig#\">" +
+            "\n<ds:SignedInfo>" +
+            "\n<ds:CanonicalizationMethod Algorithm=\"http://www.w3.org/TR/2001/REC-xml-c14n-20010315\"/>" +
+            "\n<ds:SignatureMethod Algorithm=\"http://www.w3.org/2000/09/xmldsig#dsa-sha1\"/>" +
+            "\n<ds:Reference URI=\"\">" +
+            "\n<ds:Transforms><ds:Transform Algorithm=\"http://www.w3.org/2000/09/xmldsig#enveloped-signature\"/>" +
+            "\n</ds:Transforms><ds:DigestMethod Algorithm=\"http://www.w3.org/2000/09/xmldsig#sha1\"/>" +
+            "\n</ds:Reference>" +
+            "\n</ds:SignedInfo>\n</ds:Signature>";
 
 
     public static void main(final String[] args) {

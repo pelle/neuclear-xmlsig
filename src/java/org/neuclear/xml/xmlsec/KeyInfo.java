@@ -4,16 +4,24 @@ package org.neuclear.xml.xmlsec;
 
 import org.dom4j.Element;
 import org.neuclear.commons.crypto.CryptoException;
+import org.neuclear.commons.crypto.keyresolvers.KeyResolverFactory;
 
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
+import java.security.cert.Certificate;
+import java.security.cert.X509Certificate;
+import java.security.cert.CertificateEncodingException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.CertificateException;
 import java.security.interfaces.DSAParams;
 import java.security.interfaces.DSAPublicKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.DSAPublicKeySpec;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.RSAPublicKeySpec;
+import java.util.Iterator;
+import java.io.ByteArrayInputStream;
 
 public final class KeyInfo extends AbstractXMLSigElement {
     /**
@@ -58,6 +66,19 @@ public final class KeyInfo extends AbstractXMLSigElement {
             //seed and pgenCounter
         }
     }
+    public KeyInfo(final String name) {
+        super(TAG_NAME);
+        final Element kv = XMLSecTools.createElementInSignatureSpace("KeyName");
+        kv.addText(name);
+        addElement(kv);
+    }
+
+    public KeyInfo(final X509Certificate cert) throws CertificateEncodingException {
+        super(TAG_NAME);
+        final Element kv = XMLSecTools.createElementInSignatureSpace("X509Data");
+        kv.add(XMLSecTools.base64ToElement("X509Certificate",cert.getEncoded()));
+        addElement(kv);
+    }
 
     public KeyInfo(final Element elem) throws XMLSecurityException {
         super(elem);
@@ -74,55 +95,82 @@ public final class KeyInfo extends AbstractXMLSigElement {
     public final PublicKey getPublicKey()
             throws XMLSecurityException {
         if (pub == null) {
-            try {
-                final KeyFactory keyFactory;
-
-                final Element kvElement = getElement().element(XMLSecTools.createQName("KeyValue"));
-                if (kvElement == null)
-                    throw new XMLSecurityException("KeyInfo doesn't contains a KeyValue element.");
-
-                Element algElement = kvElement.element(XMLSecTools.createQName("RSAKeyValue"));
-                if (algElement == null) {
-                    algElement = kvElement.element(XMLSecTools.createQName("DSAKeyValue"));
-                    if (algElement == null)
-                        throw new XMLSecurityException("KeyInfo doesn't contains a [DSA|RSA]KeyValue element. " +
-                                "Sorry, we currently only support RSA and DSA keys");
-                }
-
-                if (algElement.getName().equalsIgnoreCase("RSAKeyValue")) {
-                    keyFactory = KeyFactory.getInstance("RSA");
-                    final Element mod = algElement.element(XMLSecTools.createQName("Modulus"));
-                    final Element exp = algElement.element(XMLSecTools.createQName("Exponent"));
-                    if ((mod == null) || (exp == null))
-                        throw new XMLSecurityException("KeyInfo Didn't contain a valid RSA Key");
-                    final RSAPublicKeySpec rsaKeyspec =
-                            new RSAPublicKeySpec(XMLSecTools.decodeBigIntegerFromElement(mod), XMLSecTools.decodeBigIntegerFromElement(exp));
-                    final PublicKey pk = keyFactory.generatePublic(rsaKeyspec);
-
-                    pub = pk;
-                } else if (algElement.getName().equalsIgnoreCase("DSAKeyValue")) {
-                    keyFactory = KeyFactory.getInstance("DSA");
-                    final Element p = algElement.element(XMLSecTools.createQName("P"));
-                    final Element q = algElement.element(XMLSecTools.createQName("Q"));
-                    final Element g = algElement.element(XMLSecTools.createQName("G"));
-                    final Element y = algElement.element(XMLSecTools.createQName("Y"));
-                    if (p == null || q == null || g == null || y == null)
-                        throw new XMLSecurityException("KeyInfo didn't contain a valid DSA Key");
-                    final DSAPublicKeySpec dsaPublicKeySpec = new DSAPublicKeySpec(XMLSecTools.decodeBigIntegerFromElement(y),
-                            XMLSecTools.decodeBigIntegerFromElement(p),
-                            XMLSecTools.decodeBigIntegerFromElement(q),
-                            XMLSecTools.decodeBigIntegerFromElement(g));
-                    final PublicKey pk = keyFactory.generatePublic(dsaPublicKeySpec);
-
-                    pub = pk;
-                }
-            } catch (NoSuchAlgorithmException ex) {
-                XMLSecTools.rethrowException(ex);
-            } catch (InvalidKeySpecException ex) {
-                XMLSecTools.rethrowException(ex);
+            Iterator iter=getElement().elementIterator();
+            while (iter.hasNext()&&pub==null) {
+                Element element = (Element) iter.next();
+                if (element.getName().equals("KeyValue"))
+                    pub=parseKeyValue(element);
+                else if(element.getName().equals("KeyName"))
+                    pub=parseKeyName(element);
+                else if(element.getName().equals("X509Data"))
+                    pub=parseX509(element);
             }
         }
         return pub;
+    }
+    private PublicKey parseKeyName(final Element element){
+        final String name=element.getTextTrim();
+        return KeyResolverFactory.getInstance().resolve(name);
+    }
+    private PublicKey parseX509(final Element element){
+        Element x509Data=element.element("X509Data");
+        if (x509Data!=null){
+            try {
+                byte encoded[]=XMLSecTools.decodeBase64Element(x509Data);
+                CertificateFactory fact=CertificateFactory.getInstance("X509v3");
+                Certificate cert=fact.generateCertificate(new ByteArrayInputStream(encoded));
+                return cert.getPublicKey();
+            } catch (XMLSecurityException e) {
+                return null;
+            } catch (CertificateException e) {
+                return null;
+            }
+        }
+        return null;
+    }
+    private PublicKey parseKeyValue(final Element kvElement) throws XMLSecurityException {
+        try {
+            final KeyFactory keyFactory;
+
+            Element algElement = kvElement.element(XMLSecTools.createQName("RSAKeyValue"));
+            if (algElement == null) {
+                algElement = kvElement.element(XMLSecTools.createQName("DSAKeyValue"));
+                if (algElement == null)
+                    throw new XMLSecurityException("KeyInfo doesn't contains a [DSA|RSA]KeyValue element. " +
+                            "Sorry, we currently only support RSA and DSA keys");
+            }
+
+            if (algElement.getName().equalsIgnoreCase("RSAKeyValue")) {
+                keyFactory = KeyFactory.getInstance("RSA");
+                final Element mod = algElement.element(XMLSecTools.createQName("Modulus"));
+                final Element exp = algElement.element(XMLSecTools.createQName("Exponent"));
+                if ((mod == null) || (exp == null))
+                    throw new XMLSecurityException("KeyInfo Didn't contain a valid RSA Key");
+                final RSAPublicKeySpec rsaKeyspec =
+                        new RSAPublicKeySpec(XMLSecTools.decodeBigIntegerFromElement(mod), XMLSecTools.decodeBigIntegerFromElement(exp));
+                final PublicKey pk = keyFactory.generatePublic(rsaKeyspec);
+
+                return  pk;
+            } else if (algElement.getName().equalsIgnoreCase("DSAKeyValue")) {
+                keyFactory = KeyFactory.getInstance("DSA");
+                final Element p = algElement.element(XMLSecTools.createQName("P"));
+                final Element q = algElement.element(XMLSecTools.createQName("Q"));
+                final Element g = algElement.element(XMLSecTools.createQName("G"));
+                final Element y = algElement.element(XMLSecTools.createQName("Y"));
+                if (p == null || q == null || g == null || y == null)
+                    throw new XMLSecurityException("KeyInfo didn't contain a valid DSA Key");
+                final DSAPublicKeySpec dsaPublicKeySpec = new DSAPublicKeySpec(XMLSecTools.decodeBigIntegerFromElement(y),
+                        XMLSecTools.decodeBigIntegerFromElement(p),
+                        XMLSecTools.decodeBigIntegerFromElement(q),
+                        XMLSecTools.decodeBigIntegerFromElement(g));
+                return keyFactory.generatePublic(dsaPublicKeySpec);
+            }
+        } catch (NoSuchAlgorithmException ex) {
+            XMLSecTools.rethrowException(ex);
+        } catch (InvalidKeySpecException ex) {
+            XMLSecTools.rethrowException(ex);
+        }
+        return null;
     }
 
 

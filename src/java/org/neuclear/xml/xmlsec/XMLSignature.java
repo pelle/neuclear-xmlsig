@@ -1,5 +1,12 @@
-/* $Id: XMLSignature.java,v 1.6 2003/12/19 18:03:07 pelle Exp $
+/* $Id: XMLSignature.java,v 1.7 2004/01/07 23:11:51 pelle Exp $
  * $Log: XMLSignature.java,v $
+ * Revision 1.7  2004/01/07 23:11:51  pelle
+ * XMLSig now has various added features:
+ * -  KeyInfo supports X509v3 (untested)
+ * -  KeyInfo supports KeyName
+ * -  When creating a XMLSignature and signing it with a Signer, it adds the alias to the KeyName
+ * Added KeyResolver interface and KeyResolverFactory Class. At the moment no implementations.
+ *
  * Revision 1.6  2003/12/19 18:03:07  pelle
  * Revamped a lot of exception handling throughout the framework, it has been simplified in most places:
  * - For most cases the main exception to worry about now is InvalidNamedObjectException.
@@ -147,7 +154,7 @@ package org.neuclear.xml.xmlsec;
 
 /**
  * @author pelleb
- * @version $Revision: 1.6 $
+ * @version $Revision: 1.7 $
  */
 
 import org.dom4j.DocumentHelper;
@@ -166,18 +173,6 @@ import java.security.interfaces.RSAPrivateKey;
  * This is the base class of Digital Signatures
  */
 public class XMLSignature extends AbstractXMLSigElement {
-    /**
-     * Creates an Enveloped (Embedded) Signature object based on the given element root
-     * 
-     * @param key  
-     * @param root 
-     * @param uri  
-     * @throws XMLSecurityException 
-     */
-    public XMLSignature(final PrivateKey key, final Element root, final String uri) throws XMLSecurityException, CryptoException {
-        this(key, null, root, uri);
-    }
-
     /**
      * Creates an Enveloped (Embedded) Signature object based on the given element root
      * 
