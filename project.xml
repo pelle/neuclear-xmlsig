@@ -107,6 +107,10 @@
       <name>servletapi</name>
       <version>2.2</version>
     </dependency>
+       <dependency>
+           <id>cactus</id>
+           <version>13-1.5-rc1</version>
+       </dependency>
 <!--
        <dependency>
          <id>xmlpull</id>
