@@ -7,7 +7,7 @@ import org.dom4j.Element;
  * the signature is valid. As such this should NEVER be used in anything but applications that check for interoperabiity.
  */
 public class AnyXMLSignature extends XMLSignature {
-    public AnyXMLSignature(Element elem) throws XMLSecurityException, InvalidSignatureException {
+    AnyXMLSignature(Element elem) throws XMLSecurityException, InvalidSignatureException {
         super(XMLSecTools.getSignatureElement(elem));
     }
 }

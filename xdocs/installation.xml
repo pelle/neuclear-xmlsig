@@ -1,19 +1,25 @@
 <?xml version="1.0"?>
 <document>
 
-	<properties>
-		<title>Installing and Building</title>
-		<author email="pelle@neubia.com">Pelle Braendgaard</author>
-	</properties>
+    <properties>
+        <title>Installing and Building</title>
+        <author email="pelle@neubia.com">Pelle Braendgaard</author>
+    </properties>
 
-	<body>
-		<section name="Requirements">
+    <body>
+        <section name="Requirements">
             <p>
                 The three main requirements for the library is:
                 <ul>
-                    <li><a href="http://www.bouncycastle.org">Bouncy Castle Crypto</a></li>
-                    <li><a href="http://www.dom4j.org">Dom4J</a></li>
-                    <li><a href="http://neuclear.org/commons/">NeuClear Commons</a></li>
+                    <li>
+                        <a href="http://www.bouncycastle.org">Bouncy Castle Crypto</a>
+                    </li>
+                    <li>
+                        <a href="http://www.dom4j.org">Dom4J</a>
+                    </li>
+                    <li>
+                        <a href="http://old.neuclear.org/commons/">NeuClear Commons</a>
+                    </li>
                 </ul>
                 With Dom4J make sure you include the full jar in your classpath.
                 If you plan on using the SOAP Servlet functionality of the library you also will need to have the
@@ -26,14 +32,16 @@
                 <tt>$JAVA_HOME/jre/lib/ext</tt>.
             </p>
             <p>
-                You also will need to edit your <tt>$JAVA_HOME/jre/lib/security/java.security</tt> file as well. Adding the following line:
+                You also will need to edit your
+                <tt>$JAVA_HOME/jre/lib/security/java.security</tt> file as well. Adding the following line:
             </p>
             <source>security.provider.6=org.bouncycastle.jce.provider.BouncyCastleProvider </source>
             <p>Making sure to change the 6 to whatever the last number is in the sequence of providers</p>
         </section>
         <section name="Building">
             <p>
-                To build anything within the NeuClear framework you first need to install <a href="http://jakarta.apache.org/turbine/maven/">Maven</a>.
+                To build anything within the NeuClear framework you first need to install
+                <a href="http://jakarta.apache.org/turbine/maven/">Maven</a>.
                 Follow their installation instructions and you should be ok. I haven't tried this under windows yet, but I'm guessing
                 it should work fine.
             </p>
@@ -56,7 +64,8 @@
             </p>
             <source>~/projects/neuclear-xmlsig> maven jar:install</source>
             <p>
-                If you use <a href="http://intellij.com">IntelliJ IDEA</a> maven will create a project file for you automatically:
+                If you use
+                <a href="http://intellij.com">IntelliJ IDEA</a> maven will create a project file for you automatically:
             </p>
             <source>~/projects/neuclear-xmlsig> maven idea</source>
         </section>

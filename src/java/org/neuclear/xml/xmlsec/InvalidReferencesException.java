@@ -16,4 +16,8 @@ public class InvalidReferencesException extends InvalidSignatureException {
         super("Invalid reference type");
     }
 
+    public InvalidReferencesException(String message) {
+        super("Invalid reference type: " + message);
+    }
+
 }

@@ -1,13 +1,13 @@
 <?xml version="1.0"?>
 <project>
 
-    <name>NeuDist XML Signature API</name>
+    <name>NeuClear XML Signature API</name>
     <id>neuclear-xmlsig</id>
-    <currentVersion>0.12-SNAPSHOT</currentVersion>
+    <currentVersion>0.12</currentVersion>
     <inceptionYear>2002</inceptionYear>
     <package>org.neuclear</package>
     <logo>/images/logo.gif</logo>
-    <shortDescription>NeuDist XML Signature API</shortDescription>
+    <shortDescription>NeuClear XML Signature API</shortDescription>
     <organization>
         <name>Antilles Software Ventures SA</name>
         <url>http://neubia.com/</url>
@@ -18,7 +18,7 @@
     Implementation of XML Signature API
     </description>
 
-    <url>http://neuclear.org/</url>
+    <url>http://old.neuclear.org/xmlsig/</url>
     <repository>
         <connection>
          scm:cvs:pserver:anonymous@cvs.neuclear.sourceforge.net:/cvsroot/neuclear:neuclear-xmlsig
@@ -28,9 +28,9 @@
         </url>
     </repository>
 
-    <siteAddress>neuclear.org</siteAddress>
+    <siteAddress>old.neuclear.org</siteAddress>
     <siteDirectory>/home/sites/neuclear.org/public_html/xmlsig/</siteDirectory>
-    <issueTrackingUrl>http://neuclear.org:8080/jira/secure/BrowseProject.jspa</issueTrackingUrl>
+    <issueTrackingUrl>http://jira.neuclear.org</issueTrackingUrl>
     <mailingLists>
         <mailingList>
             <name>NeuClear Announce</name>
@@ -75,7 +75,7 @@
         <dependency>
             <id>neuclear-commons</id>
             <name>neuclear-commons</name>
-            <version>0.6-SNAPSHOT</version>
+            <version>0.6</version>
             <properties>
                 <war.bundle>true</war.bundle>
             </properties>

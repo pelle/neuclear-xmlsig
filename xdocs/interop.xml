@@ -1,0 +1,379 @@
+<?xml version="1.0"?>
+<document>
+
+    <properties>
+        <title>Interopability</title>
+        <author email="pelle@neubia.com">Pelle Braendgaard</author>
+    </properties>
+
+    <body>
+        <section name="Overview">
+            <p>
+                This library was written to support the
+                <a href="http://neuclear.org">NeuClear</a> project. As such
+                most of the features of our support of the standard are designed to support the needs of this project.
+                We provide interoperability of all the features that we need and then some. However we do not offer full
+                interoperability as there are features that we will never use in NeuClear. If anyone wants to implement them,
+                please let us know and we will happily include them.
+            </p>
+        </section>
+        <section name="Missing Features">
+            <p>
+                Missing features as required by the W3C Standard on
+                <a href="http://www.w3.org/2000/09/xmldsig">XML Signatures</a> are:
+                <ul>
+                    <li>Exclusive Canonicalization</li>
+                    <li>Most PKI related functionality</li>
+                    <li>Any external Public Key</li>
+                    <li>HMAC support</li>
+                </ul>
+            </p>
+        </section>
+        <section name="Interops">
+            <p>
+                <table cellpadding="2" cellspacing="2" border="1">
+                    <tbody>
+                        <tr>
+                            <td valign="top" align="left">
+                                <b>Features and algorithms
+                                    <br/>
+                                </b>
+                            </td>
+                            <td valign="top" align="left">
+                                <b>Key Word
+                                    <br/>
+                                </b>
+                            </td>
+                            <td valign="top" align="left">
+                                <b>NeuClear XMLSig version 0.6 </b>
+                            </td>
+
+                        </tr>
+                        <tr>
+                            <td valign="top" align="left">
+                                <a class="link-def" href="http://www.w3.org/TR/2000/WD-xmldsig-core-20001012/#def-SignatureDetac%20hed">
+Detached</a> Signature
+                                <br/>
+                            </td>
+                            <td valign="top" align="left">MUST
+                                <br/>
+                            </td>
+                            <td valign="top" align="left">Y
+                                <br/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td valign="top" align="left">
+                                <a class="link-def" href="http://www.w3.org/TR/2000/WD-xmldsig-core-20001012/#def-SignatureEnveloping">
+Enveloping</a> Signature: same document reference with fragment (URI="#Object1")
+                                <br/>
+                            </td>
+                            <td valign="top" align="left">MUST
+                                <br/>
+                            </td>
+                            <td valign="top" align="left">Y
+                                <br/>
+                            </td>
+
+                        </tr>
+                        <tr>
+                            <td valign="top" align="left">
+                                <a class="link-def" href="http://www.w3.org/TR/2000/WD-xmldsig-core-20001012/#def-SignatureEnvel%20oped">
+Enveloped</a> Signature: same document reference (URI="") with
+                                <a href="http://www.w3.org/Signature/2001/04/05-xmldsig-interop.html#sec-EnvelopedSignature">
+Enveloped Signature Transform</a> .
+                                <br/>
+                            </td>
+                            <td valign="top" align="left">MUST
+                                <br/>
+                            </td>
+                            <td valign="top" align="left">Y
+                                <br/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td valign="top" align="left">
+                                <a href="http://www.w3.org/TR/2000/WD-xmldsig-core-20001012/#sec-SignatureValue%20">
+SignatureValue</a> generation/validation
+                                <br/>
+                            </td>
+                            <td valign="top" align="left">MUST
+                                <br/>
+                            </td>
+                            <td valign="top" align="left">Y
+                                <br/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td valign="top" align="left">
+                                <a href="http://www.w3.org/TR/xmldsig-core/#sec-Manifest"> Manifest</a> DigestValue
+generation/valdiation
+                                <br/>
+                            </td>
+                            <td valign="top" align="left">MAY</td>
+                            <td valign="top" align="left">N
+                                <br/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td valign="top" align="left"> Feature:
+                                <a href="http://www.w3.org/TR/xmldsig-core/#sec-Signature"> laxly schema valid
+Signature element</a> generation
+                                <br/>
+                            </td>
+                            <td valign="top" align="left">MUST
+                                <br/>
+                            </td>
+                            <td valign="top" align="left">Y
+                                <br/>
+                            </td>
+
+                        </tr>
+                        <tr>
+                            <td valign="top" align="left">
+                                <a href="http://www.w3.org/TR/xmldsig-core/#sec-ReferenceProcessingModel"> XPointers</a>
+'#xpointer(/)'
+                                <br/>
+                            </td>
+                            <td valign="top" align="left">SHOULD
+                                <br/>
+                            </td>
+                            <td valign="top" align="left">Y
+                                <br/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td valign="top" align="left">
+                                <a href="http://www.w3.org/TR/xmldsig-core/#sec-ReferenceProcessingModel"> XPointers</a>
+'#xpointer(id("
+                                <em>ID</em>"))'
+                                <br/>
+                            </td>
+                            <td valign="top" align="left">SHOULD
+                                <br/>
+                            </td>
+                            <td valign="top" align="left">N
+                                <br/>
+                            </td>
+
+                        </tr>
+                        <tr>
+                            <td valign="top" align="left">
+                                <a href="http://www.w3.org/TR/xmldsig-core/#sec-ReferenceProcessingModel"> XPointers</a>:
+full suppport
+                            </td>
+                            <td valign="top" align="left">MAY
+                                <br/>
+                            </td>
+                            <td valign="top" align="left">N
+                                <br/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td valign="top" align="left">
+                                <a href="http://www.w3.org/TR/xmldsig-core/#sec-XPath"> XPath</a>
+                                <br/>
+                            </td>
+                            <td valign="top" align="left">SHOULD
+                                <br/>
+                            </td>
+                            <td valign="top" align="left">Y
+                                <br/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td valign="top" align="left"> the dsig
+                                <a href="http://www.w3.org/TR/xmldsig-core/#sec-XPath"> XPath 'here()'</a>
+function (can be used to implement enveloped signature)
+                                <br/>
+                            </td>
+                            <td valign="top" align="left">SHOULD
+                                <br/>
+                            </td>
+                            <td valign="top" align="left">Y
+                                <br/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td valign="top" align="left"> XSLT (note, the child
+                                <code> XSLT</code>
+element of Transform has been   deprecated.)
+                                <br/>
+                            </td>
+                            <td valign="top" align="left">MAY
+                                <br/>
+                            </td>
+                            <td valign="top" align="left">N
+                                <br/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td valign="top" align="left"> RetrievalMethod (e.g., X509Data)
+                                <br/>
+                            </td>
+                            <td valign="top" align="left">SHOULD
+                                <br/>
+                            </td>
+                            <td valign="top" align="left">N
+                                <br/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td valign="top" align="left">
+                                <a href="http://www.w3.org/2000/09/xmldsig#sha1"> SHA1</a>
+                                <br/>
+                            </td>
+                            <td valign="top" align="left">MUST
+                                <br/>
+                            </td>
+                            <td valign="top" align="left">Y
+                                <br/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td valign="top" align="left">
+                                <a href="http://www.w3.org/2000/09/xmldsig#base64"> Base64</a>
+                                <br/>
+                            </td>
+                            <td valign="top" align="left">MUST
+                                <br/>
+                            </td>
+                            <td valign="top" align="left">N
+                                <br/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td valign="top" align="left">
+                                <a href="http://www.w3.org/2000/09/xmldsig#hmac-sha1"> HMAC-SHA1</a>
+                                <br/>
+                            </td>
+                            <td valign="top" align="left">MUST
+                                <br/>
+                            </td>
+                            <td valign="top" align="left">N
+                                <br/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td valign="top" align="left">
+                                <a href="http://www.w3.org/2000/09/xmldsig#dsa"> DSAwithSHA1
+                                    <br/>
+ (DSS)
+                                </a>
+                                <br/>
+                            </td>
+                            <td valign="top" align="left">MUST
+                                <br/>
+                            </td>
+                            <td valign="top" align="left">Y
+                                <a href="#dsa-sha1"></a>
+                                <br/>
+                            </td>
+
+                        </tr>
+                        <tr>
+                            <td valign="top" align="left">
+                                <a href="http://www.w3.org/2000/09/xmldsig#rsa-sha1"> RSAwithSHA1</a>
+                                <br/>
+                            </td>
+                            <td valign="top" align="left">SHOULD
+                                <br/>
+                            </td>
+                            <td valign="top" align="left">Y
+                                <br/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td valign="top">X509 support
+                                <br/>
+                            </td>
+                            <td valign="top">SHOULD
+                                <br/>
+                            </td>
+                            <td valign="top">Limited to verifying with embedded X509 certificates.
+                                <br/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td valign="top" align="left">
+                                <a href="http://www.w3.org/2000/09/xmldsig#minimal"> minimal</a> (deprecated)
+                                <br/>
+                            </td>
+                            <td valign="top" align="left">n/a
+                                <br/>
+                            </td>
+                            <td valign="top" align="left">N
+                                <br/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td valign="top" align="left">
+                                <a href="http://www.w3.org/TR/2000/WD-xml-c14n-20001011"> Canonical XML</a>
+(20010315)
+                                <br/>
+                            </td>
+                            <td valign="top" align="left">MUST
+                                <br/>
+                            </td>
+                            <td valign="top" align="left">Y
+                                <br/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td valign="top" align="left">
+                                <a href="http://www.w3.org/TR/2000/WD-xml-c14n-20001011"> Canonical XML</a>
+with comments
+                                <br/>
+                            </td>
+                            <td valign="top" align="left">SHOULD
+                                <br/>
+                            </td>
+                            <td valign="top" align="left">Y
+                                <br/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td valign="top" align="left">
+                                <a href="http://www.w3.org/TR/2002/CR-xml-exc-c14n-20020212"> Exlusive Canonical
+XML</a>
+                                <br/>
+                            </td>
+                            <td valign="top" align="left">SHOULD
+                                <br/>
+                            </td>
+                            <td valign="top" align="left">N
+                                <br/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td valign="top" align="left">
+                                <a href="http://www.w3.org/TR/2002/CR-xml-exc-c14n-20020212"> Exlusive Canonical
+XML</a> with comments
+                                <br/>
+                            </td>
+                            <td valign="top" align="left">SHOULD
+                                <br/>
+                            </td>
+                            <td valign="top" align="left">N
+                                <br/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td valign="top" align="left">
+                                <a href="http://www.w3.org/Signature/2001/04/05-xmldsig-interop.html#sec-EnvelopedSignature">
+Enveloped Signature</a>
+                                <br/>
+                            </td>
+                            <td valign="top" align="left">MUST
+                                <br/>
+                            </td>
+                            <td valign="top" align="left">Y
+                                <br/>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </p>
+        </section>
+    </body>
+</document>

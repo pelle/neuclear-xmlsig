@@ -1,0 +1,159 @@
+<?xml version="1.0"?>
+<document>
+
+    <properties>
+        <title>Overview</title>
+        <author email="pelle@neubia.com">Pelle Braendgaard</author>
+    </properties>
+
+    <body>
+        <section name="Introduction">
+            <p>
+                The API was designed for absolute simplicity.  Almost everything can be done through several simple Static methods in
+                <a href="apidocs/org/neuclear/xml/xmlsec/XMLSecTools.html">org.neuclear.xml.xmlsec.XMLSecTools</a>.
+            </p>
+        </section>
+        <section name="Signing of XML Documents">
+            <p>
+                To sign a piece of XML you need two things:
+                <ul>
+                    <li>A
+                        <a href="http://www.dom4j.org">Dom4J</a> XML
+                        <a href="http://www.dom4j.org/apidocs/org/dom4j/Element.html">Element</a>
+                    </li>
+                    <li>An RSA Private Key</li>
+                </ul>
+                Look at the following code snippet for an example:
+            </p>
+            <source><![CDATA[// First we'll create a KeyPair
+KeyPair kp=CryptoTools.createTinyRSAKeyPair();
+
+Document doc=DocumentHelper.parseText("<test><test2/></test>");
+Element elem=doc.getRootElement();
+
+EnvelopedSignature envsig=new EnvelopedSignature(kp,elem);
+System.out.println(doc.asXML());]]>
+            </source>
+            <p>This will leave you with the Element looking like this</p>
+            <source> <![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+<test><test2/><ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#"><ds:SignedInfo><ds:CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"/>
+<ds:SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"/>
+<ds:Reference><ds:Transforms><ds:Transform ds:Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"/><ds:Transform ds:Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"/></ds:Transforms>
+<ds:DigestMethod ds:Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+<ds:DigestValue>
+B/P2qMqBvrZCYSa5RDuKHY9s8j4=
+</ds:DigestValue></ds:Reference>
+</ds:SignedInfo>
+<ds:SignatureValue>gIYL0CM6xeniLgqRqPqsFEFx7Rrv7vKvW/sBlgoCyn7BlX+OTizulwGOFmw3Q9H5vFcSfFjTO8Y1TJcnIMnKzg==</ds:SignatureValue>
+<ds:KeyInfo><ds:KeyValue><ds:RSAKeyValue><ds:Modulus>
+zi2oiVe/tXSsGe8U1zT6znn2kFG3FXwjZ+NW8l2GcTd9zt1Y3dpScbUzzvbeQqfUw0uzPetRrK6h
+fhCeo4D0Uw==
+</ds:Modulus>
+<ds:Exponent>
+AQAB
+</ds:Exponent>
+</ds:RSAKeyValue>
+</ds:KeyValue>
+</ds:KeyInfo>
+</ds:Signature></test>]]>
+            </source>
+            <p>
+                This is what is known as an EnvelopedSignature, which simply speaking means that the XML element contains an
+                embedded signature. This is the most usefull way of adding signatures to existing xml based applications.
+                Once you have created an EnvelopedSignature. The signature is now a child of the Element that you passed to it.
+                Remember if you make any further changes to your Document the signature will fail.
+            </p>
+        </section>
+        <section name="Verification of XMLSignatures">
+            <p>
+                To Verify you need an Element contaning an embedded XML signature and a Public Key in its KeyInfo.
+            </p>
+            <source><![CDATA[try {
+    EnvelopedSignature verified=new EnvelopedSignature(elem);
+} catch (InvalidSignatureException e) {
+    System.err.println("Invalid Signature");
+}            ]]></source>
+        </section>
+        <section name="Data Object Signatures">
+            <p>
+                Another common form of the XML Signature is the Data Object Signature. This is a type of signature
+                known as Enveloping XML Signature. What this means is that the top level element of the Document is now the
+                Signature element and the data is enveloped within the signature.
+            </p>
+            <p>
+                A common scenario of Enveloping Signatures are Data Object Signatures. The element that you wish to sign
+                is known as the Data Object and is included in a Object element within the signature.
+            </p>
+            <source><![CDATA[ KeyPair kp=CryptoTools.createTinyRSAKeyPair();
+
+Document doc=DocumentHelper.parseText("<test><test2/></test>");
+Element elem=doc.getRootElement();
+
+DataObjectSignature datasig=new DataObjectSignature(kp,elem);
+Element sigelem=datasig.getElement();
+System.out.println(sigelem.asXML()); ]]></source>
+            <p>
+            Verification is done similarly to EnvelopedSignatures. You just pass the element to the constructor:
+            </p>
+            <source><![CDATA[try {
+    DataObjectSignature verified=new DataObjectSignature(elem);
+} catch (InvalidSignatureException e) {
+    System.err.println("Invalid Signature");
+}            ]]></source>
+
+        </section>
+        <section name="External URL Signatures">
+            <p>
+                A third common form of the XML Signature is the External Signature. This signs some external data
+                that is referenced through a URL. You can use this to perform a signature of any url that is
+                compliant with the Java URL class. Such as http, https, ftp etc and file.
+            </p>
+            <source><![CDATA[ KeyPair kp=CryptoTools.createTinyRSAKeyPair();
+
+ExternalSignature extsig=new ExternalSignature(kp,""http://www.w3.org/TR/2000/WD-xml-c14n-20001011");
+Element sigelem=extsig.getElement();
+System.out.println(sigelem.asXML()); ]]></source>
+            <p>
+            Verification is done similarly to EnvelopedSignatures. You just pass the element to the constructor:
+            </p>
+            <source><![CDATA[try {
+    ExternalSignature verified=new ExternalSignature(elem);
+} catch (InvalidSignatureException e) {
+    System.err.println("Invalid Signature");
+}            ]]></source>
+
+        </section>
+        <section name="Reference Security Restrictions">
+            <p>
+                The XML Signature standard is very flexible and can be used for all sorts of applications, however the
+                down fall of this flexibility is that it leaves a large responsibility on the application designers that most
+                people miss. This has got to do with the way the standard specifies References (what is signed essentially).
+                A common but very serious security problem with XML Signatures are not checking what exactly is signed.
+            </p>
+            <p>
+                As opposed to most other implementations we have decided to impose some restrictions on what is possible.
+                You can use. Most common types of digital signatures (see above) have got specific Java constructors to both verify and create them
+                safely. If you have certain needs not met by these you can create your own subclasses of XMLSignature to handle this.
+                We include a class called AnyXMLSignature. This should never be used in production environments. This will
+                verify arbitrary signatures. It is included for compliance testing only. Please DO NOT USE.
+            </p>
+        </section>
+        <section name="Canonicalization">
+            <p>
+                To Canonicalize a document according to
+                <a href="http://www.w3.org/TR/2000/WD-xml-c14n-20001011">Canonical XML</a>.
+                You need a document and a Writer.
+            </p>
+            <source><![CDATA[
+Canonicalizer canon=new Canonicalizer(writer);//writer is a preinitialized instance of a java.io.Writer
+canon.canonicalize(doc); // Canonicalizes the document or element and outputs it to the writer
+            ]]></source>
+        </section>
+        <!--        <section name="Encoding Public Key's in XML Documents">
+        <p>
+
+        </p>
+        </section>-->
+    </body>
+
+</document>

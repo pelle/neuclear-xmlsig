@@ -13,10 +13,30 @@ import java.util.List;
  * This is a standard Enveloped Signature with only one Reference object.
  */
 public class EnvelopedSignature extends XMLSignature {
+    /**
+     * Verifies the given element. The Element can be either the Signature element embedded within another element or
+     * the parent element it self.
+     *
+     * @param elem
+     * @throws XMLSecurityException
+     * @throws InvalidSignatureException
+     */
     public EnvelopedSignature(Element elem) throws XMLSecurityException, InvalidSignatureException {
         super(XMLSecTools.getSignatureElement(elem));
     }
 
+    /**
+     * Creates a standard Enveloped Signature within the given Element.
+     * Uses the provided Signer and Alias to sign it.
+     *
+     * @param name
+     * @param signer
+     * @param elem
+     * @throws XMLSecurityException
+     * @throws UserCancellationException
+     * @throws NonExistingSignerException
+     * @see Signer
+     */
     public EnvelopedSignature(String name, Signer signer, Element elem) throws XMLSecurityException, UserCancellationException, NonExistingSignerException {
         super(name, signer);
         si.setEnvelopedReference(elem);
@@ -24,6 +44,14 @@ public class EnvelopedSignature extends XMLSignature {
         sign(name, signer);
     }
 
+    /**
+     * Creates a standard Enveloped Signature within the given Element.
+     * Uses the provided KeyPair to sign it.
+     *
+     * @param kp
+     * @param elem
+     * @throws XMLSecurityException
+     */
     public EnvelopedSignature(KeyPair kp, Element elem) throws XMLSecurityException {
         super(kp.getPublic());
         si.setEnvelopedReference(elem);

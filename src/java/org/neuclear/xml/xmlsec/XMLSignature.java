@@ -1,5 +1,10 @@
-/* $Id: XMLSignature.java,v 1.18 2004/03/20 17:19:42 pelle Exp $
+/* $Id: XMLSignature.java,v 1.19 2004/03/23 20:51:00 pelle Exp $
  * $Log: XMLSignature.java,v $
+ * Revision 1.19  2004/03/23 20:51:00  pelle
+ * Added ExternalSignature and further Javadocs.
+ * Added Busy Developers Guide and Interop guide.
+ * Ready for release.
+ *
  * Revision 1.18  2004/03/20 17:19:42  pelle
  * The problem with Enveloped signatures has now been fixed. It was a problem in the way transforms work. I have bandaided it, but in the future if better support for transforms need to be made, we need to rethink it a bit. Perhaps using the new crypto channel's in neuclear-commons.
  *
@@ -203,7 +208,7 @@ package org.neuclear.xml.xmlsec;
 
 /**
  * @author pelleb
- * @version $Revision: 1.18 $
+ * @version $Revision: 1.19 $
  */
 
 import org.dom4j.Element;
@@ -224,13 +229,28 @@ import java.security.interfaces.RSAPublicKey;
  * This is the base class of Digital Signatures
  */
 abstract public class XMLSignature extends AbstractXMLSigElement {
-
+    /**
+     * Creates a raw XML Signature element that is unsigned.
+     * Subclasse can use this to add references and then sign it using the sign method.
+     *
+     * @param pub Adds this public key to the KeyInfo
+     * @throws XMLSecurityException
+     */
     protected XMLSignature(final PublicKey pub) throws XMLSecurityException {
         this(pub, new SignedInfo(getSignatureAlgorithm(pub), 1));
     }
 
-    protected XMLSignature(final String name, final Signer signer) throws XMLSecurityException, NonExistingSignerException {
-        this(getPublicKey(name, signer), new SignedInfo(getSignatureAlgorithm(getPublicKey(name, signer)), 1));
+    /**
+     * Creates a raw XML Signature element that is unsigned.
+     * Subclasse can use this to add references and then sign it using the sign method.
+     *
+     * @param alias  Adds the publickey with this alias to the KeyInfo
+     * @param signer Get the PublicKey from this Signer
+     * @throws XMLSecurityException
+     * @throws NonExistingSignerException
+     */
+    protected XMLSignature(final String alias, final Signer signer) throws XMLSecurityException, NonExistingSignerException {
+        this(getPublicKey(alias, signer), new SignedInfo(getSignatureAlgorithm(getPublicKey(alias, signer)), 1));
     }
 
     private XMLSignature(final PublicKey pub, final SignedInfo si) {
@@ -242,20 +262,39 @@ abstract public class XMLSignature extends AbstractXMLSigElement {
             addElement(new KeyInfo(pub));
     }
 
+    /**
+     * Used by subclasses to pass complete SignedInfo's.
+     * This constructor signs it and places signature in Signature Value.
+     *
+     * @param kp
+     * @param si
+     * @throws XMLSecurityException
+     */
     protected XMLSignature(final KeyPair kp, final SignedInfo si) throws XMLSecurityException {
         this(kp.getPublic(), si);
         sign(kp);
     }
 
-
-    protected XMLSignature(final String name, final Signer signer, final SignedInfo si) throws XMLSecurityException, UserCancellationException, NonExistingSignerException {
-        this(getPublicKey(name, signer), si);
-        sign(name, signer);
+    /**
+     * Used by subclasses to pass complete SignedInfo's.
+     * This constructor signs it and places signature in Signature Value.
+     *
+     * @param alias
+     * @param signer
+     * @param si
+     * @throws XMLSecurityException
+     * @throws UserCancellationException
+     * @throws NonExistingSignerException
+     */
+    protected XMLSignature(final String alias, final Signer signer, final SignedInfo si) throws XMLSecurityException, UserCancellationException, NonExistingSignerException {
+        this(getPublicKey(alias, signer), si);
+        sign(alias, signer);
     }
 
 
     /**
-     * Constructor from Raw XML
+     * Constructor from Raw XML. This verifies the Signature and references within.
+     * Sub classes should override <tt>verifyReferencesStructure()</tt> to verify the structure of the references.
      *
      * @param elem
      * @throws XMLSecurityException
@@ -303,25 +342,40 @@ abstract public class XMLSignature extends AbstractXMLSigElement {
         return (pub instanceof RSAPublicKey) ? SignedInfo.SIG_ALG_RSA : SignedInfo.SIG_ALG_DSA;
     }
 
+    /**
+     * Signs the SignedInfo with the given KeyPair and places the signature in the SignatureValue element.
+     * Subclasses should call this in their constructor.
+     *
+     * @param kp
+     * @throws XMLSecurityException
+     */
     protected void sign(final KeyPair kp) throws XMLSecurityException {
         sigval.setText(Base64.encode(si.sign(kp.getPrivate())));
     }
 
-    protected void sign(final String name, final Signer signer) throws XMLSecurityException, NonExistingSignerException, UserCancellationException {
-        sigval.setText(Base64.encode(si.sign(name, signer)));
+    /**
+     * Signs the SignedInfo with the given Signer and alias and places the signature in the SignatureValue element.
+     * Subclasses should call this in their constructor.
+     *
+     * @param alias
+     * @param signer
+     * @throws XMLSecurityException
+     * @throws NonExistingSignerException
+     * @throws UserCancellationException
+     */
+    protected void sign(final String alias, final Signer signer) throws XMLSecurityException, NonExistingSignerException, UserCancellationException {
+        sigval.setText(Base64.encode(si.sign(alias, signer)));
     }
 
 
-    private static PublicKey getPublicKey(final String name, final Signer signer) throws XMLSecurityException, NonExistingSignerException {
+    private static PublicKey getPublicKey(final String alias, final Signer signer) throws XMLSecurityException, NonExistingSignerException {
         if (!(signer instanceof PublicKeySource))
             throw new XMLSecurityException("The Signer must also be a public key source");
-        return ((PublicKeySource) signer).getPublicKey(name);
+        return ((PublicKeySource) signer).getPublicKey(alias);
     }
 
     /**
-     * Method getPublicKey
-     * 
-     * @return 
+     * @return The signature bytes
      * @throws XMLSecurityException 
      */
     private final byte[] getSignature() throws XMLSecurityException {
@@ -329,6 +383,12 @@ abstract public class XMLSignature extends AbstractXMLSigElement {
         return XMLSecTools.decodeBase64Element(sigVal);
     }
 
+    /**
+     * Gets the PublicKey of the Signer of the XMLSignature. If non existant returns null.
+     *
+     * @return
+     * @throws XMLSecurityException
+     */
     public final PublicKey getSignersKey() throws XMLSecurityException {
         KeyInfo key = getKeyInfo();
         if (key == null)
@@ -336,6 +396,12 @@ abstract public class XMLSignature extends AbstractXMLSigElement {
         return key.getPublicKey();
     }
 
+    /**
+     * If available returns the id of the signing key.
+     *
+     * @return
+     * @throws XMLSecurityException
+     */
     public final String getSignersId() throws XMLSecurityException {
         KeyInfo key = getKeyInfo();
         if (key == null)
@@ -352,10 +418,18 @@ abstract public class XMLSignature extends AbstractXMLSigElement {
         return ki;
     }
 
+    /**
+     * @return The SignedInfo element
+     */
     public final SignedInfo getSi() {
         return si;
     }
 
+    /**
+     * Get the first element referenced by this Signature. If refernce is external it returns null.
+     *
+     * @return
+     */
     public final Element getPrimaryReferenceElement() {
         return si.getPrimaryReferenceElement();
     }

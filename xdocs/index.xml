@@ -1,13 +1,32 @@
 <?xml version="1.0"?>
 <document>
 
-	<properties>
-		<title>NeuClear.org - XML Signatures</title>
-		<author email="pelle@neubia.com">Pelle Braendgaard</author>
-	</properties>
+    <properties>
+        <title>NeuClear.org - XML Signatures</title>
+        <author email="pelle@neubia.com">Pelle Braendgaard</author>
+    </properties>
 
-	<body>
-   <section name="[12th of December 2003] Release 0.11">
+    <body>
+        <section name="[23rd of March 2004] Release 0.12">
+            <p>
+                        Panama City, 23rd of March 2004. We are happy to announce
+                        the 0.12 release of NeuClear XMLSIG. Major new features are:
+            </p>
+            <ul>
+                <li>Improved verification of Reference Types</li>
+                <li>Simpler API</li>
+                <li>Support for X509 Certificates</li>
+                <li>Improved Interoperability</li>
+            </ul>
+            <p>
+                <a href="http://jira.neuclear.org/secure/ReleaseNote.jspa?projectId=10020&styleName=Html&version=10051">See full list.</a>
+            </p>
+            <p>
+                <a href="http://sourceforge.net/project/showfiles.php?group_id=90470">Download it today and join in the NeuClear revolution</a>.
+            </p>
+        </section>
+
+        <section name="[12th of December 2003] Release 0.11">
             <p>
                 Panama City, 12th of December, 2003. We are happy to announce
                 the 0.11 release of NeuClear XMLSIG. Major new features are:
@@ -26,7 +45,8 @@
                 [November 11th, 2003] NeuDist XMLSig is now NeuClear XMLSig.
                 Several minor improvements through the code, but the big news is
                 that most code unrelated to XML has been moved into the sister
-                library <a href="http://neuclear.org/commons/">NeuClear Commons</a> library.
+                library
+                <a href="http://old.neuclear.org/commons/">NeuClear Commons</a> library.
                 Making this a required library now.
             </p>
         </section>
@@ -47,17 +67,24 @@
                     <li>SHA1 Digests</li>
                     <li>Canonical XML</li>
                     <li>Canonical XML With Comments</li>
-                    <li><tt>RSAKeyValue</tt></li>
-                    <li><tt>DSAKeyValue</tt></li>
+                    <li>
+                        <tt>RSAKeyValue</tt>
+                    </li>
+                    <li>
+                        <tt>DSAKeyValue</tt>
+                    </li>
                 </ul>
                 Missing but coming soon are:
                 <ul>
                     <li>Support for arbitrary Transforms in the Reference tag</li>
                     <li>XPath Transforms (Already written but not integrated)</li>
                     <li>HMAC-SHA1 MAC</li>
-                    <li><tt>X509Data</tt></li>
+                    <li>
+                        <tt>X509Data</tt>
+                    </li>
                 </ul>
-                Thanks to <a href="mailto:ramses@computer.org">Ramses Morales</a> for lots of help with this release.
+                Thanks to
+                <a href="mailto:ramses@computer.org">Ramses Morales</a> for lots of help with this release.
                 Ramses has been added as developer/comitter on the project.
             </p>
             <p>
@@ -71,13 +98,14 @@
                 This is to make it easier to develop seperately and to hopefully allow other people to useit.
             </p>
         </section>
-		<section name="Introduction">
-			<p>
-                XML Signature API is a simple implementation of the XML-Signature standard from <a href="http://www.w3c.org">W3C</a>.
+        <section name="Introduction">
+            <p>
+                XML Signature API is a simple implementation of the XML-Signature standard from
+                <a href="http://www.w3c.org">W3C</a>.
                 The main difference of this over Apache's implementation is that it uses Dom4J and hopefully should be faster. This has never been verified
                 so take it with a grain of salt.
             </p>
-		</section>
-	</body>
+        </section>
+    </body>
 
 </document>

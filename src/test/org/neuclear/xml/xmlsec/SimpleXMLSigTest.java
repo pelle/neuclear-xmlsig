@@ -4,6 +4,7 @@ import junit.framework.TestCase;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
+import org.dom4j.Element;
 import org.neuclear.commons.crypto.CryptoException;
 import org.neuclear.commons.crypto.CryptoTools;
 import org.neuclear.commons.crypto.passphraseagents.UserCancellationException;
@@ -22,14 +23,19 @@ import java.security.interfaces.DSAPublicKey;
  * User: pelleb
  * Date: Jan 20, 2003
  * Time: 3:49:27 PM
- * $Id: SimpleXMLSigTest.java,v 1.12 2004/03/19 22:21:51 pelle Exp $
+ * $Id: SimpleXMLSigTest.java,v 1.13 2004/03/23 20:51:00 pelle Exp $
  * $Log: SimpleXMLSigTest.java,v $
+ * Revision 1.13  2004/03/23 20:51:00  pelle
+ * Added ExternalSignature and further Javadocs.
+ * Added Busy Developers Guide and Interop guide.
+ * Ready for release.
+ *
  * Revision 1.12  2004/03/19 22:21:51  pelle
  * Changes in the XMLSignature class, which is now Abstract there are currently 3 implementations for:
  * - Enveloped
  * - DataObjects - (Enveloping)
  * - Any for interop testing mainly.
- *
+ * <p/>
  * Revision 1.11  2004/03/08 23:51:04  pelle
  * More improvements on the XMLSignature. Now uses the Transforms properly, References properly.
  * All the major elements have been refactored to be cleaner and more correct.
@@ -163,6 +169,15 @@ public final class SimpleXMLSigTest extends TestCase {
         try {
             XMLSignature sig = new DataObjectSignature(doc.getRootElement());
         } catch (InvalidSignatureException e) {
+//            e.printStackTrace();
+            assertTrue("Signature Failed: " + e.getLocalizedMessage(), false);
+        }
+    }
+
+    private void assertValidExternalSignature(Document doc) throws XMLSecurityException {
+        try {
+            XMLSignature sig = new ExternalSignature(doc.getRootElement());
+        } catch (InvalidSignatureException e) {
             assertTrue("Signature Failed: " + e.getLocalizedMessage(), false);
         }
     }
@@ -269,6 +284,66 @@ public final class SimpleXMLSigTest extends TestCase {
 
         doc = XMLTools.loadDocument(outputFile);
         assertValidEnvelopingSignature(doc);
+    }
+
+    public final void testExternalSignatureUsingSigner() throws DocumentException, XMLException, CryptoException, UserCancellationException {
+        final XMLSignature sig = new ExternalSignature("neu://test", signer, "http://www.w3.org/TR/2000/WD-xml-c14n-20001011");
+        final File outputFile = new File("target/testdata/homegrown/signature-external-signer.xml");
+        XMLTools.writeFile(outputFile, sig.getElement());
+
+        Document doc = XMLTools.loadDocument(outputFile);
+        assertValidExternalSignature(doc);
+    }
+
+    public final void testExternalDSASignature() throws DocumentException, XMLException, CryptoException, UserCancellationException {
+        final XMLSignature sig = new ExternalSignature(dsa, "http://www.w3.org/TR/2000/WD-xml-c14n-20001011");
+        final File outputFile = new File("target/testdata/homegrown/signature-external-dsa.xml");
+        XMLTools.writeFile(outputFile, sig.getElement());
+
+        Document doc = XMLTools.loadDocument(outputFile);
+        assertValidExternalSignature(doc);
+    }
+
+    public final void testExternalRSASignature() throws DocumentException, XMLException, CryptoException, UserCancellationException {
+        final XMLSignature sig = new ExternalSignature(rsa, "http://www.w3.org/TR/2000/WD-xml-c14n-20001011");
+        final File outputFile = new File("target/testdata/homegrown/signature-external-rsa.xml");
+        XMLTools.writeFile(outputFile, sig.getElement());
+
+        Document doc = XMLTools.loadDocument(outputFile);
+        assertValidExternalSignature(doc);
+    }
+
+    public final void testExampleEnvelopedForOverviewDoc() throws NoSuchAlgorithmException, DocumentException, XMLSecurityException {
+        KeyPair kp = CryptoTools.createTinyRSAKeyPair();
+
+        Document doc = DocumentHelper.parseText("<test><test2/></test>");
+        Element elem = doc.getRootElement();
+
+        EnvelopedSignature envsig = new EnvelopedSignature(kp, elem);
+        System.out.println(doc.asXML());
+
+        try {
+            EnvelopedSignature verifid = new EnvelopedSignature(elem);
+        } catch (InvalidSignatureException e) {
+            System.err.println("Invalid Signature");
+        }
+    }
+
+    public final void testExampleEnvelopingForOverviewDoc() throws NoSuchAlgorithmException, DocumentException, XMLSecurityException {
+        KeyPair kp = CryptoTools.createTinyRSAKeyPair();
+
+        Document doc = DocumentHelper.parseText("<test><test2/></test>");
+        Element elem = doc.getRootElement();
+
+        DataObjectSignature datasig = new DataObjectSignature(kp, elem);
+        Element sigelem = datasig.getElement();
+        System.out.println(sigelem.asXML());
+
+        try {
+            DataObjectSignature verified = new DataObjectSignature(sigelem);
+        } catch (InvalidSignatureException e) {
+            System.err.println("Invalid Signature");
+        }
     }
 
     private final KeyPair rsa;

@@ -1,5 +1,10 @@
-/* $Id: SignedInfo.java,v 1.6 2004/03/20 17:19:42 pelle Exp $
+/* $Id: SignedInfo.java,v 1.7 2004/03/23 20:51:00 pelle Exp $
  * $Log: SignedInfo.java,v $
+ * Revision 1.7  2004/03/23 20:51:00  pelle
+ * Added ExternalSignature and further Javadocs.
+ * Added Busy Developers Guide and Interop guide.
+ * Ready for release.
+ *
  * Revision 1.6  2004/03/20 17:19:42  pelle
  * The problem with Enveloped signatures has now been fixed. It was a problem in the way transforms work. I have bandaided it, but in the future if better support for transforms need to be made, we need to rethink it a bit. Perhaps using the new crypto channel's in neuclear-commons.
  *
@@ -115,7 +120,7 @@ package org.neuclear.xml.xmlsec;
 
 /**
  * @author pelleb
- * @version $Revision: 1.6 $
+ * @version $Revision: 1.7 $
  */
 
 import org.dom4j.Element;
@@ -284,7 +289,8 @@ public final class SignedInfo extends AbstractXMLSigElement {
 //            System.out.println("Signing Canonicalized:");
 //            System.out.println(new String(cansi));
 //            System.out.println("------");
-
+            if (cansi.length == 0)
+                throw new XMLSecurityException("Problem during Canonicalization. The Canonicalizer Returned a null byte array.");
             return CryptoTools.sign(key, cansi);
         } catch (CryptoException e) {
             throw new XMLSecurityException(e);
