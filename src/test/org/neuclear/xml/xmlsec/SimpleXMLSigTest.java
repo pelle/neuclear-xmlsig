@@ -6,6 +6,7 @@ import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.io.XPP3Reader;
+import org.dom4j.io.XPPReader;
 import org.neuclear.commons.crypto.CryptoException;
 import org.neuclear.commons.crypto.CryptoTools;
 import org.neuclear.commons.crypto.passphraseagents.UserCancellationException;
@@ -24,11 +25,14 @@ import java.security.interfaces.DSAPublicKey;
  * User: pelleb
  * Date: Jan 20, 2003
  * Time: 3:49:27 PM
- * $Id: SimpleXMLSigTest.java,v 1.15 2004/09/07 18:48:03 pelle Exp $
+ * $Id: SimpleXMLSigTest.java,v 1.16 2004/09/07 19:28:19 pelle Exp $
  * $Log: SimpleXMLSigTest.java,v $
+ * Revision 1.16  2004/09/07 19:28:19  pelle
+ * Removed some non working features.
+ *
  * Revision 1.15  2004/09/07 18:48:03  pelle
  * Added support for dom4j 1.5 and added a new XPP3Reader
- *
+ * <p/>
  * Revision 1.14  2004/04/16 23:54:03  pelle
  * Added HTMLSignature with tests and associated changes in StandaloneSigner
  * <p/>
@@ -360,7 +364,7 @@ public final class SimpleXMLSigTest extends TestCase {
         // Once to initialize the gc
         Document signed = DocumentHelper.parseText(raw);
         new EnvelopedSignature(signed.getRootElement());
-        System.out.println("Starting benchmarks");
+        System.out.println("Starting SAX benchmarks");
         long start = System.currentTimeMillis();
         for (int i = 0; i < 1000; i++) {
             signed = DocumentHelper.parseText(raw);
@@ -372,7 +376,7 @@ public final class SimpleXMLSigTest extends TestCase {
 
     }
 
-    public final void testLameBenchmarkVerificationXPP2() throws Exception {
+    public final void testLameBenchmarkVerificationXPP3() throws Exception {
         Document doc = DocumentHelper.parseText(TESTXML);
         XPP3Reader xp = new XPP3Reader();
 
@@ -382,7 +386,29 @@ public final class SimpleXMLSigTest extends TestCase {
         char[] chars = raw.toCharArray();
         Document signed = xp.read(chars);
         new EnvelopedSignature(signed.getRootElement());
-        System.out.println("Starting XPP benchmarks");
+        System.out.println("Starting XPP3 benchmarks");
+        long start = System.currentTimeMillis();
+        for (int i = 0; i < 1000; i++) {
+            signed = xp.read(chars);
+            new EnvelopedSignature(signed.getRootElement());
+        }
+        long duration = System.currentTimeMillis() - start;
+        System.out.println(duration + "ms");
+
+
+    }
+
+    public final void testLameBenchmarkVerificationXPP2() throws Exception {
+        Document doc = DocumentHelper.parseText(TESTXML);
+        XPPReader xp = new XPPReader();
+
+        final XMLSignature sig = new EnvelopedSignature(rsa, doc.getRootElement());
+        String raw = doc.asXML();
+        // Once to initialize the gc
+        char[] chars = raw.toCharArray();
+        Document signed = xp.read(chars);
+        new EnvelopedSignature(signed.getRootElement());
+        System.out.println("Starting XPP2 benchmarks");
         long start = System.currentTimeMillis();
         for (int i = 0; i < 1000; i++) {
             signed = xp.read(chars);
