@@ -23,13 +23,16 @@ import java.security.interfaces.DSAPublicKey;
  * User: pelleb
  * Date: Jan 20, 2003
  * Time: 3:49:27 PM
- * $Id: SimpleXMLSigTest.java,v 1.13 2004/03/23 20:51:00 pelle Exp $
+ * $Id: SimpleXMLSigTest.java,v 1.14 2004/04/16 23:54:03 pelle Exp $
  * $Log: SimpleXMLSigTest.java,v $
+ * Revision 1.14  2004/04/16 23:54:03  pelle
+ * Added HTMLSignature with tests and associated changes in StandaloneSigner
+ *
  * Revision 1.13  2004/03/23 20:51:00  pelle
  * Added ExternalSignature and further Javadocs.
  * Added Busy Developers Guide and Interop guide.
  * Ready for release.
- *
+ * <p/>
  * Revision 1.12  2004/03/19 22:21:51  pelle
  * Changes in the XMLSignature class, which is now Abstract there are currently 3 implementations for:
  * - Enveloped
@@ -320,7 +323,7 @@ public final class SimpleXMLSigTest extends TestCase {
         Element elem = doc.getRootElement();
 
         EnvelopedSignature envsig = new EnvelopedSignature(kp, elem);
-        System.out.println(doc.asXML());
+//        System.out.println(doc.asXML());
 
         try {
             EnvelopedSignature verifid = new EnvelopedSignature(elem);
@@ -337,7 +340,7 @@ public final class SimpleXMLSigTest extends TestCase {
 
         DataObjectSignature datasig = new DataObjectSignature(kp, elem);
         Element sigelem = datasig.getElement();
-        System.out.println(sigelem.asXML());
+//        System.out.println(sigelem.asXML());
 
         try {
             DataObjectSignature verified = new DataObjectSignature(sigelem);

@@ -114,6 +114,17 @@
             <id>cactus</id>
             <version>13-1.5-rc1</version>
         </dependency>
+        <dependency>
+            <id>jtidy</id>
+            <name>jtidy</name>
+            <version>r7</version>
+            <jar>jtidy-4aug2000r7-dev.jar</jar>
+            <properties>
+                <jnlp.jar>true</jnlp.jar>
+                <war.bundle>true</war.bundle>
+            </properties>
+        </dependency>
+
     </dependencies>
     <build>
 

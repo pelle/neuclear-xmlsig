@@ -1,5 +1,8 @@
-/* $Id: XMLSignature.java,v 1.21 2004/04/12 15:00:42 pelle Exp $
+/* $Id: XMLSignature.java,v 1.22 2004/04/16 23:54:03 pelle Exp $
  * $Log: XMLSignature.java,v $
+ * Revision 1.22  2004/04/16 23:54:03  pelle
+ * Added HTMLSignature with tests and associated changes in StandaloneSigner
+ *
  * Revision 1.21  2004/04/12 15:00:42  pelle
  * Now have a slightly better way of handling the waiting for input using the WaitForInput class.
  * This will later be put into a command queue for execution.
@@ -216,7 +219,7 @@ package org.neuclear.xml.xmlsec;
 
 /**
  * @author pelleb
- * @version $Revision: 1.21 $
+ * @version $Revision: 1.22 $
  */
 
 import org.dom4j.Element;
@@ -363,7 +366,7 @@ abstract public class XMLSignature extends AbstractXMLSigElement {
      * @throws XMLSecurityException
      */
     protected void sign(final KeyPair kp) throws XMLSecurityException {
-        sigval.setText(Base64.encode(si.sign(kp.getPrivate())));
+        sigval.setText(Base64.encodeClean(si.sign(kp.getPrivate())));
     }
 
     /**
@@ -377,12 +380,16 @@ abstract public class XMLSignature extends AbstractXMLSigElement {
      * @throws UserCancellationException
      */
     protected void sign(final String alias, final Signer signer) throws XMLSecurityException, NonExistingSignerException, UserCancellationException {
-        sigval.setText(Base64.encode(si.sign(alias, signer)));
+        sigval.setText(Base64.encodeClean(si.sign(alias, signer)));
+//        if (signer instanceof PublicKeySource) {
+//            ki=new KeyInfo(((PublicKeySource)signer).getPublicKey(alias));
+//            addElement(ki);
+//        }
     }
 
     protected void sign(BrowsableSigner signer) throws XMLSecurityException, UserCancellationException {
         KeyInfo.CreateKeyInfoCallBack cb = new KeyInfo.CreateKeyInfoCallBack();
-        sigval.setText(Base64.encode(si.sign(signer, cb)));
+        sigval.setText(Base64.encodeClean(si.sign(signer, cb)));
         addElement(cb.createKeyInfo());
     }
 
@@ -453,8 +460,8 @@ abstract public class XMLSignature extends AbstractXMLSigElement {
     }
 
     protected SignedInfo si;
-    private Element sigval;
-    private KeyInfo ki;
+    protected Element sigval;
+    protected KeyInfo ki;
     private static final String TAG_NAME = "Signature";
     //   private PublicKey pub;
 }
