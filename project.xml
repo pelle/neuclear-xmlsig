@@ -21,10 +21,10 @@
     <url>http://dev.neuclear.org/xmlsig/</url>
     <repository>
         <connection>
-         scm:cvs:pserver:anonymous@cvs.neuclear.sourceforge.net:/cvsroot/neuclear:neuclear-xmlsig
+         scm:cvs:pserver:anonymous@cvs.sourceforge.net:/cvsroot/neuclear:neuclear-xmlsig
         </connection>
         <url>
-      http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/neuclear/neuclear-xmlsig/
+      http://cvs.sourceforge.net/viewcvs.py/neuclear/neuclear-xmlsig/
         </url>
     </repository>
 
