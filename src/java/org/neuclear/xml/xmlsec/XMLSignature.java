@@ -1,5 +1,14 @@
-/* $Id: XMLSignature.java,v 1.7 2004/01/07 23:11:51 pelle Exp $
+/* $Id: XMLSignature.java,v 1.8 2004/01/08 23:38:06 pelle Exp $
  * $Log: XMLSignature.java,v $
+ * Revision 1.8  2004/01/08 23:38:06  pelle
+ * XMLSignature can now give you the Signing key and the id of the signer.
+ * SignedElement can now self verify using embedded public keys as well as KeyName's
+ * Added NeuclearKeyResolver for resolving public key's from Identity certificates.
+ * SignedNamedObjects can now generate their own name using the following format:
+ * neu:sha1://[sha1 of PublicKey]![sha1 of full signed object]
+ * The resulting object has a special internally generted Identity containing the PublicKey
+ * Identity can now contain nothing but a public key
+ *
  * Revision 1.7  2004/01/07 23:11:51  pelle
  * XMLSig now has various added features:
  * -  KeyInfo supports X509v3 (untested)
@@ -154,7 +163,7 @@ package org.neuclear.xml.xmlsec;
 
 /**
  * @author pelleb
- * @version $Revision: 1.7 $
+ * @version $Revision: 1.8 $
  */
 
 import org.dom4j.DocumentHelper;
@@ -249,13 +258,33 @@ public class XMLSignature extends AbstractXMLSigElement {
     }
 
     public final boolean verifySignature() throws XMLSecurityException {
-        final Element keyInfoElem = getElement().element(XMLSecTools.createQName("KeyInfo"));
-        if (keyInfoElem == null)
+        final PublicKey pk = getSignersKey();
+        if (pk==null)
             throw new XMLSecurityException("Signature does not contain an embedded PublicKey");
-        final KeyInfo ki = new KeyInfo(keyInfoElem);
-        final PublicKey pk = ki.getPublicKey();
         return verifySignature(pk);
     }
+
+    public final PublicKey getSignersKey() throws XMLSecurityException {
+        KeyInfo key=getKeyInfo();
+        if (key == null)
+            return null;
+        return key.getPublicKey();
+    }
+    public final String getSignersId() throws XMLSecurityException {
+        KeyInfo key=getKeyInfo();
+        if (key == null)
+            return null;
+        return key.getKeyName();
+    }
+    private final synchronized KeyInfo getKeyInfo() throws XMLSecurityException{
+        if (ki==null){
+            final Element keyInfoElem = getElement().element(XMLSecTools.createQName("KeyInfo"));
+            if (keyInfoElem == null)
+                ki=new KeyInfo(keyInfoElem);
+        }
+        return ki;
+    }
+
 
     public final boolean verifySignature(final PublicKey pk) throws XMLSecurityException {
 
@@ -305,6 +334,7 @@ public class XMLSignature extends AbstractXMLSigElement {
     }
 
     private SignatureInfo si;
+    private KeyInfo ki;
     private static final String TAG_NAME = "Signature";
     //   private PublicKey pub;
 }

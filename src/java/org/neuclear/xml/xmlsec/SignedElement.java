@@ -1,5 +1,14 @@
-/* $Id: SignedElement.java,v 1.6 2003/12/19 18:03:07 pelle Exp $
+/* $Id: SignedElement.java,v 1.7 2004/01/08 23:38:06 pelle Exp $
  * $Log: SignedElement.java,v $
+ * Revision 1.7  2004/01/08 23:38:06  pelle
+ * XMLSignature can now give you the Signing key and the id of the signer.
+ * SignedElement can now self verify using embedded public keys as well as KeyName's
+ * Added NeuclearKeyResolver for resolving public key's from Identity certificates.
+ * SignedNamedObjects can now generate their own name using the following format:
+ * neu:sha1://[sha1 of PublicKey]![sha1 of full signed object]
+ * The resulting object has a special internally generted Identity containing the PublicKey
+ * Identity can now contain nothing but a public key
+ *
  * Revision 1.6  2003/12/19 18:03:07  pelle
  * Revamped a lot of exception handling throughout the framework, it has been simplified in most places:
  * - For most cases the main exception to worry about now is InvalidNamedObjectException.
@@ -114,7 +123,7 @@ package org.neuclear.xml.xmlsec;
 
 /**
  * @author pelleb
- * @version $Revision: 1.6 $
+ * @version $Revision: 1.7 $
  */
 
 import org.dom4j.Element;
@@ -196,10 +205,18 @@ public abstract class SignedElement extends AbstractElementProxy {
     /**
      * This verifies the signature of the object.
      */
-    public final boolean verifySignature(final PublicKey pub) throws XMLSecurityException, CryptoException {
+    public final boolean verifySignature(final PublicKey pub) throws XMLSecurityException {
         if (sig == null)
             throw new XMLSecurityException("The object can not be verified as it doesnt contain a signature");
         return sig.verifySignature(pub);
+    }
+    /**
+     * This verifies the signature of the object.
+     */
+    public final boolean verifySignature() throws XMLSecurityException {
+        if (sig == null)
+            throw new XMLSecurityException("The object can not be verified as it doesnt contain a signature");
+        return sig.verifySignature();
     }
 
     /**

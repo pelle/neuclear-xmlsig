@@ -4,6 +4,8 @@ package org.neuclear.xml.xmlsec;
 
 import org.dom4j.Element;
 import org.neuclear.commons.crypto.CryptoException;
+import org.neuclear.commons.crypto.Base64;
+import org.neuclear.commons.crypto.CryptoTools;
 import org.neuclear.commons.crypto.keyresolvers.KeyResolverFactory;
 
 import java.security.KeyFactory;
@@ -88,6 +90,28 @@ public final class KeyInfo extends AbstractXMLSigElement {
 
     /**
      * Method getPublicKey
+     *
+     * @return
+     * @throws XMLSecurityException
+     */
+    public final String getKeyName()
+            throws XMLSecurityException {
+        if (pub == null) {
+            Iterator iter=getElement().elementIterator();
+            while (iter.hasNext()&&pub==null) {
+                Element element = (Element) iter.next();
+                if(element.getName().equals("KeyName"))
+                    return element.getTextTrim();
+                else if(element.getName().equals("X509Data"))
+                    return "x509v3:"+Base64.encode(extractX509(element).getSerialNumber());
+                if (element.getName().equals("KeyValue"))
+                    return "sha1:"+Base64.encode(CryptoTools.digest(parseKeyValue(element).getEncoded()));
+            }
+        }
+        return null;
+    }
+    /**
+     * Method getPublicKey
      * 
      * @return 
      * @throws XMLSecurityException 
@@ -113,13 +137,16 @@ public final class KeyInfo extends AbstractXMLSigElement {
         return KeyResolverFactory.getInstance().resolve(name);
     }
     private PublicKey parseX509(final Element element){
+        return extractX509(element).getPublicKey();
+    }
+    private X509Certificate extractX509(final Element element){
         Element x509Data=element.element("X509Data");
         if (x509Data!=null){
             try {
                 byte encoded[]=XMLSecTools.decodeBase64Element(x509Data);
                 CertificateFactory fact=CertificateFactory.getInstance("X509v3");
-                Certificate cert=fact.generateCertificate(new ByteArrayInputStream(encoded));
-                return cert.getPublicKey();
+                X509Certificate cert=(X509Certificate) fact.generateCertificate(new ByteArrayInputStream(encoded));
+                return cert;
             } catch (XMLSecurityException e) {
                 return null;
             } catch (CertificateException e) {
