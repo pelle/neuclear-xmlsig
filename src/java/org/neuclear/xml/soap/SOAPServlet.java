@@ -1,5 +1,8 @@
-/* $Id: SOAPServlet.java,v 1.3 2003/11/24 23:33:15 pelle Exp $
+/* $Id: SOAPServlet.java,v 1.4 2003/12/08 22:05:01 pelle Exp $
  * $Log: SOAPServlet.java,v $
+ * Revision 1.4  2003/12/08 22:05:01  pelle
+ * Some further documentation. Added the start of a busy developers guide form neuclear-id
+ *
  * Revision 1.3  2003/11/24 23:33:15  pelle
  * More Cactus unit testing going on.
  *
@@ -70,7 +73,7 @@ package org.neuclear.xml.soap;
 
 /**
  * @author pelleb
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  */
 
 import org.dom4j.Document;
@@ -95,14 +98,11 @@ public abstract class SOAPServlet extends XMLInputStreamServlet {
         try {
             final SAXReader reader = new SAXReader();
             final Document doc = reader.read(is);
-//            System.out.println("RECEIVED:" + doc.asXML());
-//            System.out.println("NEUDIST: SOAP Post Request to " + this.getClass().getName());
+
             final Element bodyElement = doc.getRootElement().element(SOAPTools.createEnvelopeQName());
             //TODO: Check for null
             final Element requestElement = (Element) bodyElement.elements().get(0);
             if (requestElement == null) {
-//                System.out.println("NEUDIST: SOAP Request was invalid");
-//                System.out.println(doc.asXML());
                 response.sendError(500, "NEUDIST: SOAP Request was invalid");
             }
             Element respElement = null;
@@ -124,7 +124,6 @@ public abstract class SOAPServlet extends XMLInputStreamServlet {
             writer.write(respElement);
             out.close();
         } catch (DocumentException e) {
-//            System.out.println("NeuDist: Exception in SOAP Request");
             e.printStackTrace(System.out);
             response.sendError(500, e.getMessage());
         }
