@@ -2,9 +2,9 @@ package org.neuclear.xml.soap;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.InputStream;
-import java.io.IOException;
 import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 
 /*
@@ -25,18 +25,25 @@ You should have received a copy of the GNU Lesser General Public
 License along with this library; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-$Id: MockXMLInputStreamServlet.java,v 1.1 2003/11/24 16:49:25 pelle Exp $
+$Id: MockXMLInputStreamServlet.java,v 1.2 2003/11/24 23:33:15 pelle Exp $
 $Log: MockXMLInputStreamServlet.java,v $
+Revision 1.2  2003/11/24 23:33:15  pelle
+More Cactus unit testing going on.
+
 Revision 1.1  2003/11/24 16:49:25  pelle
 Added Cactus testing structure.
 
 
 */
 
-public class MockXMLInputStreamServlet extends XMLInputStreamServlet{
+public class MockXMLInputStreamServlet extends XMLInputStreamServlet {
     protected void handleInputStream(final InputStream is, final HttpServletRequest request, final HttpServletResponse response) throws IOException {
-        final BufferedReader reader=new BufferedReader(new InputStreamReader(is));
-        lastInput=reader.readLine();
+        if (is == null) {
+            lastInput = null;
+            return;
+        }
+        final BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+        lastInput = reader.readLine();
 
     }
 
@@ -44,6 +51,6 @@ public class MockXMLInputStreamServlet extends XMLInputStreamServlet{
         return lastInput;
     }
 
-    private String lastInput=null;
+    private String lastInput = null;
 
 }

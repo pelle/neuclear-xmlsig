@@ -1,5 +1,8 @@
-/* $Id: SOAPServlet.java,v 1.2 2003/11/21 04:44:30 pelle Exp $
+/* $Id: SOAPServlet.java,v 1.3 2003/11/24 23:33:15 pelle Exp $
  * $Log: SOAPServlet.java,v $
+ * Revision 1.3  2003/11/24 23:33:15  pelle
+ * More Cactus unit testing going on.
+ *
  * Revision 1.2  2003/11/21 04:44:30  pelle
  * EncryptedFileStore now works. It uses the PBECipher with DES3 afair.
  * Otherwise You will Finaliate.
@@ -67,7 +70,7 @@ package org.neuclear.xml.soap;
 
 /**
  * @author pelleb
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  */
 
 import org.dom4j.Document;
@@ -92,14 +95,14 @@ public abstract class SOAPServlet extends XMLInputStreamServlet {
         try {
             final SAXReader reader = new SAXReader();
             final Document doc = reader.read(is);
-            System.out.println("RECEIVED:" + doc.asXML());
-            System.out.println("NEUDIST: SOAP Post Request to " + this.getClass().getName());
-            final Element bodyElement = doc.getRootElement().element(DocumentHelper.createQName("Body", DocumentHelper.createNamespace("SOAP-ENV", "http://schemas.xmlsoap.org/soap/envelope/")));
+//            System.out.println("RECEIVED:" + doc.asXML());
+//            System.out.println("NEUDIST: SOAP Post Request to " + this.getClass().getName());
+            final Element bodyElement = doc.getRootElement().element(SOAPTools.createEnvelopeQName());
             //TODO: Check for null
             final Element requestElement = (Element) bodyElement.elements().get(0);
             if (requestElement == null) {
-                System.out.println("NEUDIST: SOAP Request was invalid");
-                System.out.println(doc.asXML());
+//                System.out.println("NEUDIST: SOAP Request was invalid");
+//                System.out.println(doc.asXML());
                 response.sendError(500, "NEUDIST: SOAP Request was invalid");
             }
             Element respElement = null;
@@ -121,9 +124,10 @@ public abstract class SOAPServlet extends XMLInputStreamServlet {
             writer.write(respElement);
             out.close();
         } catch (DocumentException e) {
-            System.out.println("NeuDist: Exception in SOAP Request");
+//            System.out.println("NeuDist: Exception in SOAP Request");
             e.printStackTrace(System.out);
             response.sendError(500, e.getMessage());
         }
     }
+
 }

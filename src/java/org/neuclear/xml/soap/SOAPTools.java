@@ -1,5 +1,8 @@
-/* $Id: SOAPTools.java,v 1.3 2003/11/21 04:44:30 pelle Exp $
+/* $Id: SOAPTools.java,v 1.4 2003/11/24 23:33:15 pelle Exp $
  * $Log: SOAPTools.java,v $
+ * Revision 1.4  2003/11/24 23:33:15  pelle
+ * More Cactus unit testing going on.
+ *
  * Revision 1.3  2003/11/21 04:44:30  pelle
  * EncryptedFileStore now works. It uses the PBECipher with DES3 afair.
  * Otherwise You will Finaliate.
@@ -101,12 +104,10 @@ package org.neuclear.xml.soap;
 
 /**
  * @author pelleb
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  */
 
-import org.dom4j.Document;
-import org.dom4j.DocumentException;
-import org.dom4j.Element;
+import org.dom4j.*;
 import org.dom4j.io.SAXReader;
 import org.neuclear.commons.NeuClearException;
 
@@ -200,6 +201,10 @@ public final class SOAPTools {
         }
     }
 
-    private static final byte SOAP_START[] = "<SOAP-ENV:Envelope xmlns:SOAP-ENV=\"http://schemas.xmlsoap.org/soap/envelope/\"><SOAP-ENV:Body>\n".getBytes();
-    private static final byte SOAP_END[] = "</SOAP-ENV:Body></SOAP-ENV:Envelope>".getBytes();
+    static QName createEnvelopeQName() {
+        return DocumentHelper.createQName("Body", DocumentHelper.createNamespace("SOAP-ENV", "http://schemas.xmlsoap.org/soap/envelope/"));
+    }
+
+    static final byte SOAP_START[] = "<SOAP-ENV:Envelope xmlns:SOAP-ENV=\"http://schemas.xmlsoap.org/soap/envelope/\"><SOAP-ENV:Body>\n".getBytes();
+    static final byte SOAP_END[] = "</SOAP-ENV:Body></SOAP-ENV:Envelope>".getBytes();
 }

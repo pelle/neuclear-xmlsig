@@ -3,7 +3,7 @@
 
   <name>NeuDist XML Signature API</name>
   <id>neuclear-xmlsig</id>
-  <currentVersion>0.10</currentVersion>
+  <currentVersion>0.11-SNAPSHOT</currentVersion>
   <inceptionYear>2002</inceptionYear>
   <package>org.neuclear</package>
   <logo>/images/logo.gif</logo>
@@ -75,9 +75,9 @@
        <dependency>
           <id>neuclear-commons</id>
        <name>neuclear-commons</name>
-       <version>0.4</version>
+       <version>0.5-SNAPSHOT</version>
            <properties>
-                 <war.bundle.jar>true</war.bundle.jar>
+                 <war.bundle>true</war.bundle>
            </properties>
        </dependency>
 
@@ -85,7 +85,7 @@
       <id>dom4j</id>
       <version>1.4</version>
       <properties>
-            <war.bundle.jar>true</war.bundle.jar>
+            <war.bundle>true</war.bundle>
       </properties>
     </dependency>
    <dependency>
@@ -94,18 +94,21 @@
       <jar>bouncycastle-jce-jdk13-112.jar</jar>
 <!--	<jar>bcprov-jdk14-118.jar</jar>-->
       <properties>
-            <war.bundle.jar>false</war.bundle.jar>
+            <war.bundle>false</war.bundle>
       </properties>
     </dependency>
    <dependency>
       <id>junit</id>
       <name>junit</name>
       <version>3.8.1</version>
+       <properties>
+             <war.bundle>true</war.bundle>
+       </properties>
     </dependency>
    <dependency>
       <id>servletapi</id>
       <name>servletapi</name>
-      <version>2.2</version>
+      <version>2.3</version>
     </dependency>
        <dependency>
            <id>cactus</id>
