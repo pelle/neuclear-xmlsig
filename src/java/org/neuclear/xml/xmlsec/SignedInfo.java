@@ -1,5 +1,8 @@
-/* $Id: SignedInfo.java,v 1.3 2004/03/08 23:51:03 pelle Exp $
+/* $Id: SignedInfo.java,v 1.4 2004/03/18 21:31:33 pelle Exp $
  * $Log: SignedInfo.java,v $
+ * Revision 1.4  2004/03/18 21:31:33  pelle
+ * Some fixups in SignedInfo
+ *
  * Revision 1.3  2004/03/08 23:51:03  pelle
  * More improvements on the XMLSignature. Now uses the Transforms properly, References properly.
  * All the major elements have been refactored to be cleaner and more correct.
@@ -103,10 +106,11 @@ package org.neuclear.xml.xmlsec;
 
 /**
  * @author pelleb
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  */
 
 import org.dom4j.Element;
+import org.neuclear.commons.Utility;
 import org.neuclear.commons.crypto.CryptoException;
 import org.neuclear.commons.crypto.CryptoTools;
 import org.neuclear.commons.crypto.passphraseagents.UserCancellationException;
@@ -114,14 +118,18 @@ import org.neuclear.commons.crypto.signers.NonExistingSignerException;
 import org.neuclear.commons.crypto.signers.Signer;
 import org.neuclear.xml.XMLException;
 import org.neuclear.xml.c14.Canonicalizer;
+import org.neuclear.xml.c14.CanonicalizerWithComments;
 
-import java.security.*;
+import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.Signature;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 public final class SignedInfo extends AbstractXMLSigElement {
-    public SignedInfo(Reference references[], final int sigalg) {
+    public SignedInfo(Reference references[], final int sigalg) throws XMLSecurityException {
         this(sigalg, references.length);
         for (int i = 0; i < references.length; i++) {
             refs.add(references[i]);
@@ -129,9 +137,8 @@ public final class SignedInfo extends AbstractXMLSigElement {
         }
     }
 
-    public SignedInfo(final int sigalg, final int refcount) {
+    public SignedInfo(final int sigalg, final int refcount) throws XMLSecurityException {
         super(SignedInfo.TAG_NAME);
-        this.algType = sigalg;
         refs = new ArrayList(refcount);
 
         final Element cm = XMLSecTools.createElementInSignatureSpace("CanonicalizationMethod");
@@ -140,9 +147,11 @@ public final class SignedInfo extends AbstractXMLSigElement {
 
         final Element sm = XMLSecTools.createElementInSignatureSpace("SignatureMethod");
         if (sigalg == SignedInfo.SIG_ALG_RSA)
-            sm.addAttribute("Algorithm", "http://www.w3.org/2000/09/xmldsig#rsa-sha1");
+            sm.addAttribute("Algorithm", DSIG_ALG_RSA);
+        else if (sigalg == SignedInfo.SIG_ALG_DSA)
+            sm.addAttribute("Algorithm", DSIG_ALG_DSA);
         else
-            sm.addAttribute("Algorithm", "http://www.w3.org/2000/09/xmldsig#dsa-sha1");
+            throw new XMLSecurityException("Unsupported Signature algorithm");
 
         addElement(sm);
     }
@@ -150,18 +159,7 @@ public final class SignedInfo extends AbstractXMLSigElement {
     public SignedInfo(final Element root, final int sigalg, final boolean enveloped) throws XMLSecurityException {
         this(sigalg, 1);
 
-        final Element cm = XMLSecTools.createElementInSignatureSpace("CanonicalizationMethod");
-        cm.addAttribute("Algorithm", "http://www.w3.org/TR/2001/REC-xml-c14n-20010315");
         try {
-            addElement(cm);
-
-            final Element sm = XMLSecTools.createElementInSignatureSpace("SignatureMethod");
-            if (sigalg == SignedInfo.SIG_ALG_RSA)
-                sm.addAttribute("Algorithm", "http://www.w3.org/2000/09/xmldsig#rsa-sha1");
-            else
-                sm.addAttribute("Algorithm", "http://www.w3.org/2000/09/xmldsig#dsa-sha1");
-
-            addElement(sm);
             Reference ref = new Reference(root, enveloped);
             refs.add(ref);
             addElement(ref);
@@ -174,9 +172,6 @@ public final class SignedInfo extends AbstractXMLSigElement {
         super(elem);
         if (!elem.getQName().equals(XMLSecTools.createQName(TAG_NAME)))
             throw new XMLSecurityException("Element: " + elem.getQualifiedName() + " is not a valid: " + XMLSecTools.NS_DS.getPrefix() + ":" + TAG_NAME);
-        final Element c14elem = elem.element(XMLSecTools.createQName("CanonicalizationMethod"));
-        if (c14elem != null && c14elem.attributeValue("Algorithm").equals("http://www.w3.org/TR/2001/REC-xml-c14n-20010315#WithComments"))
-            c14nType = Canonicalizer.C14NTYPE_WITH_COMMENTS;
         final List list = elem.elements(XMLSecTools.createQName("Reference"));
         refs = new ArrayList(list.size());
         for (int i = 0; i < list.size(); i++) {
@@ -228,23 +223,31 @@ public final class SignedInfo extends AbstractXMLSigElement {
     }
 
     final Canonicalizer getCanonicalizer() {
-//        if (ref.getSigType() == Reference.XMLSIGTYPE_ENVELOPED)
-//            return new CanonicalizerWithoutSignature();
-//        else if (c14nType == Canonicalizer.C14NTYPE_WITH_COMMENTS)
-//            return new CanonicalizerWithComments();
+        final Element c14elem = getElement().element(XMLSecTools.createQName("CanonicalizationMethod"));
+        if (c14elem != null && c14elem.attributeValue("Algorithm").equals("http://www.w3.org/TR/2001/REC-xml-c14n-20010315#WithComments"))
+            return new CanonicalizerWithComments();
         return new Canonicalizer();
     }
 
-    //TODO Ignore this bit for now
+    // Returns JCE Signature Cipher for SignedInfo
     final Signature getSignatureAlgorithm() throws XMLSecurityException {
+        final Element sigElem = getElement().element(XMLSecTools.createQName("SignatureMethod"));
+        if (sigElem == null)
+            throw new XMLSecurityException("No SignatureMethod element found");
+
+        String algname = sigElem.attributeValue("Algorithm");
+        if (Utility.isEmpty(algname))
+            throw new XMLSecurityException("No algorithm found in SignatureMethod element");
+
         try {
-            return Signature.getInstance("SHA1withRSA", "BC");
+            if (algname.equals(DSIG_ALG_RSA))
+                return Signature.getInstance(JCE_ALG_RSA);
+            if (algname.equals(DSIG_ALG_DSA))
+                return Signature.getInstance(JCE_ALG_DSA);
+            throw new XMLSecurityException("Unsupported Signature algorithm: " + algname);
         } catch (NoSuchAlgorithmException e) {
-            XMLSecTools.rethrowException(e);
-        } catch (NoSuchProviderException e) {
-            XMLSecTools.rethrowException(e);
+            throw new XMLSecurityException(e);
         }
-        return null;
     }
 
     public final byte[] canonicalize() throws XMLSecurityException {
@@ -284,11 +287,14 @@ public final class SignedInfo extends AbstractXMLSigElement {
 
     private static final String TAG_NAME = "SignedInfo";
     private final List refs;
-    private int c14nType = 0;
-    private int algType = 0;
 
     public final static int SIG_ALG_RSA = Signer.KEY_RSA;
     public final static int SIG_ALG_DSA = Signer.KEY_DSA;
+
+    public final static String DSIG_ALG_RSA = "http://www.w3.org/2000/09/xmldsig#rsa-sha1";
+    public final static String DSIG_ALG_DSA = "http://www.w3.org/2000/09/xmldsig#dsa-sha1";
+    public final static String JCE_ALG_RSA = "SHA1withRSA";
+    public final static String JCE_ALG_DSA = "SHA1withDSA";
 
     //   private PublicKey pub;
 }
