@@ -5,9 +5,6 @@ import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
-import org.dom4j.io.STAXEventReader;
-import org.dom4j.io.XPP3Reader;
-import org.dom4j.io.XPPReader;
 import org.neuclear.commons.crypto.CryptoException;
 import org.neuclear.commons.crypto.CryptoTools;
 import org.neuclear.commons.crypto.passphraseagents.UserCancellationException;
@@ -16,7 +13,6 @@ import org.neuclear.commons.crypto.signers.TestCaseSigner;
 import org.neuclear.xml.XMLException;
 import org.neuclear.xml.XMLTools;
 
-import java.io.CharArrayReader;
 import java.io.File;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
@@ -27,11 +23,14 @@ import java.security.interfaces.DSAPublicKey;
  * User: pelleb
  * Date: Jan 20, 2003
  * Time: 3:49:27 PM
- * $Id: SimpleXMLSigTest.java,v 1.17 2004/09/07 19:45:40 pelle Exp $
+ * $Id: SimpleXMLSigTest.java,v 1.18 2004/09/07 21:26:01 pelle Exp $
  * $Log: SimpleXMLSigTest.java,v $
+ * Revision 1.18  2004/09/07 21:26:01  pelle
+ * Commented out benchmark tests
+ *
  * Revision 1.17  2004/09/07 19:45:40  pelle
  * Added Stax to the benchmarks
- *
+ * <p/>
  * Revision 1.16  2004/09/07 19:28:19  pelle
  * Removed some non working features.
  * <p/>
@@ -362,7 +361,7 @@ public final class SimpleXMLSigTest extends TestCase {
         }
     }
 
-    public final void testLameBenchmarkVerification() throws DocumentException, XMLSecurityException, InvalidSignatureException {
+    /*public final void testLameBenchmarkVerification() throws DocumentException, XMLSecurityException, InvalidSignatureException {
         Document doc = DocumentHelper.parseText(TESTXML);
         final XMLSignature sig = new EnvelopedSignature(rsa, doc.getRootElement());
         String raw = doc.asXML();
@@ -424,7 +423,8 @@ public final class SimpleXMLSigTest extends TestCase {
 
 
     }
-
+*/
+/*
     public final void testLameBenchmarkVerificationSTAX() throws Exception {
         Document doc = DocumentHelper.parseText(TESTXML);
         STAXEventReader xp = new STAXEventReader();
@@ -447,6 +447,7 @@ public final class SimpleXMLSigTest extends TestCase {
 
     }
 
+*/
     private final KeyPair rsa;
     private final KeyPair dsa;
     private final Signer signer;

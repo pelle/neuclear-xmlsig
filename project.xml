@@ -75,7 +75,7 @@
         <dependency>
             <id>neuclear-commons</id>
             <name>neuclear-commons</name>
-            <version>1.0-beta4</version>
+            <version>1.0-beta16</version>
             <properties>
                 <war.bundle>true</war.bundle>
             </properties>
@@ -109,14 +109,6 @@
                 <war.bundle>true</war.bundle>
             </properties>
         </dependency>
-        <dependency>
-            <groupId>stax</groupId>
-            <artifactId>stax</artifactId>
-            <version>1.0</version>
-            <url>http://jcp.org/aboutJava/communityprocess/final/jsr173/index.html</url>
-        </dependency>
-
-
         <dependency>
             <id>bouncycastle</id>
             <name>bouncycastle</name>
