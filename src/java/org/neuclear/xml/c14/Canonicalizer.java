@@ -5,8 +5,15 @@ package org.neuclear.xml.c14;
  * User: pelleb
  * Date: Feb 3, 2003
  * Time: 5:56:42 AM
- * $Id: Canonicalizer.java,v 1.3 2003/11/21 04:44:30 pelle Exp $
+ * $Id: Canonicalizer.java,v 1.4 2003/12/10 23:57:04 pelle Exp $
  * $Log: Canonicalizer.java,v $
+ * Revision 1.4  2003/12/10 23:57:04  pelle
+ * Did some cleaning up in the builders
+ * Fixed some stuff in IdentityCreator
+ * New maven goal to create executable jarapp
+ * We are close to 0.8 final of ID, 0.11 final of XMLSIG and 0.5 of commons.
+ * Will release shortly.
+ *
  * Revision 1.3  2003/11/21 04:44:30  pelle
  * EncryptedFileStore now works. It uses the PBECipher with DES3 afair.
  * Otherwise You will Finaliate.
@@ -108,8 +115,8 @@ import org.neuclear.xml.transforms.TransformerFactory;
 import org.neuclear.xml.transforms.XPathTransform;
 
 import java.io.*;
-import java.util.*;
 import java.nio.charset.Charset;
+import java.util.*;
 
 /**
  * XML Canonicalizer.
@@ -127,7 +134,7 @@ public class Canonicalizer extends XPathTransform {
         this(XPATH_WO_COMMENTS);
     }
 
-    protected Canonicalizer( final String xpath) {
+    protected Canonicalizer(final String xpath) {
         super(xpath);
 
     }
@@ -135,7 +142,7 @@ public class Canonicalizer extends XPathTransform {
     private void init() {
         try {
             bos = new ByteArrayOutputStream();
-            writer = new BufferedWriter(new OutputStreamWriter(bos,"UTF-8"));
+            writer = new BufferedWriter(new OutputStreamWriter(bos, "UTF-8"));
         } catch (UnsupportedEncodingException e) {
             System.out.println("Strange... we do not have UTF-8");
             throw new RuntimeException(e.getLocalizedMessage());
@@ -152,7 +159,7 @@ public class Canonicalizer extends XPathTransform {
      * @param node 
      * @throws IOException 
      */
-    public final byte [] canonicalize(final Object node) throws IOException {
+    public final byte[] canonicalize(final Object node) throws IOException {
         init();
         write(node);
         return getBytes();
@@ -334,7 +341,7 @@ public class Canonicalizer extends XPathTransform {
             namespaceStack.pop();
         }
 
-//        if (element.getParent()==null)
+//        if (element.getSignatory()==null)
 //           writer.write(LF);
     }
 
@@ -423,14 +430,14 @@ public class Canonicalizer extends XPathTransform {
                     writer.write("&gt;");
                     break;
                 case '&':
-                      writer.write("&amp;");
+                    writer.write("&amp;");
                     break;
                 case 0x0d:
                     writer.write("&#xD;");
                     break;
                 default :
 
-                    writer.write(text.charAt(i) );
+                    writer.write(text.charAt(i));
 
             }
         }
@@ -485,7 +492,7 @@ public class Canonicalizer extends XPathTransform {
     public static final String LF = new String(new byte[]{10});
     public final static int C14NTYPE_NORMAL = 0;
     public final static int C14NTYPE_WITH_COMMENTS = 1;
-    private final static Charset utf8=Charset.forName("UTF-8");
+    private final static Charset utf8 = Charset.forName("UTF-8");
 
     public static final String ALGORITHM = "http://www.w3.org/TR/2001/REC-xml-c14n-20010315";
 
