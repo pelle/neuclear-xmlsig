@@ -1,6 +1,15 @@
 /*
- * $Id: AbstractElementProxy.java,v 1.7 2003/12/11 23:56:53 pelle Exp $
+ * $Id: AbstractElementProxy.java,v 1.8 2003/12/16 15:04:49 pelle Exp $
  * $Log: AbstractElementProxy.java,v $
+ * Revision 1.8  2003/12/16 15:04:49  pelle
+ * Added SignedMessage contract for signing simple textual contracts.
+ * Added NeuSender, updated SmtpSender and Sender to take plain email addresses (without the mailto:)
+ * Added AbstractObjectCreationTest to make it quicker to write unit tests to verify
+ * NamedObjectBuilder/SignedNamedObject Pairs.
+ * Sample application has been expanded with a basic email application.
+ * Updated docs for sample web app.
+ * Added missing LGPL LICENSE.txt files to signer and sample app
+ *
  * Revision 1.7  2003/12/11 23:56:53  pelle
  * Trying to test the ReceiverServlet with cactus. Still no luck. Need to return a ElementProxy of some sort.
  * Cleaned up some missing fluff in the ElementProxy interface. getTagName(), getQName() and getNameSpace() have been killed.
