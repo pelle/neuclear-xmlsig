@@ -3,19 +3,18 @@
 package org.neuclear.xml.xmlsec;
 
 import org.dom4j.Element;
-import org.neuclear.commons.crypto.CryptoException;
 import org.neuclear.commons.crypto.Base64;
 import org.neuclear.commons.crypto.CryptoTools;
 import org.neuclear.commons.crypto.keyresolvers.KeyResolverFactory;
 
+import java.io.ByteArrayInputStream;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
-import java.security.cert.Certificate;
-import java.security.cert.X509Certificate;
 import java.security.cert.CertificateEncodingException;
-import java.security.cert.CertificateFactory;
 import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
 import java.security.interfaces.DSAParams;
 import java.security.interfaces.DSAPublicKey;
 import java.security.interfaces.RSAPublicKey;
@@ -23,7 +22,6 @@ import java.security.spec.DSAPublicKeySpec;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.RSAPublicKeySpec;
 import java.util.Iterator;
-import java.io.ByteArrayInputStream;
 
 public final class KeyInfo extends AbstractXMLSigElement {
     /**
@@ -68,8 +66,16 @@ public final class KeyInfo extends AbstractXMLSigElement {
             //seed and pgenCounter
         }
     }
+    public KeyInfo(final PublicKey pub, final String name){
+        this(pub);
+        appendKeyName(name);
+    }
     public KeyInfo(final String name) {
         super(TAG_NAME);
+        appendKeyName(name);
+    }
+
+    private void appendKeyName(final String name) {
         final Element kv = XMLSecTools.createElementInSignatureSpace("KeyName");
         kv.addText(name);
         addElement(kv);

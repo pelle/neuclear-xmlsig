@@ -5,8 +5,15 @@ package org.neuclear.xml.xmlsec;
  * User: pelleb
  * Date: Feb 8, 2003
  * Time: 12:15:24 PM
- * $Id: QuickEmbeddedSignature.java,v 1.5 2004/01/07 23:11:51 pelle Exp $
+ * $Id: QuickEmbeddedSignature.java,v 1.6 2004/01/10 00:02:02 pelle Exp $
  * $Log: QuickEmbeddedSignature.java,v $
+ * Revision 1.6  2004/01/10 00:02:02  pelle
+ * Implemented new Schema for Transfer*
+ * Working on it for Exchange*, so far all Receipts are implemented.
+ * Added SignedNamedDocument which is a generic SignedNamedObject that works with all Signed XML.
+ * Changed SignedNamedObject.getDigest() from byte array to String.
+ * The whole malarchy in neuclear-pay does not build yet. The refactoring is a big job, but getting there.
+ *
  * Revision 1.5  2004/01/07 23:11:51  pelle
  * XMLSig now has various added features:
  * -  KeyInfo supports X509v3 (untested)
@@ -109,23 +116,20 @@ package org.neuclear.xml.xmlsec;
  *
  */
 
-import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
-import org.neuclear.commons.crypto.Base64;
-import org.neuclear.commons.crypto.CryptoTools;
-import org.neuclear.commons.crypto.signers.Signer;
-import org.neuclear.commons.crypto.signers.NonExistingSignerException;
 import org.neuclear.commons.crypto.CryptoException;
+import org.neuclear.commons.crypto.CryptoTools;
 import org.neuclear.commons.crypto.passphraseagents.UserCancellationException;
+import org.neuclear.commons.crypto.signers.NonExistingSignerException;
+import org.neuclear.commons.crypto.signers.PublicKeySource;
+import org.neuclear.commons.crypto.signers.Signer;
 
 import java.security.KeyPair;
-import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.interfaces.DSAPrivateKey;
 import java.security.interfaces.RSAPrivateKey;
-import java.util.Date;
 
 /**
  * This a class to quickly create NeuDist format standard signatures
@@ -151,9 +155,13 @@ public final class QuickEmbeddedSignature extends XMLSignature {
     public QuickEmbeddedSignature(final String name, final Signer signer, final Element root, final String uri) throws XMLSecurityException, UserCancellationException, NonExistingSignerException {
         super(getSignatureElement(root,signer.getKeyType(name)));
         final Element sig = getElement();
-        addElement(new KeyInfo(name)); // Add the signers name
 
         getSi().getReference().setDigest();
+        if (signer instanceof PublicKeySource){
+            final KeyInfo key = new KeyInfo(((PublicKeySource)signer).getPublicKey(name),name);
+            sig.add(key.getElement());
+        } else
+            addElement(new KeyInfo(name)); // Add the signers name
 
         final byte[] canonicalizedSignedInfo = XMLSecTools.canonicalize(sig.element("SignedInfo"));
         sig.add(XMLSecTools.base64ToElement("SignatureValue", signer.sign(name, canonicalizedSignedInfo)));
@@ -224,7 +232,7 @@ public final class QuickEmbeddedSignature extends XMLSignature {
             "\n</ds:SignedInfo>\n</ds:Signature>";
 
 
-    public static void main(final String[] args) {
+   /* public static void main(final String[] args) {
         try {
             final KeyPair kp = CryptoTools.createKeyPair();
 //            KeyInfo keyinfo=new KeyInfo(kp.getPublic());
@@ -257,6 +265,6 @@ public final class QuickEmbeddedSignature extends XMLSignature {
         } catch (CryptoException e) {
             e.printStackTrace();  //TODO Handle exception
         }
-
     }
+*/
 }
