@@ -1,5 +1,7 @@
 package org.neuclear.xml.xmlsec;
 
+import org.neuclear.commons.crypto.Base64;
+
 import java.security.PublicKey;
 
 /**
@@ -11,7 +13,7 @@ import java.security.PublicKey;
  */
 public class InvalidSignatureException extends Exception {
     public InvalidSignatureException(byte[] a, byte[] b) {
-        super("Digest: '" + new String(a) + "' not equal to: " + new String(b));
+        super("Digest: '" + Base64.encode(a) + "' not equal to: " + Base64.encode(b));
     }
 
     public InvalidSignatureException(PublicKey pub) {

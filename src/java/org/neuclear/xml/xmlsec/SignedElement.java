@@ -1,5 +1,12 @@
-/* $Id: SignedElement.java,v 1.15 2004/04/26 23:57:48 pelle Exp $
+/* $Id: SignedElement.java,v 1.16 2004/04/28 00:23:47 pelle Exp $
  * $Log: SignedElement.java,v $
+ * Revision 1.16  2004/04/28 00:23:47  pelle
+ * Fixed the strange verification error
+ * Added bunch of new unit tests to support this.
+ * Updated Signer's dependencies and version number to be a 0.9 release.
+ * Implemented ThreadLocalSession session management for Hibernate ledger.
+ * Various other minor changes.
+ *
  * Revision 1.15  2004/04/26 23:57:48  pelle
  * Trying to find the verifying error
  *
@@ -161,7 +168,7 @@ package org.neuclear.xml.xmlsec;
 
 /**
  * @author pelleb
- * @version $Revision: 1.15 $
+ * @version $Revision: 1.16 $
  */
 
 import org.dom4j.DocumentHelper;
@@ -176,7 +183,7 @@ import org.neuclear.xml.AbstractElementProxy;
 import org.neuclear.xml.XMLException;
 
 
-public abstract class SignedElement extends AbstractElementProxy {
+public class SignedElement extends AbstractElementProxy {
     private XMLSignature sig;
 
     public SignedElement(final QName qname) {

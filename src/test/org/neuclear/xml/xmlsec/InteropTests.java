@@ -5,8 +5,15 @@ package org.neuclear.xml.xmlsec;
  * User: pelleb
  * Date: Feb 3, 2003
  * Time: 6:54:20 AM
- * $Id: InteropTests.java,v 1.3 2004/03/20 17:19:42 pelle Exp $
+ * $Id: InteropTests.java,v 1.4 2004/04/28 00:23:48 pelle Exp $
  * $Log: InteropTests.java,v $
+ * Revision 1.4  2004/04/28 00:23:48  pelle
+ * Fixed the strange verification error
+ * Added bunch of new unit tests to support this.
+ * Updated Signer's dependencies and version number to be a 0.9 release.
+ * Implemented ThreadLocalSession session management for Hibernate ledger.
+ * Various other minor changes.
+ *
  * Revision 1.3  2004/03/20 17:19:42  pelle
  * The problem with Enveloped signatures has now been fixed. It was a problem in the way transforms work. I have bandaided it, but in the future if better support for transforms need to be made, we need to rethink it a bit. Perhaps using the new crypto channel's in neuclear-commons.
  *
@@ -164,7 +171,7 @@ public final class InteropTests extends TestCase {
             final File xmlfile = xmlfiles[i];
             System.out.print("Testing file: " + xmlfile.getName() + "... ");
             final Document doc = reader.read(xmlfile);
-            System.out.print("root element: " + doc.getRootElement().getQualifiedName() + " ...");
+//            System.out.print("root element: " + doc.getRootElement().getQualifiedName() + " ...");
             try {
                 if (verifySignature(doc))
                     System.out.println("Verified");
