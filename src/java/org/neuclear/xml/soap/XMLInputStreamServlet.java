@@ -34,8 +34,12 @@ You should have received a copy of the GNU Lesser General Public
 License along with this library; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-$Id: XMLInputStreamServlet.java,v 1.6 2004/04/21 23:26:42 pelle Exp $
+$Id: XMLInputStreamServlet.java,v 1.7 2004/05/25 17:21:47 pelle Exp $
 $Log: XMLInputStreamServlet.java,v $
+Revision 1.7  2004/05/25 17:21:47  pelle
+Put KeyStorePanel into a JScrollPane
+Fixed some things in the ReceiverServlet
+
 Revision 1.6  2004/04/21 23:26:42  pelle
 Integrated Browser with the asset controller
 Updated look and feel
@@ -138,6 +142,7 @@ public abstract class XMLInputStreamServlet extends HttpServlet {
                 response.setContentType("text/html");
             }
             outputHTMLError(writer, e);
+            log("ERROR", e);
         }
 
     }
