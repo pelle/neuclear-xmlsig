@@ -109,6 +109,13 @@
                 <war.bundle>true</war.bundle>
             </properties>
         </dependency>
+        <dependency>
+            <groupId>stax</groupId>
+            <artifactId>stax</artifactId>
+            <version>1.0</version>
+            <url>http://jcp.org/aboutJava/communityprocess/final/jsr173/index.html</url>
+        </dependency>
+
 
         <dependency>
             <id>bouncycastle</id>

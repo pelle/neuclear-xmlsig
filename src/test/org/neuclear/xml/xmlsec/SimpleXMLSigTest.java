@@ -5,6 +5,7 @@ import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
+import org.dom4j.io.STAXEventReader;
 import org.dom4j.io.XPP3Reader;
 import org.dom4j.io.XPPReader;
 import org.neuclear.commons.crypto.CryptoException;
@@ -15,6 +16,7 @@ import org.neuclear.commons.crypto.signers.TestCaseSigner;
 import org.neuclear.xml.XMLException;
 import org.neuclear.xml.XMLTools;
 
+import java.io.CharArrayReader;
 import java.io.File;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
@@ -25,11 +27,14 @@ import java.security.interfaces.DSAPublicKey;
  * User: pelleb
  * Date: Jan 20, 2003
  * Time: 3:49:27 PM
- * $Id: SimpleXMLSigTest.java,v 1.16 2004/09/07 19:28:19 pelle Exp $
+ * $Id: SimpleXMLSigTest.java,v 1.17 2004/09/07 19:45:40 pelle Exp $
  * $Log: SimpleXMLSigTest.java,v $
+ * Revision 1.17  2004/09/07 19:45:40  pelle
+ * Added Stax to the benchmarks
+ *
  * Revision 1.16  2004/09/07 19:28:19  pelle
  * Removed some non working features.
- *
+ * <p/>
  * Revision 1.15  2004/09/07 18:48:03  pelle
  * Added support for dom4j 1.5 and added a new XPP3Reader
  * <p/>
@@ -412,6 +417,28 @@ public final class SimpleXMLSigTest extends TestCase {
         long start = System.currentTimeMillis();
         for (int i = 0; i < 1000; i++) {
             signed = xp.read(chars);
+            new EnvelopedSignature(signed.getRootElement());
+        }
+        long duration = System.currentTimeMillis() - start;
+        System.out.println(duration + "ms");
+
+
+    }
+
+    public final void testLameBenchmarkVerificationSTAX() throws Exception {
+        Document doc = DocumentHelper.parseText(TESTXML);
+        STAXEventReader xp = new STAXEventReader();
+
+        final XMLSignature sig = new EnvelopedSignature(rsa, doc.getRootElement());
+        String raw = doc.asXML();
+        // Once to initialize the gc
+        char[] chars = raw.toCharArray();
+        Document signed = xp.readDocument(new CharArrayReader(chars));
+        new EnvelopedSignature(signed.getRootElement());
+        System.out.println("Starting STAX benchmarks");
+        long start = System.currentTimeMillis();
+        for (int i = 0; i < 1000; i++) {
+            signed = xp.readDocument(new CharArrayReader(chars));
             new EnvelopedSignature(signed.getRootElement());
         }
         long duration = System.currentTimeMillis() - start;
