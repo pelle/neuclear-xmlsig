@@ -1,5 +1,8 @@
-/* $Id: SOAPServlet.java,v 1.4 2003/12/08 22:05:01 pelle Exp $
+/* $Id: SOAPServlet.java,v 1.5 2004/09/07 18:48:03 pelle Exp $
  * $Log: SOAPServlet.java,v $
+ * Revision 1.5  2004/09/07 18:48:03  pelle
+ * Added support for dom4j 1.5 and added a new XPP3Reader
+ *
  * Revision 1.4  2003/12/08 22:05:01  pelle
  * Some further documentation. Added the start of a busy developers guide form neuclear-id
  *
@@ -73,7 +76,7 @@ package org.neuclear.xml.soap;
 
 /**
  * @author pelleb
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.5 $
  */
 
 import org.dom4j.Document;
@@ -81,8 +84,9 @@ import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.io.OutputFormat;
-import org.dom4j.io.SAXReader;
 import org.dom4j.io.XMLWriter;
+import org.dom4j.io.XPP3Reader;
+import org.xmlpull.v1.XmlPullParserException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -92,12 +96,13 @@ import java.io.OutputStream;
 
 public abstract class SOAPServlet extends XMLInputStreamServlet {
 
+
     protected abstract Element handleSOAPRequest(Element request, String soapAction) throws SOAPException;
 
     protected final void handleInputStream(final InputStream is, final HttpServletRequest request, final HttpServletResponse response) throws IOException {
         try {
-            final SAXReader reader = new SAXReader();
-            final Document doc = reader.read(is);
+            final XPP3Reader xpp = new XPP3Reader();
+            final Document doc = xpp.read(is);
 
             final Element bodyElement = doc.getRootElement().element(SOAPTools.createEnvelopeQName());
             //TODO: Check for null
@@ -123,10 +128,12 @@ public abstract class SOAPServlet extends XMLInputStreamServlet {
             final XMLWriter writer = new XMLWriter(out, OutputFormat.createCompactFormat());
             writer.write(respElement);
             out.close();
+        } catch (XmlPullParserException e) {
+            e.printStackTrace(System.out);
+            response.sendError(500, e.getMessage());
         } catch (DocumentException e) {
             e.printStackTrace(System.out);
             response.sendError(500, e.getMessage());
         }
     }
-
 }

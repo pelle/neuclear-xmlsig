@@ -1,6 +1,9 @@
 /*
- * $Id: XMLTools.java,v 1.10 2004/06/08 05:57:52 pelle Exp $
+ * $Id: XMLTools.java,v 1.11 2004/09/07 18:48:03 pelle Exp $
  * $Log: XMLTools.java,v $
+ * Revision 1.11  2004/09/07 18:48:03  pelle
+ * Added support for dom4j 1.5 and added a new XPP3Reader
+ *
  * Revision 1.10  2004/06/08 05:57:52  pelle
  * Many changes throughout. In particular with regards to character encoding etc.
  * The SigningServer now notifies the user and quits if another application is using the same port.
@@ -156,12 +159,13 @@ package org.neuclear.xml;
 
 /**
  * @author pelleb
- * @version $Revision: 1.10 $
+ * @version $Revision: 1.11 $
  */
 
 import org.dom4j.*;
 import org.dom4j.dom.DOMDocument;
 import org.dom4j.io.*;
+import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.*;
 import java.net.MalformedURLException;
@@ -208,7 +212,7 @@ public final class XMLTools {
 
     public static Document loadDocument(final URL url) throws XMLException {
         try {
-            final SAXReader xmlReader = new SAXReader();
+            final XPP3Reader xmlReader = new XPP3Reader();
             return xmlReader.read(url);
         } catch (Exception e) {
             throw new XMLException(e);
@@ -217,7 +221,7 @@ public final class XMLTools {
 
     public static Document loadDocument(final InputStream is) throws XMLException {
         try {
-            final SAXReader xmlReader = new SAXReader();
+            final XPP3Reader xmlReader = new XPP3Reader();
             return xmlReader.read(is);
         } catch (Exception e) {
             throw new XMLException(e);
@@ -225,13 +229,15 @@ public final class XMLTools {
     }
 
     public static Document loadDocument(final File f) throws XMLException {
-        final SAXReader xmlReader = new SAXReader();
+        final XPP3Reader xmlReader = new XPP3Reader();
         try {
 
             return xmlReader.read(f);
         } catch (DocumentException e) {
             throw new XMLException(e);
-        } catch (MalformedURLException e) {
+        } catch (IOException e) {
+            throw new XMLException(e);
+        } catch (XmlPullParserException e) {
             throw new XMLException(e);
         }
     }
