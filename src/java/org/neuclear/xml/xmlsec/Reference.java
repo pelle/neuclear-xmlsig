@@ -1,5 +1,8 @@
-/* $Id: Reference.java,v 1.8 2004/01/14 17:07:59 pelle Exp $
+/* $Id: Reference.java,v 1.9 2004/01/15 00:01:46 pelle Exp $
  * $Log: Reference.java,v $
+ * Revision 1.9  2004/01/15 00:01:46  pelle
+ * Problem fixed with Enveloping signatures.
+ *
  * Revision 1.8  2004/01/14 17:07:59  pelle
  * KeyInfo containing X509Certificates now work correctly.
  * 10 out of 16 of merlin's tests now work. The missing ones are largely due to key resolution issues. (Read X509)
@@ -126,24 +129,22 @@ package org.neuclear.xml.xmlsec;
  * The Reference class implements the W3C XML Signature Spec Reference Object.
  * The basic contract says that once it has been instantiated the digest value within is valid.
  * @author pelleb
- * @version $Revision: 1.8 $
+ * @version $Revision: 1.9 $
  */
 
 import org.dom4j.Element;
-import org.dom4j.Node;
-import org.dom4j.DocumentHelper;
 import org.neuclear.commons.Utility;
-import org.neuclear.commons.crypto.Base64;
 import org.neuclear.commons.crypto.CryptoTools;
 import org.neuclear.xml.XMLException;
 import org.neuclear.xml.XMLTools;
 import org.neuclear.xml.c14.Canonicalizer;
 import org.neuclear.xml.c14.CanonicalizerWithoutSignature;
 
-import java.io.*;
-import java.util.List;
-import java.net.URL;
+import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URL;
 
 public final class Reference extends AbstractXMLSigElement {
 
@@ -160,17 +161,15 @@ public final class Reference extends AbstractXMLSigElement {
         super(Reference.TAG_NAME);
         final Canonicalizer canon;
         Element transformsElement = addElement("Transforms");
-        final Element object;
+//        final Element object;
         if (sigtype == XMLSIGTYPE_ENVELOPED){
             canon=new CanonicalizerWithoutSignature();
             transformsElement.addElement(XMLSecTools.createQName("Transform")).addAttribute("Algorithm","http://www.w3.org/2000/09/xmldsig#enveloped-signature");
-            object=root;
+//            object=root;
         } else if (sigtype == XMLSIGTYPE_ENVELOPING){
 
             canon= new Canonicalizer();
-            object=getElement().getParent().getParent().addElement("Object");
-            object.addAttribute("Id","data");
-            object.add(root.createCopy());
+            //object=root.getParent();
         } else {
             throw new XMLSecurityException("Unsupported Signature Method");
         }
@@ -181,7 +180,7 @@ public final class Reference extends AbstractXMLSigElement {
         if (!Utility.isEmpty(id))
             createAttribute("URI","#"+id);
 
-        addDigest(canon,object);
+        addDigest(canon,root);
     }
 
 

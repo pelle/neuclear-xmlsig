@@ -29,8 +29,11 @@ You should have received a copy of the GNU Lesser General Public
 License along with this library; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-$Id: RefTest.java,v 1.3 2004/01/14 16:34:27 pelle Exp $
+$Id: RefTest.java,v 1.4 2004/01/15 00:01:46 pelle Exp $
 $Log: RefTest.java,v $
+Revision 1.4  2004/01/15 00:01:46  pelle
+Problem fixed with Enveloping signatures.
+
 Revision 1.3  2004/01/14 16:34:27  pelle
 New model of references and signatures now pretty much works.
 I am still not 100% sure on the created enveloping signatures. I need to do more testing.

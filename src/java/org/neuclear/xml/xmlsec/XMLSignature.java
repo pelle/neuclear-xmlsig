@@ -1,5 +1,8 @@
-/* $Id: XMLSignature.java,v 1.10 2004/01/14 06:42:38 pelle Exp $
+/* $Id: XMLSignature.java,v 1.11 2004/01/15 00:01:46 pelle Exp $
  * $Log: XMLSignature.java,v $
+ * Revision 1.11  2004/01/15 00:01:46  pelle
+ * Problem fixed with Enveloping signatures.
+ *
  * Revision 1.10  2004/01/14 06:42:38  pelle
  * Got rid of the verifyXXX() methods
  *
@@ -169,7 +172,7 @@ package org.neuclear.xml.xmlsec;
 
 /**
  * @author pelleb
- * @version $Revision: 1.10 $
+ * @version $Revision: 1.11 $
  */
 
 import org.dom4j.DocumentHelper;
@@ -177,9 +180,9 @@ import org.dom4j.Element;
 import org.neuclear.commons.crypto.CryptoException;
 import org.neuclear.commons.crypto.CryptoTools;
 import org.neuclear.commons.crypto.passphraseagents.UserCancellationException;
-import org.neuclear.commons.crypto.signers.Signer;
-import org.neuclear.commons.crypto.signers.PublicKeySource;
 import org.neuclear.commons.crypto.signers.NonExistingSignerException;
+import org.neuclear.commons.crypto.signers.PublicKeySource;
+import org.neuclear.commons.crypto.signers.Signer;
 import org.neuclear.xml.XMLException;
 
 import java.security.KeyPair;
@@ -227,12 +230,13 @@ public class XMLSignature extends AbstractXMLSigElement {
                 root.add(getElement());
             } else if (type == Reference.XMLSIGTYPE_ENVELOPING) {
                 final Element objElem = XMLSecTools.createElementInSignatureSpace("Object");
+                objElem.addAttribute("Id","data");
                 getElement().add(objElem);
                 DocumentHelper.createDocument(getElement());//As Signature Element is parent we will now add a doc
                 objElem.add(root);
                 root = objElem;
             } else {
-                // Detached Handle this in the Ference Constructor
+                throw new XMLSecurityException("Unknown Signature Method");
             }
             final int alg = (key instanceof RSAPrivateKey) ? SignatureInfo.SIG_ALG_RSA : SignatureInfo.SIG_ALG_DSA;
             si = new SignatureInfo( root,  alg, type);
