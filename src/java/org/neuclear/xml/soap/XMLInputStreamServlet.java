@@ -1,7 +1,7 @@
 package org.neuclear.xml.soap;
 
-import org.neuclear.commons.Utility;
 import org.neuclear.commons.NeuClearException;
+import org.neuclear.commons.Utility;
 import org.neuclear.commons.crypto.Base64;
 import org.neuclear.xml.XMLException;
 
@@ -34,8 +34,16 @@ You should have received a copy of the GNU Lesser General Public
 License along with this library; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-$Id: XMLInputStreamServlet.java,v 1.5 2003/12/12 15:12:40 pelle Exp $
+$Id: XMLInputStreamServlet.java,v 1.6 2004/04/21 23:26:42 pelle Exp $
 $Log: XMLInputStreamServlet.java,v $
+Revision 1.6  2004/04/21 23:26:42  pelle
+Integrated Browser with the asset controller
+Updated look and feel
+Added ServletLedgerFactory
+Added ServletAssetControllerFactory
+Created issue.jsp file
+Fixed many smaller issues
+
 Revision 1.5  2003/12/12 15:12:40  pelle
 The ReceiverServletTest now passes.
 Add first stab at a SigningServletTest which currently doesnt pass.
@@ -125,19 +133,36 @@ public abstract class XMLInputStreamServlet extends HttpServlet {
             final boolean isXML = request.getContentType().equals("text/xml");
             if (isXML) {
                 response.setContentType("text/xml");
+                outputXMLError(writer, e);
             } else {
                 response.setContentType("text/html");
-                writer.print("<html><head><title>XMLInputStreamServlet Error</title></head><body>");
             }
-            writer.println("<h1>Error</h1><h3>");
-            writer.println(e.getLocalizedMessage());
-            writer.println("</h3><pre>");
-            e.printStackTrace(writer);
-            writer.println("</pre>");
+            outputHTMLError(writer, e);
         }
 
     }
 
+    protected void outputHTMLError(PrintWriter writer, Exception e) {
+        writer.print("<html><head><title>XMLInputStreamServlet Error</title></head><body>");
+        writer.println("<h1>Error</h1><h3>");
+        writer.println(e.getLocalizedMessage());
+        writer.println("</h3><pre style=\"display:none\">");
+        e.printStackTrace(writer);
+        writer.println("</pre>");
+        writer.println("</body></html>");
+
+    }
+
+    protected void outputXMLError(PrintWriter writer, Throwable e) {
+        writer.println("<exception><name>");
+        writer.println(e.getClass().getName());
+        writer.println("</name><description>");
+        writer.println(e.getLocalizedMessage());
+        writer.println("</description>");
+        if (e.getCause() != null)
+            outputXMLError(writer, e.getCause());
+        writer.println("</exception>");
+    }
 
     protected abstract void handleInputStream(InputStream is, HttpServletRequest request, HttpServletResponse response) throws IOException, NeuClearException, XMLException;
 
