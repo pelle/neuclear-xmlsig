@@ -1,5 +1,11 @@
-/* $Id: XMLSecTools.java,v 1.11 2004/02/19 19:37:34 pelle Exp $
+/* $Id: XMLSecTools.java,v 1.12 2004/03/05 23:47:17 pelle Exp $
  * $Log: XMLSecTools.java,v $
+ * Revision 1.12  2004/03/05 23:47:17  pelle
+ * Attempting to make Reference and SignedInfo more compliant with the standard.
+ * SignedInfo can now contain more than one reference.
+ * Reference is on the way to becoming more flexible and two support more than one transform.
+ * I am adding Crypto Channels to commons to help this out and to hopefully speed things up as well.
+ *
  * Revision 1.11  2004/02/19 19:37:34  pelle
  * At times IntelliJ IDEA can cause some real hassle. On my last checkin it optimized away all of the dom4j and command line imports.
  * We'll now, Ive added them all back.
@@ -163,12 +169,11 @@ package org.neuclear.xml.xmlsec;
 
 /**
  * @author pelleb
- * @version $Revision: 1.11 $
+ * @version $Revision: 1.12 $
  */
 
-import org.dom4j.io.XMLWriter;
 import org.dom4j.*;
-
+import org.dom4j.io.XMLWriter;
 import org.neuclear.commons.crypto.Base64;
 import org.neuclear.commons.crypto.CryptoException;
 import org.neuclear.commons.crypto.passphraseagents.UserCancellationException;
@@ -551,6 +556,24 @@ public final class XMLSecTools {
 
         final Element el = createElementInSignatureSpace(localName);
         final Text text = DocumentHelper.createText(Base64.encodeClean(bytes));
+
+        el.add(text);
+
+        return el;
+    }
+
+    /**
+     * Method base64ToElement
+     *
+     * @param localName
+     * @param data
+     * @return
+     */
+    public static Element base64ToElement(final String localName,
+                                          final String data) {
+
+        final Element el = createElementInSignatureSpace(localName);
+        final Text text = DocumentHelper.createText(Base64.encodeClean(data.getBytes()));
 
         el.add(text);
 

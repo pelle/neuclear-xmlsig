@@ -1,5 +1,11 @@
-/* $Id: Reference.java,v 1.14 2004/03/03 23:23:24 pelle Exp $
+/* $Id: Reference.java,v 1.15 2004/03/05 23:47:17 pelle Exp $
  * $Log: Reference.java,v $
+ * Revision 1.15  2004/03/05 23:47:17  pelle
+ * Attempting to make Reference and SignedInfo more compliant with the standard.
+ * SignedInfo can now contain more than one reference.
+ * Reference is on the way to becoming more flexible and two support more than one transform.
+ * I am adding Crypto Channels to commons to help this out and to hopefully speed things up as well.
+ *
  * Revision 1.14  2004/03/03 23:23:24  pelle
  * Interops with enveloped signatures.
  *
@@ -151,7 +157,7 @@ package org.neuclear.xml.xmlsec;
  * The Reference class implements the W3C XML Signature Spec Reference Object.
  * The basic contract says that once it has been instantiated the digest value within is valid.
  * @author pelleb
- * @version $Revision: 1.14 $
+ * @version $Revision: 1.15 $
  */
 
 import org.dom4j.Element;
@@ -165,6 +171,7 @@ import org.neuclear.xml.c14.CanonicalizerWithoutSignature;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -182,36 +189,45 @@ public final class Reference extends AbstractXMLSigElement {
     public Reference(final Element root, final int sigtype) throws XMLSecurityException {
         super(Reference.TAG_NAME);
         final Canonicalizer canon;
-        Object ref = null;
+        object = root;
         Element transformsElement = addElement("Transforms");
 //        final Element object;
         if (sigtype == XMLSIGTYPE_ENVELOPED) {
             createAttribute("URI", "");
             canon = new CanonicalizerWithoutSignature();
             transformsElement.addElement(XMLSecTools.createQName("Transform")).addAttribute("Algorithm", "http://www.w3.org/2000/09/xmldsig#enveloped-signature");
-            ref = root;
         } else if (sigtype == XMLSIGTYPE_ENVELOPING) {
             canon = new Canonicalizer();
-            ref = root;
         } else {
             throw new XMLSecurityException("Unsupported Signature Method");
         }
         transformsElement.addElement(XMLSecTools.createQName("Transform")).addAttribute("Algorithm", "http://www.w3.org/TR/2001/REC-xml-c14n-20010315");
 
-        type = sigtype;
         final String id = Utility.denullString(root.attributeValue("Id"), root.attributeValue("ID"));
         if (!Utility.isEmpty(id))
             createAttribute("URI", "#" + id);
 
-        addDigest(canon, ref);
+        digest = addDigest(canon, root);
     }
 
-
-    public Reference(final String uri) throws XMLSecurityException {
+    private Reference(Object object, InputStream is) throws XMLSecurityException {
         super(Reference.TAG_NAME);
-        type = XMLSIGTYPE_DETACHED;
-        createAttribute("URI", uri);
-        addDigest(new Canonicalizer(), loadReference(uri));
+        try {
+            digest = new String(CryptoTools.digest(is));
+            this.object = object;
+        } catch (IOException e) {
+            throw new XMLSecurityException(e);
+        }
+
+    }
+
+    public Reference(final String url) throws XMLSecurityException, IOException {
+        this(new URL(url));
+    }
+
+    public Reference(final URL url) throws XMLSecurityException, IOException {
+        this(url, url.openStream());
+        createAttribute("URI", url.toExternalForm());
     }
 
     /**
@@ -224,11 +240,11 @@ public final class Reference extends AbstractXMLSigElement {
         super(elem);
         if (!elem.getQName().getName().equals(TAG_NAME))
             throw new XMLSecurityException("Element: " + elem.getQualifiedName() + " is not a valid: " + XMLSecTools.NS_DS.getPrefix() + ":" + TAG_NAME);
-        type = findSignatureType(elem);
+        int type = findSignatureType(elem);
 
-        byte digest[] = XMLSecTools.decodeBase64Element(getElement().element(XMLSecTools.createQName("DigestValue")));
+        digest = new String(XMLSecTools.decodeBase64Element(getElement().element(XMLSecTools.createQName("DigestValue"))));
 
-        final Object object = findRefElement(elem);
+        object = findRefElement(elem);
         if (object == null)
             throw new XMLSecurityException("Couldnt Dereference Object:\n " + elem.asXML());
         final Canonicalizer canon;
@@ -237,22 +253,24 @@ public final class Reference extends AbstractXMLSigElement {
         else
             canon = new Canonicalizer();
 
-        final byte dig2[] = createDigest(canon, object);
-        if (!CryptoTools.equalByteArrays(digest, dig2))
+        final String dig2 = createDigest(canon, object);
+        if (!digest.equals(dig2))
             throw new InvalidSignatureException(digest, dig2);
     }
 
-    private void addDigest(final Canonicalizer canon, Object root) throws XMLSecurityException {
+    private String addDigest(final Canonicalizer canon, Object root) throws XMLSecurityException {
         addElement("DigestMethod").addAttribute(XMLSecTools.createQName("Algorithm"), "http://www.w3.org/2000/09/xmldsig#sha1");
-        getElement().add(XMLSecTools.base64ToElement("DigestValue", createDigest(canon, root)));
+        final String digest = createDigest(canon, root);
+        getElement().add(XMLSecTools.base64ToElement("DigestValue", digest));
+        return digest;
     }
 
-    private static byte[] createDigest(final Canonicalizer canon, Object root) throws XMLSecurityException {
+    private static String createDigest(final Canonicalizer canon, Object root) throws XMLSecurityException {
         final byte[] value = canon.canonicalize(root);
 //        System.out.println("Canonicalized Reference:");
 //        System.out.println(new String(value));
 //        System.out.println("------");
-        return CryptoTools.digest(value);
+        return new String(CryptoTools.digest(value));
     }
 
     private static int findSignatureType(Element elem) {
@@ -306,14 +324,18 @@ public final class Reference extends AbstractXMLSigElement {
         }
     }
 
+    public String getDigest() {
+        return digest;
+    }
 
     public String getUri() {
         return getElement().attributeValue("URI");
     }
 
-    private final int type;
-    private static final String TAG_NAME = "Reference";
+    private final String digest;
+    public final Object object;
 
+    private static final String TAG_NAME = "Reference";
     public final static int XMLSIGTYPE_ENVELOPED = 0;
     public final static int XMLSIGTYPE_ENVELOPING = 1;
     public final static int XMLSIGTYPE_DETACHED = 2;

@@ -5,8 +5,14 @@ package org.neuclear.xml.c14;
  * User: pelleb
  * Date: Feb 3, 2003
  * Time: 6:54:20 AM
- * $Id: CanonicalizationTest.java,v 1.6 2004/03/02 23:50:45 pelle Exp $
+ * $Id: CanonicalizationTest.java,v 1.7 2004/03/05 23:47:17 pelle Exp $
  * $Log: CanonicalizationTest.java,v $
+ * Revision 1.7  2004/03/05 23:47:17  pelle
+ * Attempting to make Reference and SignedInfo more compliant with the standard.
+ * SignedInfo can now contain more than one reference.
+ * Reference is on the way to becoming more flexible and two support more than one transform.
+ * I am adding Crypto Channels to commons to help this out and to hopefully speed things up as well.
+ *
  * Revision 1.6  2004/03/02 23:50:45  pelle
  * minor changes.
  * receiver didnt get checked in by idea in recent refactoring.
@@ -84,7 +90,7 @@ import java.io.*;
 
 public final class CanonicalizationTest extends TestCase {
 
-    private final static boolean ASSERT_FAIL = true; //Change this to assert failed documents
+    private final static boolean ASSERT_FAIL = false; //Change this to assert failed documents
 
     public CanonicalizationTest(final String s) {
         super(s);

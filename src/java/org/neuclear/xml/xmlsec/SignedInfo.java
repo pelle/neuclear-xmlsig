@@ -1,5 +1,11 @@
-/* $Id: SignedInfo.java,v 1.1 2004/03/02 23:30:43 pelle Exp $
+/* $Id: SignedInfo.java,v 1.2 2004/03/05 23:47:17 pelle Exp $
  * $Log: SignedInfo.java,v $
+ * Revision 1.2  2004/03/05 23:47:17  pelle
+ * Attempting to make Reference and SignedInfo more compliant with the standard.
+ * SignedInfo can now contain more than one reference.
+ * Reference is on the way to becoming more flexible and two support more than one transform.
+ * I am adding Crypto Channels to commons to help this out and to hopefully speed things up as well.
+ *
  * Revision 1.1  2004/03/02 23:30:43  pelle
  * Renamed SignatureInfo to SignedInfo as that is the name of the Element.
  * Made some changes in the Canonicalizer to make all the output verify in Aleksey's xmlsec library.
@@ -93,7 +99,7 @@ package org.neuclear.xml.xmlsec;
 
 /**
  * @author pelleb
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 
 import org.dom4j.Element;
@@ -104,8 +110,21 @@ import org.neuclear.xml.c14.Canonicalizer;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.Signature;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public final class SignedInfo extends AbstractXMLSigElement {
+    public SignedInfo(Reference references[], final int sigalg) {
+        super(SignedInfo.TAG_NAME);
+        final ArrayList list = new ArrayList(references.length);
+        for (int i = 0; i < references.length; i++) {
+            list.add(references[i]);
+            addElement(references[i]);
+        }
+        this.refs = Collections.unmodifiableList(list);
+    }
+
     public SignedInfo(final Element root, final int sigalg, final int sigtype) throws XMLSecurityException {
         super(SignedInfo.TAG_NAME);
         this.algType = sigalg;
@@ -122,7 +141,10 @@ public final class SignedInfo extends AbstractXMLSigElement {
                 sm.addAttribute("Algorithm", "http://www.w3.org/2000/09/xmldsig#dsa-sha1");
 
             addElement(sm);
-            ref = new Reference(root, sigtype);
+            Reference ref = new Reference(root, sigtype);
+            List list = new ArrayList(1);
+            list.add(ref);
+            this.refs = Collections.unmodifiableList(list);
             addElement(ref);
         } catch (XMLException e) {
             throw new XMLSecurityException(e);
@@ -133,15 +155,16 @@ public final class SignedInfo extends AbstractXMLSigElement {
         super(elem);
         if (!elem.getQName().equals(XMLSecTools.createQName(TAG_NAME)))
             throw new XMLSecurityException("Element: " + elem.getQualifiedName() + " is not a valid: " + XMLSecTools.NS_DS.getPrefix() + ":" + TAG_NAME);
-        this.sig = sig;
         final Element c14elem = elem.element(XMLSecTools.createQName("CanonicalizationMethod"));
         if (c14elem != null && c14elem.attributeValue("Algorithm").equals("http://www.w3.org/TR/2001/REC-xml-c14n-20010315#WithComments"))
             c14nType = Canonicalizer.C14NTYPE_WITH_COMMENTS;
-        final Element refElem = elem.element(XMLSecTools.createQName("Reference"));
-        if (refElem != null)
-            ref = new Reference(refElem);
-        //Check reference element if signature is enveloped
-
+        final List list = elem.elements(XMLSecTools.createQName("Reference"));
+        final List refList = new ArrayList(list.size());
+        for (int i = 0; i < list.size(); i++) {
+            Element element = (Element) list.get(i);
+            refList.add(new Reference(element));
+        }
+        this.refs = Collections.unmodifiableList(refList);
     }
 
     /**
@@ -151,8 +174,8 @@ public final class SignedInfo extends AbstractXMLSigElement {
      * @return 
      * @throws XMLSecurityException 
      */
-    public final Reference getReference() throws XMLSecurityException {
-        return ref;
+    public final List getReferences() throws XMLSecurityException {
+        return refs;
     }
 
     final Canonicalizer getCanonicalizer() {
@@ -161,10 +184,6 @@ public final class SignedInfo extends AbstractXMLSigElement {
 //        else if (c14nType == Canonicalizer.C14NTYPE_WITH_COMMENTS)
 //            return new CanonicalizerWithComments();
         return new Canonicalizer();
-    }
-
-    final XMLSignature getSig() {
-        return sig;
     }
 
     //TODO Ignore this bit for now
@@ -188,10 +207,9 @@ public final class SignedInfo extends AbstractXMLSigElement {
     }
 
     private static final String TAG_NAME = "SignedInfo";
-    private Reference ref;
+    private final List refs;
     private int c14nType = 0;
     private int algType = 0;
-    private XMLSignature sig;
 
     public final static int SIG_ALG_RSA = Signer.KEY_RSA;
     public final static int SIG_ALG_DSA = Signer.KEY_DSA;
