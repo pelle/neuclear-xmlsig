@@ -1,5 +1,15 @@
-/* $Id: SignedElement.java,v 1.7 2004/01/08 23:38:06 pelle Exp $
+/* $Id: SignedElement.java,v 1.8 2004/01/11 00:39:19 pelle Exp $
  * $Log: SignedElement.java,v $
+ * Revision 1.8  2004/01/11 00:39:19  pelle
+ * Cleaned up the schemas even more they now all verifiy.
+ * The Order/Receipt pairs for neuclear pay, should now work. They all have Readers using the latest
+ * Schema.
+ * The TransferBuilders are done and the ExchangeBuilders are nearly there.
+ * The new EmbeddedSignedNamedObject builder is useful for creating new Receipts. The new ReceiptBuilder uses
+ * this to create the embedded transaction.
+ * ExchangeOrders now have the concept of BidItem's, you could create an ExchangeOrder bidding on various items at the same time, to be exchanged as one atomic multiparty exchange.
+ * Still doesnt build yet, but very close now ;-)
+ *
  * Revision 1.7  2004/01/08 23:38:06  pelle
  * XMLSignature can now give you the Signing key and the id of the signer.
  * SignedElement can now self verify using embedded public keys as well as KeyName's
@@ -123,7 +133,7 @@ package org.neuclear.xml.xmlsec;
 
 /**
  * @author pelleb
- * @version $Revision: 1.7 $
+ * @version $Revision: 1.8 $
  */
 
 import org.dom4j.Element;
@@ -248,6 +258,8 @@ public abstract class SignedElement extends AbstractElementProxy {
     /**
      * Returns the URI of the Element. This is used in the signing process.
      */
-    public abstract String getURI() throws XMLSecurityException;
+    public String getURI() throws XMLSecurityException {
+        return "#" ;
+    }
 
 }
