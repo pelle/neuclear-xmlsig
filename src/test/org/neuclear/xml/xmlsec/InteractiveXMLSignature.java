@@ -10,8 +10,11 @@ import org.neuclear.commons.crypto.signers.InvalidPassphraseException;
 import org.neuclear.commons.crypto.signers.TestCaseSigner;
 
 /*
-$Id: InteractiveXMLSignature.java,v 1.3 2004/04/20 23:32:54 pelle Exp $
+$Id: InteractiveXMLSignature.java,v 1.4 2004/05/11 15:38:24 pelle Exp $
 $Log: InteractiveXMLSignature.java,v $
+Revision 1.4  2004/05/11 15:38:24  pelle
+Removed a few compilation errors
+
 Revision 1.3  2004/04/20 23:32:54  pelle
 All unit tests (junit and cactus) work. The AssetControllerServlet is operational.
 
@@ -33,6 +36,7 @@ public class InteractiveXMLSignature {
     public static void main(String args[]) {
         try {
             BrowsableSigner signer = new TestCaseSigner(new SwingAgent());
+
             final Element element = DocumentHelper.parseText(COMPLEX_XML).getRootElement();
             XMLSignature sig = new EnvelopedSignature(signer, element);
 
