@@ -1,5 +1,10 @@
-/* $Id: SignedElement.java,v 1.13 2004/04/12 15:00:42 pelle Exp $
+/* $Id: SignedElement.java,v 1.14 2004/04/17 19:21:27 pelle Exp $
  * $Log: SignedElement.java,v $
+ * Revision 1.14  2004/04/17 19:21:27  pelle
+ * HTMLSignature can now process an Dom4j document as well.
+ * SignedElement is now ensured that it has a Document
+ * SignedElement also now automatically uses HTMLSignature if it senses the document is html.
+ *
  * Revision 1.13  2004/04/12 15:00:42  pelle
  * Now have a slightly better way of handling the waiting for input using the WaitForInput class.
  * This will later be put into a command queue for execution.
@@ -153,9 +158,10 @@ package org.neuclear.xml.xmlsec;
 
 /**
  * @author pelleb
- * @version $Revision: 1.13 $
+ * @version $Revision: 1.14 $
  */
 
+import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.Namespace;
 import org.dom4j.QName;
@@ -168,14 +174,24 @@ import org.neuclear.xml.XMLException;
 
 
 public abstract class SignedElement extends AbstractElementProxy {
-    private EnvelopedSignature sig;
+    private XMLSignature sig;
 
     public SignedElement(final QName qname) {
         super(qname);
+        if (getElement().getDocument() == null)
+            DocumentHelper.createDocument(getElement());
+    }
+
+    protected SignedElement(final String name) {
+        super(name);
+        if (getElement().getDocument() == null)
+            DocumentHelper.createDocument(getElement());
     }
 
     public SignedElement(final Element elem) throws XMLSecurityException {
         super(elem);
+        if (getElement().getDocument() == null)
+            DocumentHelper.createDocument(getElement());
         final Element sigElement = getElement().element(XMLSecTools.createQName("Signature"));
         if (sigElement != null)
             try {
@@ -190,10 +206,14 @@ public abstract class SignedElement extends AbstractElementProxy {
 
     public SignedElement(final String name, final Namespace ns) {
         super(name, ns);
+        if (getElement().getDocument() == null)
+            DocumentHelper.createDocument(getElement());
     }
 
     public SignedElement(final String name, final String prefix, final String nsURI) {
         super(name, prefix, nsURI);
+        if (getElement().getDocument() == null)
+            DocumentHelper.createDocument(getElement());
     }
 
     /**
@@ -245,13 +265,19 @@ public abstract class SignedElement extends AbstractElementProxy {
 
     public final void sign(final String name, final Signer signer) throws XMLSecurityException, UserCancellationException, NonExistingSignerException {
         preSign();
-        sig = new EnvelopedSignature(name, signer, getElement());
+        if (getElement().getName().equals("html")) {
+            sig = new HTMLSignature(name, signer, getElement().getDocument());
+        } else
+            sig = new EnvelopedSignature(name, signer, getElement());
         postSign();
     }
 
     public final void sign(final BrowsableSigner signer) throws XMLSecurityException, UserCancellationException {
         preSign();
-        sig = new EnvelopedSignature(signer, getElement());
+        if (getElement().getName().equals("html"))
+            sig = new HTMLSignature(signer, getElement().getDocument());
+        else
+            sig = new EnvelopedSignature(signer, getElement());
         postSign();
     }
 

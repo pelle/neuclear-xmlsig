@@ -53,12 +53,20 @@ public class HTMLSignature extends XMLSignature {
      * @see org.neuclear.commons.crypto.signers.Signer
      */
     public HTMLSignature(String name, Signer signer, InputStream is) throws XMLSecurityException, UserCancellationException, NonExistingSignerException {
-        super(name, signer);
+        this(name, signer, parseHTML(is));
+    }
+
+    private static Document parseHTML(InputStream is) {
         Tidy tidy = new Tidy();
         tidy.setXmlOut(true);
         org.w3c.dom.Document dom = tidy.parseDOM(is, null);
         DOMReader reader = new DOMReader();
         Document doc = reader.read(dom);
+        return doc;
+    }
+
+    public HTMLSignature(String name, Signer signer, Document doc) throws XMLSecurityException, UserCancellationException, NonExistingSignerException {
+        super(name, signer);
         Element html = doc.getRootElement();
         createHTMLBadge(html);
         si.getElement().addAttribute("style", DIGESTSTYLE);
@@ -95,15 +103,13 @@ public class HTMLSignature extends XMLSignature {
      * @see org.neuclear.commons.crypto.signers.Signer
      */
     public HTMLSignature(BrowsableSigner signer, InputStream is) throws XMLSecurityException, UserCancellationException {
+        this(signer, parseHTML(is));
+    }
+
+    public HTMLSignature(BrowsableSigner signer, Document doc) throws XMLSecurityException, UserCancellationException {
         super(new SignedInfo(SignedInfo.SIG_ALG_RSA, 1));
-        Tidy tidy = new Tidy();
-        tidy.setXmlOut(true);
-        org.w3c.dom.Document dom = tidy.parseDOM(is, null);
-        DOMReader reader = new DOMReader();
-        Document doc = reader.read(dom);
         Element html = doc.getRootElement();
         createHTMLBadge(html);
-//        si.getElement().addAttribute("id", "dsdigestvalue");
         si.getElement().addAttribute("style", DIGESTSTYLE);
         si.setEnvelopedReference(html);
         html.add(getElement());
@@ -120,7 +126,7 @@ public class HTMLSignature extends XMLSignature {
      * Creates a standard Enveloped Signature within the given Element.
      * Uses the provided KeyPair to sign it.
      *
-     * @param kp   
+     * @param kp
      * @param elem
      * @throws XMLSecurityException
      */

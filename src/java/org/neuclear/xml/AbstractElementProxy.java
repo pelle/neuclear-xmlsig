@@ -1,6 +1,11 @@
 /*
- * $Id: AbstractElementProxy.java,v 1.13 2004/03/22 20:09:17 pelle Exp $
+ * $Id: AbstractElementProxy.java,v 1.14 2004/04/17 19:21:28 pelle Exp $
  * $Log: AbstractElementProxy.java,v $
+ * Revision 1.14  2004/04/17 19:21:28  pelle
+ * HTMLSignature can now process an Dom4j document as well.
+ * SignedElement is now ensured that it has a Document
+ * SignedElement also now automatically uses HTMLSignature if it senses the document is html.
+ *
  * Revision 1.13  2004/03/22 20:09:17  pelle
  * Added simple ledger for unit testing and in memory use
  *
@@ -149,6 +154,10 @@ public abstract class AbstractElementProxy implements ElementProxy {
 
     protected AbstractElementProxy(final String name, final Namespace ns) {
         this(DocumentHelper.createQName(name, ns));
+    }
+
+    protected AbstractElementProxy(final String name) {
+        this.element = DocumentHelper.createElement(name);
     }
 
     protected AbstractElementProxy(final QName qname) {
