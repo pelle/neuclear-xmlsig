@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+<document>
+
+	<properties>
+		<title>NeuClear.org - XML Signatures</title>
+		<author email="pelle@neubia.com">Pelle Braendgaard</author>
+	</properties>
+
+	<body>
+        <section name="New Release 0.8 with Interop">
+            <p>
+                [February 24th, 2003] New Release with much improved Interop. Some major problems were found here which
+                have been fixed. Please upgrade to this version to allow compatibility with other XMLSignature implementations.
+            </p>
+            <p>
+                Currently it supports the following:
+                <ul>
+                    <li>Enveloped Signatures</li>
+                    <li>Enveloping Signatures</li>
+                    <li>Detached Signatures</li>
+                    <li>RSA-SHA1 Signatures</li>
+                    <li>DSA-SHA1 Signatures</li>
+                    <li>Base64 Encoding</li>
+                    <li>SHA1 Digests</li>
+                    <li>Canonical XML</li>
+                    <li>Canonical XML With Comments</li>
+                    <li><tt>RSAKeyValue</tt></li>
+                    <li><tt>DSAKeyValue</tt></li>
+                </ul>
+                Missing but coming soon are:
+                <ul>
+                    <li>Support for arbitrary Transforms in the Reference tag</li>
+                    <li>XPath Transforms (Already written but not integrated)</li>
+                    <li>HMAC-SHA1 MAC</li>
+                    <li><tt>X509Data</tt></li>
+                </ul>
+                Thanks to <a href="mailto:ramses@computer.org">Ramses Morales</a> for lots of help with this release.
+                Ramses has been added as developer/comitter on the project.
+            </p>
+            <p>
+                An other small feature is a simple SOAP Client and Server implementation, which will probably be pulled out into
+                its own project soon.
+            </p>
+        </section>
+        <section name="NeuClear XMLSig API split out.">
+            <p>
+                [January 20th, 2003] As of today the XMLSig API has been split out of the main NeuClear Framework.
+                This is to make it easier to develop seperately and to hopefully allow other people to useit.
+            </p>
+        </section>
+		<section name="Introduction">
+			<p>
+                XML Signature API is a simple implementation of the XML-Signature standard from <a href="http://www.w3c.org">W3C</a>.
+                The main difference of this over Apache's implementation is that it uses Dom4J and hopefully should be faster. This has never been verified
+                so take it with a grain of salt.
+            </p>
+		</section>
+	</body>
+
+</document>

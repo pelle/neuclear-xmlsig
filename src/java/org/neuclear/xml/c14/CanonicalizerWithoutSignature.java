@@ -1,0 +1,61 @@
+package org.neuclear.xml.c14;
+
+import org.dom4j.QName;
+import org.neuclear.xml.transforms.TransformerFactory;
+import org.neuclear.xml.xmlsec.XMLSecTools;
+
+import java.io.Writer;
+
+/**
+ * (C) 2003 Antilles Software Ventures SA
+ * User: pelleb
+ * Date: Feb 8, 2003
+ * Time: 9:23:01 AM
+ * $Id: CanonicalizerWithoutSignature.java,v 1.1 2003/11/11 16:33:20 pelle Exp $
+ * $Log: CanonicalizerWithoutSignature.java,v $
+ * Revision 1.1  2003/11/11 16:33:20  pelle
+ * Initial revision
+ *
+ * Revision 1.3  2003/02/21 22:48:14  pelle
+ * New Test Infrastructure
+ * Added test keys in src/testdata/keys
+ * Modified tools to handle these keys
+ *
+ * Revision 1.2  2003/02/11 14:47:03  pelle
+ * Added benchmarking code.
+ * DigestValue is now a required part.
+ * If you pass a keypair when you sign, you get the PublicKey included as a KeyInfo block within the signature.
+ *
+ * Revision 1.1  2003/02/08 18:48:07  pelle
+ * The Signature phase has been rewritten.
+ * There now is a new Class called QuickEmbeddedSignature which is more in line with my original idea for this library.
+ * It simply has a template of the xml and signs it in a standard way.
+ * The original XMLSignature class is still used for verification and will in the future handle more thoroughly
+ * all the various flavours of XMLSig.
+ * XMLSecTools has got different flavours of canonicalize now. Including one where you can pass it a Canonicaliser to use.
+ * Of the new Canonicalizer's are CanonicalizerWithComments, which I accidently left out of the last commit.
+ * And CanonicalizerWithoutSignature which leaves out the Signature in the Canonicalization phase and is thus
+ * a lot more efficient than the previous approach.
+ *
+ */
+public class CanonicalizerWithoutSignature extends Canonicalizer{
+    public CanonicalizerWithoutSignature() {
+        this(null);
+    }
+
+    public CanonicalizerWithoutSignature(Writer writer) {
+        super(writer,XPATH_W_COMMENTS);
+    }
+    public static final String XPATH_W_COMMENTS = "(//. | //@* | //namespace::*| self::processing-instruction())[not(self::ds:Signature)]";
+
+    public static final String ALGORITHM="http://www.w3.org/TR/2001/REC-xml-c14n-20010315#WithComments";
+    {
+        TransformerFactory.registerTransformer(ALGORITHM,CanonicalizerWithoutSignature.class);
+    }
+
+//    public boolean matches(Node node) {
+//
+//        return super.matches(node)&&!(node instanceof Element && ((Element)node).getQName().equals(SIGNATURE));
+//    }
+//    private final static QName SIGNATURE=XMLSecTools.createQName("Signature");
+}

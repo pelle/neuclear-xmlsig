@@ -1,0 +1,17 @@
+<test><test2/><ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#"><ds:SignedInfo><ds:CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"/>
+<ds:SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"/>
+<ds:Reference><ds:Transforms><ds:Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"/><ds:Transform Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"/></ds:Transforms>
+<ds:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+<ds:DigestValue>
+B/P2qMqBvrZCYSa5RDuKHY9s8j4=
+</ds:DigestValue></ds:Reference>
+</ds:SignedInfo>
+<ds:SignatureValue>
+Vg4NE+LHAeUnIEFvGzIAJtF8yY8CsvmRjRkzPbEz1F6kG6I0rGpIeG8KU1IeF8W0vJ1no4FO78xtyOtA4Z8Rx2BmcbsUEZOTf7GC57qB5tvMoFllkt/QCsgMfYYV6yc3QEJkVMQkGiZX7bcCRSZ0i3q/JXuvZFe7RFGfpQkDzlk=
+</ds:SignatureValue>
+<ds:KeyInfo><ds:KeyValue><ds:RSAKeyValue><ds:Modulus>
+rEGrjExq15YrpNPUtiUaHtftSeYOJnQ8UCyb2AbOWO9HMZ23N/Gz5ZRCeDCWKAxlMcXb3HQBs0oHF6NG31umiYW13+VHGtgOa8LFKR8Ll9Ku3+wtnaxJjQq69alzgPK1DGD6kBz8Zzbp+b3v+YfkdUqz3Irdp9W9siIGjuv1BIM=
+</ds:Modulus><ds:Exponent>
+AQAB
+</ds:Exponent></ds:RSAKeyValue></ds:KeyValue></ds:KeyInfo>
+</ds:Signature></test>
