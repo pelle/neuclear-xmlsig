@@ -3,7 +3,7 @@
 
     <name>NeuClear XML Signature API</name>
     <id>neuclear-xmlsig</id>
-    <currentVersion>0.13</currentVersion>
+    <currentVersion>0.13.1</currentVersion>
     <inceptionYear>2002</inceptionYear>
     <package>org.neuclear</package>
     <logo>/images/logo.gif</logo>

@@ -1,5 +1,9 @@
-/* $Id: SOAPTools.java,v 1.8 2004/02/19 19:37:33 pelle Exp $
+/* $Id: SOAPTools.java,v 1.9 2004/04/30 15:13:23 pelle Exp $
  * $Log: SOAPTools.java,v $
+ * Revision 1.9  2004/04/30 15:13:23  pelle
+ * Added RESTTools for creating normal POST requests as handled by XMLInputStreamServlet
+ * Fixed bug in SignatureRequestServlet with regards to autosubmition to Mozilla based browsers such as FireFox.
+ *
  * Revision 1.8  2004/02/19 19:37:33  pelle
  * At times IntelliJ IDEA can cause some real hassle. On my last checkin it optimized away all of the dom4j and command line imports.
  * We'll now, Ive added them all back.
@@ -121,12 +125,12 @@ package org.neuclear.xml.soap;
 
 /**
  * @author pelleb
- * @version $Revision: 1.8 $
+ * @version $Revision: 1.9 $
  */
 
+import org.dom4j.*;
 import org.dom4j.io.SAXReader;
 import org.neuclear.commons.NeuClearException;
-import org.dom4j.*;
 
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -189,6 +193,7 @@ public final class SOAPTools {
             final OutputStream out = conn.getOutputStream();
             createSoapRequestString(out, request);
             out.close();
+
             return conn.getInputStream();
         } catch (IOException e) {
             throw new NeuClearException(e);
