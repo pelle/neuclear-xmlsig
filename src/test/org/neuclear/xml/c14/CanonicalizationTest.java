@@ -5,8 +5,12 @@ package org.neuclear.xml.c14;
  * User: pelleb
  * Date: Feb 3, 2003
  * Time: 6:54:20 AM
- * $Id: CanonicalizationTest.java,v 1.5 2004/03/02 23:30:44 pelle Exp $
+ * $Id: CanonicalizationTest.java,v 1.6 2004/03/02 23:50:45 pelle Exp $
  * $Log: CanonicalizationTest.java,v $
+ * Revision 1.6  2004/03/02 23:50:45  pelle
+ * minor changes.
+ * receiver didnt get checked in by idea in recent refactoring.
+ *
  * Revision 1.5  2004/03/02 23:30:44  pelle
  * Renamed SignatureInfo to SignedInfo as that is the name of the Element.
  * Made some changes in the Canonicalizer to make all the output verify in Aleksey's xmlsec library.
@@ -80,7 +84,7 @@ import java.io.*;
 
 public final class CanonicalizationTest extends TestCase {
 
-    private final static boolean ASSERT_FAIL = false; //Change this to assert failed documents
+    private final static boolean ASSERT_FAIL = true; //Change this to assert failed documents
 
     public CanonicalizationTest(final String s) {
         super(s);

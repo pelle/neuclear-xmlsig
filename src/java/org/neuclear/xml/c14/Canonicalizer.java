@@ -5,8 +5,12 @@ package org.neuclear.xml.c14;
  * User: pelleb
  * Date: Feb 3, 2003
  * Time: 5:56:42 AM
- * $Id: Canonicalizer.java,v 1.10 2004/03/02 23:30:43 pelle Exp $
+ * $Id: Canonicalizer.java,v 1.11 2004/03/02 23:50:45 pelle Exp $
  * $Log: Canonicalizer.java,v $
+ * Revision 1.11  2004/03/02 23:50:45  pelle
+ * minor changes.
+ * receiver didnt get checked in by idea in recent refactoring.
+ *
  * Revision 1.10  2004/03/02 23:30:43  pelle
  * Renamed SignatureInfo to SignedInfo as that is the name of the Element.
  * Made some changes in the Canonicalizer to make all the output verify in Aleksey's xmlsec library.
@@ -134,7 +138,6 @@ package org.neuclear.xml.c14;
 
 import org.dom4j.*;
 import org.dom4j.tree.NamespaceStack;
-import org.neuclear.commons.Utility;
 import org.neuclear.xml.ElementProxy;
 import org.neuclear.xml.XMLTools;
 import org.neuclear.xml.transforms.TransformerFactory;
@@ -347,11 +350,18 @@ public class Canonicalizer extends XPathTransform {
         if (isNamespaceDeclaration(ns)) {
             namespaceStack.push(ns);
             writeNamespace(ns, sorted);
-        } else if (ns.getURI() != null &&
-                ns.getURI().equals("") &&
-                element.getParent() != null &&
-                element.getParent().getNamespaceURI() != null
-                && !element.getParent().getNamespaceURI().equals("")
+//        } else if (ns.getURI() != null &&
+//                ns.getURI().equals("") &&
+//                element.getParent() != null &&
+//                element.getParent().getNamespaceURI() != null
+//                && !element.getParent().getNamespaceURI().equals("")
+        } else if (
+                (element.getParent() == null)
+                || (
+                !ns.getURI().equals(element.getParent().getNamespaceURI())
+                && ns.getPrefix().equals(element.getParent().getNamespacePrefix())///TODO where the hell and I'm going with this
+
+                )
         ) {
             writeNamespace(ns, sorted);
         }
@@ -443,8 +453,8 @@ public class Canonicalizer extends XPathTransform {
 
         // TODO This breaks example 3 from the Merlin Eight, but I'm not sure how to go about fixing it, due to DOM4J's
         // nondifferentiation between <test/> and <test xmlns=""/>
-        if (Utility.isEmpty(prefix) && Utility.isEmpty(namespace.getURI()))
-            return;
+//        if (Utility.isEmpty(prefix) && Utility.isEmpty(namespace.getURI()))
+//            return;
         writer.write(" xmlns");
         if (prefix != null && prefix.length() > 0) {
             writer.write(":");

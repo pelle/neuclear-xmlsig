@@ -1,5 +1,9 @@
-/* $Id: Reference.java,v 1.12 2004/03/02 23:30:43 pelle Exp $
+/* $Id: Reference.java,v 1.13 2004/03/02 23:50:45 pelle Exp $
  * $Log: Reference.java,v $
+ * Revision 1.13  2004/03/02 23:50:45  pelle
+ * minor changes.
+ * receiver didnt get checked in by idea in recent refactoring.
+ *
  * Revision 1.12  2004/03/02 23:30:43  pelle
  * Renamed SignatureInfo to SignedInfo as that is the name of the Element.
  * Made some changes in the Canonicalizer to make all the output verify in Aleksey's xmlsec library.
@@ -144,7 +148,7 @@ package org.neuclear.xml.xmlsec;
  * The Reference class implements the W3C XML Signature Spec Reference Object.
  * The basic contract says that once it has been instantiated the digest value within is valid.
  * @author pelleb
- * @version $Revision: 1.12 $
+ * @version $Revision: 1.13 $
  */
 
 import org.dom4j.Element;
@@ -242,9 +246,9 @@ public final class Reference extends AbstractXMLSigElement {
 
     private static byte[] createDigest(final Canonicalizer canon, Object root) throws XMLSecurityException {
         final byte[] value = canon.canonicalize(root);
-//        System.out.println("Canonicalized Reference:");
-//        System.out.println(new String(value));
-//        System.out.println("------");
+        System.out.println("Canonicalized Reference:");
+        System.out.println(new String(value));
+        System.out.println("------");
         return CryptoTools.digest(value);
     }
 
