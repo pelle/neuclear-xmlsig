@@ -7,10 +7,10 @@
 	</properties>
 
 	<body>
-   <section name="[12th of December 2003] Milestone Release 0.11">
+   <section name="[12th of December 2003] Release 0.11">
             <p>
                 Panama City, 12th of December, 2003. We are happy to announce
-                the milestone 0.11 release of NeuClear XMLSIG. Major new features are:
+                the 0.11 release of NeuClear XMLSIG. Major new features are:
             </p>
             <ul>
                 <li>Improvements to the various Servlets</li>
