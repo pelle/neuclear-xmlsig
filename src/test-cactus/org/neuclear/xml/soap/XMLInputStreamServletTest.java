@@ -6,6 +6,8 @@ import org.neuclear.commons.crypto.Base64;
 
 import javax.servlet.ServletException;
 import java.io.IOException;
+import java.io.ByteArrayOutputStream;
+import java.io.ByteArrayInputStream;
 
 /*
 NeuClear Distributed Transaction Clearing Platform
@@ -25,8 +27,12 @@ You should have received a copy of the GNU Lesser General Public
 License along with this library; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-$Id: XMLInputStreamServletTest.java,v 1.2 2003/11/28 00:12:36 pelle Exp $
+$Id: XMLInputStreamServletTest.java,v 1.3 2003/12/12 15:12:41 pelle Exp $
 $Log: XMLInputStreamServletTest.java,v $
+Revision 1.3  2003/12/12 15:12:41  pelle
+The ReceiverServletTest now passes.
+Add first stab at a SigningServletTest which currently doesnt pass.
+
 Revision 1.2  2003/11/28 00:12:36  pelle
 Getting the NeuClear web transactions working.
 
@@ -49,6 +55,22 @@ public class XMLInputStreamServletTest extends ServletTestCase {
 
     public void testBase64() throws IOException, ServletException {
         assertEquals(request.getContentType(), "application/x-www-form-urlencoded");
+        final MockXMLInputStreamServlet servlet = new MockXMLInputStreamServlet();
+        servlet.init(config);
+        servlet.service(request, response);
+        assertEquals(TESTSTRING, servlet.getLastInput());
+
+    }
+    public void beginRaw(final WebRequest theRequest) {
+        theRequest.setContentType("text/xml");
+        theRequest.setURL("http://users.neuclear.org", "/test", "/Service",
+                null, null);
+        theRequest.setUserData(new ByteArrayInputStream(TESTSTRING.getBytes()));
+
+    }
+
+    public void testRaw() throws IOException, ServletException {
+        assertEquals(request.getContentType(), "text/xml");
         final MockXMLInputStreamServlet servlet = new MockXMLInputStreamServlet();
         servlet.init(config);
         servlet.service(request, response);

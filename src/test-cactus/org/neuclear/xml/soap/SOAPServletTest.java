@@ -30,8 +30,12 @@ You should have received a copy of the GNU Lesser General Public
 License along with this library; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-$Id: SOAPServletTest.java,v 1.2 2003/12/12 12:32:49 pelle Exp $
+$Id: SOAPServletTest.java,v 1.3 2003/12/12 15:12:41 pelle Exp $
 $Log: SOAPServletTest.java,v $
+Revision 1.3  2003/12/12 15:12:41  pelle
+The ReceiverServletTest now passes.
+Add first stab at a SigningServletTest which currently doesnt pass.
+
 Revision 1.2  2003/12/12 12:32:49  pelle
 Working on getting the SOAPServletTest working under cactus
 
@@ -54,7 +58,7 @@ public class SOAPServletTest extends ServletTestCase{
         theRequest.setURL("http://users.neuclear.org", "/test", "/Service",
                 null, null);
        ByteArrayOutputStream bos=new ByteArrayOutputStream();
-       SOAPTools.createSoapRequestString(bos,"<test/");
+       SOAPTools.createSoapRequestString(bos,"<test>hello</test>");
        theRequest.setUserData(new ByteArrayInputStream(bos.toByteArray()));
      }
 
@@ -63,6 +67,7 @@ public class SOAPServletTest extends ServletTestCase{
         servlet.init(config);
         servlet.service(request, response);
         assertNotNull(servlet.getLast());
+        assertEquals(servlet.getLast().getName(),"test");
 
     }
 }

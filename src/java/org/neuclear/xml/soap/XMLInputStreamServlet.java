@@ -1,7 +1,9 @@
 package org.neuclear.xml.soap;
 
 import org.neuclear.commons.Utility;
+import org.neuclear.commons.NeuClearException;
 import org.neuclear.commons.crypto.Base64;
+import org.neuclear.xml.XMLException;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
@@ -32,8 +34,12 @@ You should have received a copy of the GNU Lesser General Public
 License along with this library; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-$Id: XMLInputStreamServlet.java,v 1.4 2003/11/28 00:12:36 pelle Exp $
+$Id: XMLInputStreamServlet.java,v 1.5 2003/12/12 15:12:40 pelle Exp $
 $Log: XMLInputStreamServlet.java,v $
+Revision 1.5  2003/12/12 15:12:40  pelle
+The ReceiverServletTest now passes.
+Add first stab at a SigningServletTest which currently doesnt pass.
+
 Revision 1.4  2003/11/28 00:12:36  pelle
 Getting the NeuClear web transactions working.
 
@@ -133,7 +139,7 @@ public abstract class XMLInputStreamServlet extends HttpServlet {
     }
 
 
-    protected abstract void handleInputStream(InputStream is, HttpServletRequest request, HttpServletResponse response) throws IOException;
+    protected abstract void handleInputStream(InputStream is, HttpServletRequest request, HttpServletResponse response) throws IOException, NeuClearException, XMLException;
 
     protected ServletContext ctx;
 
