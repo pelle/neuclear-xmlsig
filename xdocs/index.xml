@@ -7,6 +7,33 @@
     </properties>
 
     <body>
+        <section name="[9th of September 2004] Release 0.14">
+            <p>
+                        Panama City, 9th of September 2004. We are happy to announce
+                        the 0.14 release of NeuClear XMLSIG.
+            </p>
+            <h2>New Feature</h2>
+            <ul>
+                <li>[
+                    <a href='http://jira.neuclear.org//browse/XMLSIG-18'>XMLSIG-18</a>] - Use XPP3 as dom4j xml reader
+                </li>
+            </ul>
+            <h2>Task</h2>
+            <ul>
+                <li>[
+                    <a href='http://jira.neuclear.org//browse/XMLSIG-17'>XMLSIG-17</a>] - Bump dom4j version to 1.5
+                </li>
+                <li>[
+                    <a href='http://jira.neuclear.org//browse/XMLSIG-21'>XMLSIG-21</a>] - Verify compatibility with JDK5
+                </li>
+            </ul>
+            <p>
+                <a href="http://jira.neuclear.org/secure/ReleaseNote.jspa?projectId=10020&amp;styleName=Html&amp;version=10053">See full list.</a>
+            </p>
+            <p>
+                <a href="http://sourceforge.net/project/showfiles.php?group_id=90470">Download it today and join in the NeuClear revolution</a>.
+            </p>
+        </section>
         <section name="[28th of April 2004] Release 0.13">
             <p>
                         Panama City, 28th of April 2004. We are happy to announce

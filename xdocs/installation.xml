@@ -23,6 +23,9 @@
                     <li>
                         <a href="http://jtidy.sourceforge.net/">JTidy</a>
                     </li>
+                    <li>
+                        <a href="http://www.extreme.indiana.edu/xgws/xsoap/xpp/mxp1/">MXP1 XPP3 Parser (Recommended)</a>
+                    </li>
                 </ul>
                 With Dom4J make sure you include the full jar in your classpath.
                 If you plan on using the SOAP Servlet functionality of the library you also will need to have the

@@ -21,7 +21,7 @@
                         <a href="http://www.dom4j.org">Dom4J</a> XML
                         <a href="http://www.dom4j.org/apidocs/org/dom4j/Element.html">Element</a>
                     </li>
-                    <li>An RSA Private Key</li>
+                    <li>An RSA or DSA Private Key</li>
                 </ul>
                 Look at the following code snippet for an example:
             </p>
