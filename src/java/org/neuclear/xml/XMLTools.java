@@ -1,6 +1,9 @@
 /*
- * $Id: XMLTools.java,v 1.6 2004/01/14 16:34:27 pelle Exp $
+ * $Id: XMLTools.java,v 1.7 2004/04/18 01:03:48 pelle Exp $
  * $Log: XMLTools.java,v $
+ * Revision 1.7  2004/04/18 01:03:48  pelle
+ * Added another varient of the id attribute to the getElementById method.
+ *
  * Revision 1.6  2004/01/14 16:34:27  pelle
  * New model of references and signatures now pretty much works.
  * I am still not 100% sure on the created enveloping signatures. I need to do more testing.
@@ -141,7 +144,7 @@ package org.neuclear.xml;
 
 /**
  * @author pelleb
- * @version $Revision: 1.6 $
+ * @version $Revision: 1.7 $
  */
 
 import org.dom4j.*;
@@ -182,13 +185,15 @@ public final class XMLTools {
     public static Document newDocument() {
         return DocumentHelper.createDocument();
     }
-    public static Document loadDocument(final String url) throws XMLException{
+
+    public static Document loadDocument(final String url) throws XMLException {
         try {
             return loadDocument(new URL(url));
         } catch (MalformedURLException e) {
-            throw new XMLException(e);            
+            throw new XMLException(e);
         }
     }
+
     public static Document loadDocument(final URL url) throws XMLException {
         try {
             final SAXReader xmlReader = new SAXReader();
@@ -197,6 +202,7 @@ public final class XMLTools {
             throw new XMLException(e);
         }
     }
+
     public static Document loadDocument(final InputStream is) throws XMLException {
         try {
             final SAXReader xmlReader = new SAXReader();
@@ -297,31 +303,40 @@ public final class XMLTools {
     public static void rethrowException(final Throwable e) throws XMLException {
         throw new XMLException(e);
     }
+
     /**
      * This is used to find an Elemente with a given ID.
      * This is necessary because of Dom4j's use of the ID attribute
      * and not the more common in XMLSignature Id attribute.
+     *
      * @param elem
      * @param id
      * @return
      */
-    public static Element getByID(Element elem,String id){
-        return getByID(elem.getDocument(),id);
+    public static Element getByID(Element elem, String id) {
+        return getByID(elem.getDocument(), id);
     }
+
     /**
      * This is used to find an Elemente with a given ID.
      * This is necessary because of Dom4j's use of the ID attribute
      * and not the more common in XMLSignature Id attribute.
+     *
      * @param doc
      * @param id
      * @return
      */
-    public static Element getByID(Document doc,String id){
-        Element object=doc.elementByID(id);
-        if (object!=null)
+    public static Element getByID(Document doc, String id) {
+        Element object = doc.elementByID(id);
+        if (object != null)
             return object;
-        XPath xp=DocumentHelper.createXPath("//*[@Id='"+id+"']");
-        return (Element) xp.selectSingleNode(doc);
+        XPath xp = DocumentHelper.createXPath("//*[@Id='" + id + "']");
+        object = (Element) xp.selectSingleNode(doc);
+        if (object != null)
+            return object;
+        xp = DocumentHelper.createXPath("//*[@id='" + id + "']");
+        object = (Element) xp.selectSingleNode(doc);
+        return object;
     }
 
 }
