@@ -16,7 +16,7 @@ import java.net.URL;
  *
  * @author <a href="mailto:pelle@neubia.com">Pelle Braendgaard</a>
  * @author <a href="mailto:jstrachan@apache.org">James Strachan</a>
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  */
 public class XPP3Reader {
 
@@ -253,9 +253,10 @@ public class XPP3Reader {
 //        pp.setFeature(XmlPullParser.FEATURE_VALIDATION, true);
 //        pp.setFeature("http://xmlpull.org/v1/doc/features.html#xml-roundtrip", true);
         while (true) {
-//            int type = pp.next();
-            int type = pp.nextToken();
+            int type = pp.next();
+//            int type = pp.nextToken();
             switch (type) {
+/*
                 case XmlPullParser.PROCESSING_INSTRUCTION:
                     {
                         String text = pp.getText();
@@ -290,6 +291,7 @@ public class XPP3Reader {
 
                     }
 
+*/
                 case XmlPullParser.END_DOCUMENT:
                     {
                         return document;
@@ -402,5 +404,5 @@ public class XPP3Reader {
  *
  * Copyright 2001-2004 (C) MetaStuff, Ltd. All Rights Reserved.
  *
- * $Id: XPP3Reader.java,v 1.2 2004/09/07 19:19:11 pelle Exp $
+ * $Id: XPP3Reader.java,v 1.3 2004/09/07 19:34:03 pelle Exp $
  */
