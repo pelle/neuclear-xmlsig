@@ -1,7 +1,17 @@
-/* $Id: SOAPTools.java,v 1.1 2003/11/11 16:33:23 pelle Exp $
+/* $Id: SOAPTools.java,v 1.2 2003/11/19 23:33:16 pelle Exp $
  * $Log: SOAPTools.java,v $
- * Revision 1.1  2003/11/11 16:33:23  pelle
- * Initial revision
+ * Revision 1.2  2003/11/19 23:33:16  pelle
+ * Signers now can generatekeys via the generateKey() method.
+ * Refactored the relationship between SignedNamedObject and NamedObjectBuilder a bit.
+ * SignedNamedObject now contains the full xml which is returned with getEncoded()
+ * This means that it is now possible to further send on or process a SignedNamedObject, leaving
+ * NamedObjectBuilder for its original purposes of purely generating new Contracts.
+ * NamedObjectBuilder.sign() now returns a SignedNamedObject which is the prefered way of processing it.
+ * Updated all major interfaces that used the old model to use the new model.
+ *
+ * Revision 1.1.1.1  2003/11/11 16:33:23  pelle
+ * Moved over from neudist.org
+ * Moved remaining common utilities into commons
  *
  * Revision 1.9  2003/11/10 17:42:18  pelle
  * The AssetController interface has been more or less finalized.
@@ -85,12 +95,12 @@ package org.neuclear.xml.soap;
 
 /**
  * @author pelleb
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 
-import org.dom4j.Element;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
+import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 import org.neuclear.commons.NeuClearException;
 
@@ -110,13 +120,15 @@ public class SOAPTools {
             throw new NeuClearException(e);
         }
     }
-    public static InputStream soapRequest(String endpoint, Element request, String soapAction) throws NeuClearException {
+
+    public static InputStream soapRequest(String endpoint, String request, String soapAction) throws NeuClearException {
         try {
             return soapRequest(new URL(endpoint), request, soapAction);
         } catch (MalformedURLException e) {
             throw new NeuClearException(e);
         }
     }
+
     public static Element soapRequestElement(URL endpoint, Element request, String soapAction) throws NeuClearException {
         try {
             return soapRequestElement(endpoint.openConnection(), request, soapAction);
@@ -125,7 +137,8 @@ public class SOAPTools {
         }
 
     }
-    public static InputStream soapRequest(URL endpoint, Element request, String soapAction) throws NeuClearException {
+
+    public static InputStream soapRequest(URL endpoint, String request, String soapAction) throws NeuClearException {
         try {
             return soapRequest(endpoint.openConnection(), request, soapAction);
         } catch (IOException e) {
@@ -134,6 +147,10 @@ public class SOAPTools {
     }
 
     public static InputStream soapRequest(URLConnection conn, Element request, String soapAction) throws NeuClearException {
+        return soapRequest(conn, request.asXML(), soapAction);
+    }
+
+    public static InputStream soapRequest(URLConnection conn, String request, String soapAction) throws NeuClearException {
         try {
             //Set Headers
             conn.setDoOutput(true);
@@ -145,9 +162,7 @@ public class SOAPTools {
             }
             OutputStream out = conn.getOutputStream();
             out.write(SOAP_START);
-            out.write(request.asXML().getBytes());
-            System.out.println("Request");
-            System.out.println(request.asXML());
+            out.write(request.getBytes());
             out.write(SOAP_END);
             out.close();
             return conn.getInputStream();
@@ -160,7 +175,7 @@ public class SOAPTools {
         try {
             BufferedReader in = new BufferedReader(
                     new InputStreamReader(
-                        soapRequest(conn,request,soapAction)
+                            soapRequest(conn, request, soapAction)
                     ));
             SAXReader reader = new SAXReader();
             Document document = reader.read(in);

@@ -1,7 +1,17 @@
-/* $Id: Reference.java,v 1.1 2003/11/11 16:33:26 pelle Exp $
+/* $Id: Reference.java,v 1.2 2003/11/19 23:33:17 pelle Exp $
  * $Log: Reference.java,v $
- * Revision 1.1  2003/11/11 16:33:26  pelle
- * Initial revision
+ * Revision 1.2  2003/11/19 23:33:17  pelle
+ * Signers now can generatekeys via the generateKey() method.
+ * Refactored the relationship between SignedNamedObject and NamedObjectBuilder a bit.
+ * SignedNamedObject now contains the full xml which is returned with getEncoded()
+ * This means that it is now possible to further send on or process a SignedNamedObject, leaving
+ * NamedObjectBuilder for its original purposes of purely generating new Contracts.
+ * NamedObjectBuilder.sign() now returns a SignedNamedObject which is the prefered way of processing it.
+ * Updated all major interfaces that used the old model to use the new model.
+ *
+ * Revision 1.1.1.1  2003/11/11 16:33:26  pelle
+ * Moved over from neudist.org
+ * Moved remaining common utilities into commons
  *
  * Revision 1.14  2003/02/24 13:32:24  pelle
  * Final doc changes for 0.8
@@ -41,7 +51,7 @@
  * Modified tools to handle these keys
  *
  * Revision 1.7  2003/02/16 00:24:21  pelle
- * getDigest() was broken in Reference.java
+ * getEncoded() was broken in Reference.java
  *
  * Revision 1.6  2003/02/11 14:50:24  pelle
  * Trying onemore time. Added the benchmarking code.
@@ -87,22 +97,20 @@ package org.neuclear.xml.xmlsec;
 
 /**
  * @author pelleb
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 
 import org.dom4j.Element;
-import org.neuclear.commons.crypto.Base64;
-import org.neuclear.commons.crypto.CryptoTools;
-import org.neuclear.commons.crypto.CryptoException;
 import org.neuclear.commons.Utility;
+import org.neuclear.commons.crypto.Base64;
+import org.neuclear.commons.crypto.CryptoException;
+import org.neuclear.commons.crypto.CryptoTools;
 import org.neuclear.xml.XMLException;
 import org.neuclear.xml.XMLTools;
 import org.neuclear.xml.c14.Canonicalizer;
 import org.neuclear.xml.c14.CanonicalizerWithComments;
 import org.neuclear.xml.c14.CanonicalizerWithoutSignature;
-import org.neuclear.xml.transforms.ClearTransform;
 import org.neuclear.xml.transforms.Transform;
-import org.neuclear.xml.transforms.TransformerFactory;
 
 import java.io.File;
 import java.util.Iterator;
@@ -114,19 +122,19 @@ public class Reference extends AbstractXMLSigElement {
     /**
      * Currently only RSA
      */
-    public Reference(Element root, String uri,SignatureInfo si,int sigtype) throws XMLException {
+    public Reference(Element root, String uri, SignatureInfo si, int sigtype) throws XMLException {
         super(Reference.TAG_NAME);
         this.root = root;
-        this.si=si;
-        xmlsigType=sigtype;
+        this.si = si;
+        xmlsigType = sigtype;
 
 //        findRefElement();
-        if (root==null)
+        if (root == null)
             loadReference(uri);
-        if (getSigType()==XMLSIGTYPE_ENVELOPED)
+        if (getSigType() == XMLSIGTYPE_ENVELOPED)
             addTransform("http://www.w3.org/2000/09/xmldsig#enveloped-signature");
-        else if (getSigType()==XMLSIGTYPE_ENVELOPING) {
-            root=si.getSig().getElement().element("Object");
+        else if (getSigType() == XMLSIGTYPE_ENVELOPING) {
+            root = si.getSig().getElement().element("Object");
 //            System.out.println(new String(canonicalizeReference()));// Just debugging here
         }
         addTransform("http://www.w3.org/TR/2001/REC-xml-c14n-20010315");
@@ -137,11 +145,11 @@ public class Reference extends AbstractXMLSigElement {
         setDigest();
     }
 
-    public Reference(Element elem,SignatureInfo si) throws XMLSecurityException {
+    public Reference(Element elem, SignatureInfo si) throws XMLSecurityException {
         super(elem);
         if (!elem.getQName().getName().equals(TAG_NAME))
             throw new XMLSecurityException("Element: " + elem.getQualifiedName() + " is not a valid: " + XMLSecTools.NS_DS.getPrefix() + ":" + TAG_NAME);
-        this.si=si;
+        this.si = si;
         // Here we will try to get work out Root
         findRefElement();
         // TODO parse Transforms
@@ -151,19 +159,19 @@ public class Reference extends AbstractXMLSigElement {
         Element sigElement = si.getSig().getElement();
         Element objectElem = sigElement.element(XMLSecTools.createQName("Object"));
 
-        if (objectElem!=null) {  // Enveloping
-            xmlsigType=XMLSIGTYPE_ENVELOPING;
-            List contents=objectElem.content();
-            if (contents.size()==1)
-                root=contents.get(0);
+        if (objectElem != null) {  // Enveloping
+            xmlsigType = XMLSIGTYPE_ENVELOPING;
+            List contents = objectElem.content();
+            if (contents.size() == 1)
+                root = contents.get(0);
             else
-                root=contents;
-            root=objectElem;
+                root = contents;
+            root = objectElem;
         } else if (sigElement.getParent() != null) { // Enveloped
-            xmlsigType=XMLSIGTYPE_ENVELOPED;
+            xmlsigType = XMLSIGTYPE_ENVELOPED;
             root = getElement().getDocument();
-        } else  {// Detached
-            xmlsigType=XMLSIGTYPE_DETACHED;
+        } else {// Detached
+            xmlsigType = XMLSIGTYPE_DETACHED;
             loadReference(getElement().attributeValue("URI"));
         }
     }
@@ -172,7 +180,7 @@ public class Reference extends AbstractXMLSigElement {
         if (Utility.isEmpty(refuri))
             throw new XMLSecurityException("XMLSignature is not linked to Document");
         try {
-            root=XMLTools.loadDocument(new File(refuri)).getRootElement();
+            root = XMLTools.loadDocument(new File(refuri)).getRootElement();
         } catch (XMLException e) {
             XMLSecTools.rethrowException(e);
         }
@@ -192,14 +200,15 @@ public class Reference extends AbstractXMLSigElement {
 //            tran = new ClearTransform();
 //        }
 //        transforms.add(tran);
-        transformsElement.addElement(XMLSecTools.createQName("Transform")).addAttribute("Algorithm",algorithm);
+        transformsElement.addElement(XMLSecTools.createQName("Transform")).addAttribute("Algorithm", algorithm);
     }
 
     /**
-     * Method getDigest
+     * Method getEncoded
      * This returns the Digest
-     * @return
-     * @throws XMLSecurityException
+     * 
+     * @return 
+     * @throws XMLSecurityException 
      */
     public byte[] getDigest() throws XMLSecurityException, CryptoException {
         Element sv = (Element) getElement().element(XMLSecTools.createQName("DigestValue"));
@@ -207,11 +216,12 @@ public class Reference extends AbstractXMLSigElement {
             return XMLSecTools.decodeBase64Element(sv);
         return null;
     }
+
     void setDigest() throws XMLSecurityException {
         Element sv = (Element) getElement().element(XMLSecTools.createQName("DigestValue"));
-        byte dig[]=generateRefenceDigest();
-        if (sv==null)
-            getElement().add(XMLSecTools.base64ToElement("DigestValue",dig));
+        byte dig[] = generateRefenceDigest();
+        if (sv == null)
+            getElement().add(XMLSecTools.base64ToElement("DigestValue", dig));
         else
             sv.addText(Base64.encode(dig));
     }
@@ -219,7 +229,7 @@ public class Reference extends AbstractXMLSigElement {
     //TODO Rewrite this bit
     private final Object performTransforms() {
 //        Element subject = root;//(Element) root.clone();
-        Object subject=root;
+        Object subject = root;
         Iterator iter = transforms.iterator();
         while (iter.hasNext() && root != null) {
             Transform transform = (Transform) iter.next();
@@ -229,9 +239,9 @@ public class Reference extends AbstractXMLSigElement {
     }
 
     private Canonicalizer getCanonicalizer() {
-        if (getSigType()==Reference.XMLSIGTYPE_ENVELOPED)
+        if (getSigType() == Reference.XMLSIGTYPE_ENVELOPED)
             return new CanonicalizerWithoutSignature();
-        else if (c14nType==Canonicalizer.C14NTYPE_WITH_COMMENTS)
+        else if (c14nType == Canonicalizer.C14NTYPE_WITH_COMMENTS)
             return new CanonicalizerWithComments();
         return new Canonicalizer();
     }
@@ -241,14 +251,15 @@ public class Reference extends AbstractXMLSigElement {
     }
 
     protected final byte[] canonicalizeReference() {
-        return XMLSecTools.canonicalize(getCanonicalizer(),getReferenceElement());
+        return XMLSecTools.canonicalize(getCanonicalizer(), getReferenceElement());
     }
+
     protected final byte[] generateRefenceDigest() {
         return CryptoTools.digest(canonicalizeReference());
     }
 
     public final boolean verifyReferences() throws XMLSecurityException, CryptoException {
-        return CryptoTools.equalByteArrays(generateRefenceDigest(),getDigest());
+        return CryptoTools.equalByteArrays(generateRefenceDigest(), getDigest());
     }
 
     public String getTagName() {
@@ -265,11 +276,11 @@ public class Reference extends AbstractXMLSigElement {
     private static String TAG_NAME = "Reference";
     private List transforms;
     private Element transformsElement;
-    private int xmlsigType=0;
+    private int xmlsigType = 0;
 
-    public final static int XMLSIGTYPE_ENVELOPED=0;
-    public final static int XMLSIGTYPE_ENVELOPING=1;
-    public final static int XMLSIGTYPE_DETACHED=2;
+    public final static int XMLSIGTYPE_ENVELOPED = 0;
+    public final static int XMLSIGTYPE_ENVELOPING = 1;
+    public final static int XMLSIGTYPE_DETACHED = 2;
 
     private int c14nType;
 

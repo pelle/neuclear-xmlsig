@@ -1,8 +1,18 @@
 /*
- * $Id: AbstractElementProxy.java,v 1.1 2003/11/11 16:33:20 pelle Exp $
+ * $Id: AbstractElementProxy.java,v 1.2 2003/11/19 23:33:17 pelle Exp $
  * $Log: AbstractElementProxy.java,v $
- * Revision 1.1  2003/11/11 16:33:20  pelle
- * Initial revision
+ * Revision 1.2  2003/11/19 23:33:17  pelle
+ * Signers now can generatekeys via the generateKey() method.
+ * Refactored the relationship between SignedNamedObject and NamedObjectBuilder a bit.
+ * SignedNamedObject now contains the full xml which is returned with getEncoded()
+ * This means that it is now possible to further send on or process a SignedNamedObject, leaving
+ * NamedObjectBuilder for its original purposes of purely generating new Contracts.
+ * NamedObjectBuilder.sign() now returns a SignedNamedObject which is the prefered way of processing it.
+ * Updated all major interfaces that used the old model to use the new model.
+ *
+ * Revision 1.1.1.1  2003/11/11 16:33:20  pelle
+ * Moved over from neudist.org
+ * Moved remaining common utilities into commons
  *
  * Revision 1.7  2003/11/09 03:27:09  pelle
  * More house keeping and shuffling about mainly pay
@@ -23,7 +33,7 @@
  * Revision 1.3  2003/02/14 21:13:59  pelle
  * The AbstractElementProxy has a new final method .asXML()
  * which is similar to DOM4J's but it outputs the xml in the compact format and not the pretty format, thus not causing problems with Canonicalization.
- * You can now also easily get the digest of a SignedElement with the new .getDigest() value.
+ * You can now also easily get the digest of a SignedElement with the new .getEncoded() value.
  *
  * Revision 1.2  2003/02/11 14:47:02  pelle
  * Added benchmarking code.

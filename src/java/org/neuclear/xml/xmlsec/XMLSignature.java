@@ -1,7 +1,17 @@
-/* $Id: XMLSignature.java,v 1.1 2003/11/11 16:33:27 pelle Exp $
+/* $Id: XMLSignature.java,v 1.2 2003/11/19 23:33:17 pelle Exp $
  * $Log: XMLSignature.java,v $
- * Revision 1.1  2003/11/11 16:33:27  pelle
- * Initial revision
+ * Revision 1.2  2003/11/19 23:33:17  pelle
+ * Signers now can generatekeys via the generateKey() method.
+ * Refactored the relationship between SignedNamedObject and NamedObjectBuilder a bit.
+ * SignedNamedObject now contains the full xml which is returned with getEncoded()
+ * This means that it is now possible to further send on or process a SignedNamedObject, leaving
+ * NamedObjectBuilder for its original purposes of purely generating new Contracts.
+ * NamedObjectBuilder.sign() now returns a SignedNamedObject which is the prefered way of processing it.
+ * Updated all major interfaces that used the old model to use the new model.
+ *
+ * Revision 1.1.1.1  2003/11/11 16:33:27  pelle
+ * Moved over from neudist.org
+ * Moved remaining common utilities into commons
  *
  * Revision 1.18  2003/11/09 03:27:09  pelle
  * More house keeping and shuffling about mainly pay
@@ -59,7 +69,7 @@
  * Revision 1.7  2003/02/14 21:14:08  pelle
  * The AbstractElementProxy has a new final method .asXML()
  * which is similar to DOM4J's but it outputs the xml in the compact format and not the pretty format, thus not causing problems with Canonicalization.
- * You can now also easily get the digest of a SignedElement with the new .getDigest() value.
+ * You can now also easily get the digest of a SignedElement with the new .getEncoded() value.
  *
  * Revision 1.6  2003/02/11 14:50:24  pelle
  * Trying onemore time. Added the benchmarking code.
@@ -112,14 +122,13 @@ package org.neuclear.xml.xmlsec;
 
 /**
  * @author pelleb
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
-import org.neuclear.commons.crypto.Base64;
-import org.neuclear.commons.crypto.CryptoTools;
 import org.neuclear.commons.crypto.CryptoException;
+import org.neuclear.commons.crypto.CryptoTools;
 import org.neuclear.xml.XMLException;
 
 import java.security.KeyPair;
@@ -134,10 +143,11 @@ import java.security.interfaces.RSAPrivateKey;
 public class XMLSignature extends AbstractXMLSigElement {
     /**
      * Creates an Enveloped (Embedded) Signature object based on the given element root
-     * @param key
-     * @param root
-     * @param uri
-     * @throws XMLSecurityException
+     * 
+     * @param key  
+     * @param root 
+     * @param uri  
+     * @throws XMLSecurityException 
      */
     public XMLSignature(PrivateKey key, Element root, String uri) throws XMLSecurityException, CryptoException {
         this(key, null, root, uri);
@@ -145,10 +155,11 @@ public class XMLSignature extends AbstractXMLSigElement {
 
     /**
      * Creates an Enveloped (Embedded) Signature object based on the given element root
-     * @param keypair
-     * @param root
-     * @param uri
-     * @throws XMLSecurityException
+     * 
+     * @param keypair 
+     * @param root    
+     * @param uri     
+     * @throws XMLSecurityException 
      */
     public XMLSignature(KeyPair keypair, Element root, String uri) throws XMLSecurityException, CryptoException {
         this(keypair.getPrivate(), keypair.getPublic(), root, uri);
@@ -156,12 +167,12 @@ public class XMLSignature extends AbstractXMLSigElement {
 
     /**
      * Creates a Signature object based on given element root.
-     *
-     * @param keypair
-     * @param root
-     * @param uri
-     * @param type Reference.XMLSIGTYPE_ENVELOPED,Reference.XMLSIGTYPE_ENVELOPING or Reference.XMLSIGTYPE_DETACHED
-     * @throws XMLSecurityException
+     * 
+     * @param keypair 
+     * @param root    
+     * @param uri     
+     * @param type    Reference.XMLSIGTYPE_ENVELOPED,Reference.XMLSIGTYPE_ENVELOPING or Reference.XMLSIGTYPE_DETACHED
+     * @throws XMLSecurityException 
      */
     public XMLSignature(KeyPair keypair, Element root, String uri, int type) throws XMLSecurityException, CryptoException {
         this(keypair.getPrivate(), keypair.getPublic(), root, uri, type);
@@ -208,9 +219,9 @@ public class XMLSignature extends AbstractXMLSigElement {
 
     /**
      * Method getPublicKey
-     *
-     * @return
-     * @throws XMLSecurityException
+     * 
+     * @return 
+     * @throws XMLSecurityException 
      */
     public byte[] getSignature() throws XMLSecurityException, CryptoException {
         Element sigVal = getElement().element("SignatureValue");
