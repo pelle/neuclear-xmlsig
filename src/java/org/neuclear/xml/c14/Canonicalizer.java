@@ -5,8 +5,15 @@ package org.neuclear.xml.c14;
  * User: pelleb
  * Date: Feb 3, 2003
  * Time: 5:56:42 AM
- * $Id: Canonicalizer.java,v 1.9 2004/02/19 19:37:33 pelle Exp $
+ * $Id: Canonicalizer.java,v 1.10 2004/03/02 23:30:43 pelle Exp $
  * $Log: Canonicalizer.java,v $
+ * Revision 1.10  2004/03/02 23:30:43  pelle
+ * Renamed SignatureInfo to SignedInfo as that is the name of the Element.
+ * Made some changes in the Canonicalizer to make all the output verify in Aleksey's xmlsec library.
+ * Unfortunately this breaks example 3 of merlin-eight's canonicalization interop tests, because dom4j afaik
+ * can't tell the difference between <test/> and <test xmlns=""/>.
+ * Changed XMLSignature it is now has less repeated code.
+ *
  * Revision 1.9  2004/02/19 19:37:33  pelle
  * At times IntelliJ IDEA can cause some real hassle. On my last checkin it optimized away all of the dom4j and command line imports.
  * We'll now, Ive added them all back.
@@ -125,8 +132,9 @@ package org.neuclear.xml.c14;
  *
  */
 
-import org.dom4j.tree.NamespaceStack;
 import org.dom4j.*;
+import org.dom4j.tree.NamespaceStack;
+import org.neuclear.commons.Utility;
 import org.neuclear.xml.ElementProxy;
 import org.neuclear.xml.XMLTools;
 import org.neuclear.xml.transforms.TransformerFactory;
@@ -330,8 +338,12 @@ public class Canonicalizer extends XPathTransform {
         writer.write(qualifiedName);
 
         final int previouslyDeclaredNamespaces = namespaceStack.size();
-        final Namespace ns = element.getNamespace();
         final TreeMap sorted = new TreeMap();
+
+        if (previouslyDeclaredNamespaces == 0) {
+            writeParentNS(element, sorted);
+        }
+        final Namespace ns = element.getNamespace();
         if (isNamespaceDeclaration(ns)) {
             namespaceStack.push(ns);
             writeNamespace(ns, sorted);
@@ -370,6 +382,18 @@ public class Canonicalizer extends XPathTransform {
 
 //        if (element.getSignatory()==null)
 //           writer.write(LF);
+    }
+
+    private void writeParentNS(final Element element, final TreeMap sorted) throws IOException {
+        Element parent = element.getParent();
+        if (parent != null) {
+            final Namespace ns = parent.getNamespace();
+            if (isNamespaceDeclaration(ns)) {
+                namespaceStack.push(ns);
+                writeNamespace(ns, sorted);
+            }
+            writeParentNS(parent, sorted);
+        }
     }
 
     private void writeNamespace(final Namespace namespace, final TreeMap sorted) throws IOException {
@@ -416,6 +440,11 @@ public class Canonicalizer extends XPathTransform {
 
     private void writeNSAttribute(final Namespace namespace) throws IOException {
         final String prefix = namespace.getPrefix();
+
+        // TODO This breaks example 3 from the Merlin Eight, but I'm not sure how to go about fixing it, due to DOM4J's
+        // nondifferentiation between <test/> and <test xmlns=""/>
+        if (Utility.isEmpty(prefix) && Utility.isEmpty(namespace.getURI()))
+            return;
         writer.write(" xmlns");
         if (prefix != null && prefix.length() > 0) {
             writer.write(":");

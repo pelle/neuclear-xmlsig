@@ -1,5 +1,12 @@
-/* $Id: SignatureInfo.java,v 1.6 2004/01/14 06:42:38 pelle Exp $
- * $Log: SignatureInfo.java,v $
+/* $Id: SignedInfo.java,v 1.1 2004/03/02 23:30:43 pelle Exp $
+ * $Log: SignedInfo.java,v $
+ * Revision 1.1  2004/03/02 23:30:43  pelle
+ * Renamed SignatureInfo to SignedInfo as that is the name of the Element.
+ * Made some changes in the Canonicalizer to make all the output verify in Aleksey's xmlsec library.
+ * Unfortunately this breaks example 3 of merlin-eight's canonicalization interop tests, because dom4j afaik
+ * can't tell the difference between <test/> and <test xmlns=""/>.
+ * Changed XMLSignature it is now has less repeated code.
+ *
  * Revision 1.6  2004/01/14 06:42:38  pelle
  * Got rid of the verifyXXX() methods
  *
@@ -27,7 +34,7 @@
  * Moved remaining common utilities into commons
  *
  * Revision 1.9  2003/11/08 20:27:02  pelle
- * Updated the Signer interface to return a key type to be used for XML SignatureInfo. Thus we now support DSA sigs yet again.
+ * Updated the Signer interface to return a key type to be used for XML SignedInfo. Thus we now support DSA sigs yet again.
  *
  * Revision 1.8  2003/02/24 12:57:37  pelle
  * Sorted out problem with signing enveloping signatures.
@@ -74,7 +81,7 @@
  * First Independent commit of the Independent XML-Signature API for NeuDist.
  *
  * Revision 1.3  2002/10/10 21:29:31  pelle
- * Oops. XML-Signature's SignedInfo element I had coded as SignatureInfo
+ * Oops. XML-Signature's SignedInfo element I had coded as SignedInfo
  * As I thought Canonicalisation doesnt seem to be standard.
  * Updated the SignedServlet to default to using ~/.neuclear/signers.ks
  *
@@ -86,7 +93,7 @@ package org.neuclear.xml.xmlsec;
 
 /**
  * @author pelleb
- * @version $Revision: 1.6 $
+ * @version $Revision: 1.1 $
  */
 
 import org.dom4j.Element;
@@ -98,9 +105,9 @@ import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.Signature;
 
-public final class SignatureInfo extends AbstractXMLSigElement {
-    public SignatureInfo(final Element root, final int sigalg, final int sigtype) throws XMLSecurityException {
-        super(SignatureInfo.TAG_NAME);
+public final class SignedInfo extends AbstractXMLSigElement {
+    public SignedInfo(final Element root, final int sigalg, final int sigtype) throws XMLSecurityException {
+        super(SignedInfo.TAG_NAME);
         this.algType = sigalg;
 
         final Element cm = XMLSecTools.createElementInSignatureSpace("CanonicalizationMethod");
@@ -109,7 +116,7 @@ public final class SignatureInfo extends AbstractXMLSigElement {
             addElement(cm);
 
             final Element sm = XMLSecTools.createElementInSignatureSpace("SignatureMethod");
-            if (sigalg == SignatureInfo.SIG_ALG_RSA)
+            if (sigalg == SignedInfo.SIG_ALG_RSA)
                 sm.addAttribute("Algorithm", "http://www.w3.org/2000/09/xmldsig#rsa-sha1");
             else
                 sm.addAttribute("Algorithm", "http://www.w3.org/2000/09/xmldsig#dsa-sha1");
@@ -122,7 +129,7 @@ public final class SignatureInfo extends AbstractXMLSigElement {
         }
     }
 
-    public SignatureInfo( final Element elem) throws XMLSecurityException, InvalidSignatureException {
+    public SignedInfo(final Element elem) throws XMLSecurityException, InvalidSignatureException {
         super(elem);
         if (!elem.getQName().equals(XMLSecTools.createQName(TAG_NAME)))
             throw new XMLSecurityException("Element: " + elem.getQualifiedName() + " is not a valid: " + XMLSecTools.NS_DS.getPrefix() + ":" + TAG_NAME);

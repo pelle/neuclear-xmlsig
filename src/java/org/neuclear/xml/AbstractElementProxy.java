@@ -1,6 +1,13 @@
 /*
- * $Id: AbstractElementProxy.java,v 1.10 2004/02/19 00:27:59 pelle Exp $
+ * $Id: AbstractElementProxy.java,v 1.11 2004/03/02 23:30:43 pelle Exp $
  * $Log: AbstractElementProxy.java,v $
+ * Revision 1.11  2004/03/02 23:30:43  pelle
+ * Renamed SignatureInfo to SignedInfo as that is the name of the Element.
+ * Made some changes in the Canonicalizer to make all the output verify in Aleksey's xmlsec library.
+ * Unfortunately this breaks example 3 of merlin-eight's canonicalization interop tests, because dom4j afaik
+ * can't tell the difference between <test/> and <test xmlns=""/>.
+ * Changed XMLSignature it is now has less repeated code.
+ *
  * Revision 1.10  2004/02/19 00:27:59  pelle
  * Discovered several incompatabilities with the xmlsig implementation. Have been working on getting it working.
  * Currently there is still a problem with enveloping signatures and it seems enveloped signatures done via signers.
@@ -104,7 +111,7 @@
  * part of the framework.
  *
  * Revision 1.3  2002/10/10 21:29:31  pelle
- * Oops. XML-Signature's SignedInfo element I had coded as SignatureInfo
+ * Oops. XML-Signature's SignedInfo element I had coded as SignedInfo
  * As I thought Canonicalisation doesnt seem to be standard.
  * Updated the SignedServlet to default to using ~/.neuclear/signers.ks
  *
@@ -190,13 +197,14 @@ public abstract class AbstractElementProxy implements ElementProxy {
         addElement(element);
         return element;
     }
+
     /**
      * Adds another Element with the given name and the same Namespace as this element to this element.
      *
      * @param child
      */
-    protected final Element addElement(final String child,final String text) {
-        Element elem=addElement(child);
+    protected final Element addElement(final String child, final String text) {
+        Element elem = addElement(child);
         elem.addText(text);
         return elem;
     }

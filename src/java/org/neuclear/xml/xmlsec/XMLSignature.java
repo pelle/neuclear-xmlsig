@@ -1,5 +1,12 @@
-/* $Id: XMLSignature.java,v 1.13 2004/03/02 18:39:57 pelle Exp $
+/* $Id: XMLSignature.java,v 1.14 2004/03/02 23:30:43 pelle Exp $
  * $Log: XMLSignature.java,v $
+ * Revision 1.14  2004/03/02 23:30:43  pelle
+ * Renamed SignatureInfo to SignedInfo as that is the name of the Element.
+ * Made some changes in the Canonicalizer to make all the output verify in Aleksey's xmlsec library.
+ * Unfortunately this breaks example 3 of merlin-eight's canonicalization interop tests, because dom4j afaik
+ * can't tell the difference between <test/> and <test xmlns=""/>.
+ * Changed XMLSignature it is now has less repeated code.
+ *
  * Revision 1.13  2004/03/02 18:39:57  pelle
  * Done some more minor fixes within xmlsig, but mainly I've removed the old Source and Store patterns and sub packages. This is because
  * they really are no longer necessary with the new non naming naming system.
@@ -168,7 +175,7 @@
  * DO NOT USE THIS FOR REAL APPS
  *
  * Revision 1.4  2002/10/10 21:29:31  pelle
- * Oops. XML-Signature's SignedInfo element I had coded as SignatureInfo
+ * Oops. XML-Signature's SignedInfo element I had coded as SignedInfo
  * As I thought Canonicalisation doesnt seem to be standard.
  * Updated the SignedServlet to default to using ~/.neuclear/signers.ks
  *
@@ -180,11 +187,12 @@ package org.neuclear.xml.xmlsec;
 
 /**
  * @author pelleb
- * @version $Revision: 1.13 $
+ * @version $Revision: 1.14 $
  */
 
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
+import org.neuclear.commons.crypto.Base64;
 import org.neuclear.commons.crypto.CryptoException;
 import org.neuclear.commons.crypto.CryptoTools;
 import org.neuclear.commons.crypto.passphraseagents.UserCancellationException;
@@ -196,7 +204,6 @@ import org.neuclear.xml.XMLException;
 import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
-import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 
 /**
@@ -206,9 +213,9 @@ import java.security.interfaces.RSAPublicKey;
 public class XMLSignature extends AbstractXMLSigElement {
     /**
      * Creates an Enveloped (Embedded) Signature object based on the given element root
-     * 
-     * @param keypair 
-     * @param root    
+     *
+     * @param keypair
+     * @param root
      * @throws XMLSecurityException
      */
     public XMLSignature(final KeyPair keypair, final Element root) throws XMLSecurityException, CryptoException {
@@ -232,31 +239,34 @@ public class XMLSignature extends AbstractXMLSigElement {
 
     }
 
-    //TODO Something does not work right with Enveloping signatures. I am trying to figure out what it is. However enveloped are all
-    // that we need for NeuClear, so I may put this on the backburner.
-    public XMLSignature(final PrivateKey key, final PublicKey pub, Element root, final int type) throws XMLSecurityException, CryptoException {
+    /**
+     * Internal constructor used for common stuff regardless of key type
+     *
+     * @param pub
+     * @param root
+     * @param type
+     * @throws XMLSecurityException
+     */
+    private XMLSignature(final PublicKey pub, Element root, final int type) throws XMLSecurityException {
         super(XMLSignature.TAG_NAME);
         try {
-             if (type == Reference.XMLSIGTYPE_ENVELOPED) {
+            if (type == Reference.XMLSIGTYPE_ENVELOPED) {
                 root.add(getElement());
-             } else if (type == Reference.XMLSIGTYPE_ENVELOPING) {
+            } else if (type == Reference.XMLSIGTYPE_ENVELOPING) {
                 final Element objElem = XMLSecTools.createElementInSignatureSpace("Object");
-                objElem.addAttribute("Id","data");
+                objElem.addAttribute("Id", "data");
                 DocumentHelper.createDocument(getElement());//As Signature Element is parent we will now add a doc
                 objElem.add(root);
                 root = objElem;
                 getElement().add(root);
             }
-            final int alg = (key instanceof RSAPrivateKey) ? SignatureInfo.SIG_ALG_RSA : SignatureInfo.SIG_ALG_DSA;
-            si = new SignatureInfo( root,  alg, type);
+            final int alg = (pub instanceof RSAPublicKey) ? SignedInfo.SIG_ALG_RSA : SignedInfo.SIG_ALG_DSA;
+            si = new SignedInfo(root, alg, type);
             addElement(si);
-            final byte[] cansi = si.canonicalize();
-//            System.out.println("Canonicalized:");
-//            System.out.println(new String(cansi));
-//            System.out.println("------");
-            addElement(XMLSecTools.base64ToElement("SignatureValue", CryptoTools.sign(key, cansi)));
+            sigval = addElement("SignatureValue");
             if (pub != null)
                 addElement(new KeyInfo(pub));
+
             // If Enveloping add Object element last
             if (type == Reference.XMLSIGTYPE_ENVELOPING) {
                 getElement().remove(root);
@@ -266,40 +276,29 @@ public class XMLSignature extends AbstractXMLSigElement {
             throw new XMLSecurityException(e);
         }
     }
-    public XMLSignature(final String name, final Signer signer, Element root,final int type) throws XMLSecurityException, NonExistingSignerException, UserCancellationException {
-        super(XMLSignature.TAG_NAME);
-        if (! (signer instanceof PublicKeySource))
-            throw new XMLSecurityException("We Require a PublicKeySource");
-        PublicKeySource src=(PublicKeySource)signer;
-        try {
-            if (type == Reference.XMLSIGTYPE_ENVELOPED) {
-               root.add(getElement());
-            } else if (type == Reference.XMLSIGTYPE_ENVELOPING) {
-               final Element objElem = XMLSecTools.createElementInSignatureSpace("Object");
-               objElem.addAttribute("Id","data");
-               DocumentHelper.createDocument(getElement());//As Signature Element is parent we will now add a doc
-               objElem.add(root);
-               root = objElem;
-               getElement().add(root);
-           }
-            final PublicKey pub = src.getPublicKey(name);
-            final int alg = (pub instanceof RSAPublicKey) ? SignatureInfo.SIG_ALG_RSA : SignatureInfo.SIG_ALG_DSA;
-            si = new SignatureInfo( root,  alg, type);
-            addElement(si);
-            final byte[] cansi = si.canonicalize();
+
+    public XMLSignature(final PrivateKey key, final PublicKey pub, Element root, final int type) throws XMLSecurityException, CryptoException {
+        this(pub, root, type);
+        final byte[] cansi = si.canonicalize();
 //            System.out.println("Canonicalized:");
 //            System.out.println(new String(cansi));
 //            System.out.println("------");
-            addElement(XMLSecTools.base64ToElement("SignatureValue", signer.sign(name, cansi)));
-            final KeyInfo key = new KeyInfo(pub);
-            addElement(key);
-            if (type == Reference.XMLSIGTYPE_ENVELOPING) {
-                getElement().remove(root);
-                getElement().add(root);
-            }
-        } catch (XMLException e) {
-            throw new XMLSecurityException(e);
-        }
+        sigval.setText(Base64.encode(CryptoTools.sign(key, cansi)));
+    }
+
+    public XMLSignature(final String name, final Signer signer, Element root, final int type) throws XMLSecurityException, UserCancellationException, NonExistingSignerException {
+        this(getPublicKey(signer, name), root, type);
+        final byte[] cansi = si.canonicalize();
+//        System.out.println("Canonicalized SI:");
+//        System.out.println(new String(cansi));
+//        System.out.println("------");
+        sigval.setText(Base64.encode(signer.sign(name, cansi)));
+    }
+
+    private static PublicKey getPublicKey(final Signer signer, final String name) throws XMLSecurityException, NonExistingSignerException {
+        if (!(signer instanceof PublicKeySource))
+            throw new XMLSecurityException("The Signer must also be a public key source");
+        return ((PublicKeySource) signer).getPublicKey(name);
     }
 
     public XMLSignature(final Element elem) throws XMLSecurityException, InvalidSignatureException {
@@ -307,8 +306,8 @@ public class XMLSignature extends AbstractXMLSigElement {
         final Element siElem = elem.element(XMLSecTools.createQName("SignedInfo"));
         if (!elem.getQName().equals(XMLSecTools.createQName(TAG_NAME)) || siElem == null)  // Not sure if equals is imeplemented properly for QNames
             throw new XMLSecurityException("Element: " + elem.getQualifiedName() + " is not a valid: " + XMLSecTools.NS_DS.getPrefix() + ":" + TAG_NAME);
-        si = new SignatureInfo(siElem);
-        KeyInfo key=getKeyInfo();
+        si = new SignedInfo(siElem);
+        KeyInfo key = getKeyInfo();
         if (key == null)
             throw new XMLSecurityException("No included PublicKey, can not verify.");
 
@@ -326,12 +325,12 @@ public class XMLSignature extends AbstractXMLSigElement {
         }
     }
 
-    public XMLSignature(final Element elem,PublicKey pub) throws XMLSecurityException, InvalidSignatureException {
+    public XMLSignature(final Element elem, PublicKey pub) throws XMLSecurityException, InvalidSignatureException {
         super(elem);
         final Element siElem = elem.element(XMLSecTools.createQName("SignedInfo"));
         if (!elem.getQName().equals(XMLSecTools.createQName(TAG_NAME)) || siElem == null)  // Not sure if equals is imeplemented properly for QNames
             throw new XMLSecurityException("Element: " + elem.getQualifiedName() + " is not a valid: " + XMLSecTools.NS_DS.getPrefix() + ":" + TAG_NAME);
-        si = new SignatureInfo(siElem);
+        si = new SignedInfo(siElem);
         final byte[] sig = getSignature();
         final byte[] cansi = si.canonicalize();
         try {
@@ -354,31 +353,34 @@ public class XMLSignature extends AbstractXMLSigElement {
     }
 
     public final PublicKey getSignersKey() throws XMLSecurityException {
-        KeyInfo key=getKeyInfo();
+        KeyInfo key = getKeyInfo();
         if (key == null)
             return null;
         return key.getPublicKey();
     }
+
     public final String getSignersId() throws XMLSecurityException {
-        KeyInfo key=getKeyInfo();
+        KeyInfo key = getKeyInfo();
         if (key == null)
             return null;
         return key.getKeyName();
     }
-    private final synchronized KeyInfo getKeyInfo() throws XMLSecurityException{
-        if (ki==null){
+
+    private final synchronized KeyInfo getKeyInfo() throws XMLSecurityException {
+        if (ki == null) {
             final Element keyInfoElem = getElement().element(XMLSecTools.createQName("KeyInfo"));
             if (keyInfoElem != null)
-                ki=new KeyInfo(keyInfoElem);
+                ki = new KeyInfo(keyInfoElem);
         }
         return ki;
     }
 
-    protected final SignatureInfo getSi() {
+    protected final SignedInfo getSi() {
         return si;
     }
 
-    private SignatureInfo si;
+    private SignedInfo si;
+    private Element sigval;
     private KeyInfo ki;
     private static final String TAG_NAME = "Signature";
     //   private PublicKey pub;
