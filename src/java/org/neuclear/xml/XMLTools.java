@@ -1,6 +1,11 @@
 /*
- * $Id: XMLTools.java,v 1.9 2004/04/28 17:36:57 pelle Exp $
+ * $Id: XMLTools.java,v 1.10 2004/06/08 05:57:52 pelle Exp $
  * $Log: XMLTools.java,v $
+ * Revision 1.10  2004/06/08 05:57:52  pelle
+ * Many changes throughout. In particular with regards to character encoding etc.
+ * The SigningServer now notifies the user and quits if another application is using the same port.
+ * ServletSignerFactory, now accepts a passphrase in web.xml
+ *
  * Revision 1.9  2004/04/28 17:36:57  pelle
  * Updated documentation for 0.13
  * This will be release 0.13
@@ -151,7 +156,7 @@ package org.neuclear.xml;
 
 /**
  * @author pelleb
- * @version $Revision: 1.9 $
+ * @version $Revision: 1.10 $
  */
 
 import org.dom4j.*;
@@ -222,6 +227,7 @@ public final class XMLTools {
     public static Document loadDocument(final File f) throws XMLException {
         final SAXReader xmlReader = new SAXReader();
         try {
+
             return xmlReader.read(f);
         } catch (DocumentException e) {
             throw new XMLException(e);
