@@ -1,6 +1,9 @@
 /*
- * $Id: AbstractElementProxy.java,v 1.5 2003/12/11 16:16:05 pelle Exp $
+ * $Id: AbstractElementProxy.java,v 1.6 2003/12/11 16:29:19 pelle Exp $
  * $Log: AbstractElementProxy.java,v $
+ * Revision 1.6  2003/12/11 16:29:19  pelle
+ * Updated various builders to use the new helper methods in AbstractElementProxy hopefully making them more readable.
+ *
  * Revision 1.5  2003/12/11 16:16:05  pelle
  * Some changes to make the xml a bit more readable.
  * Also added some helper methods in AbstractElementProxy to make it easier to build objects.
@@ -176,9 +179,15 @@ public abstract class AbstractElementProxy implements ElementProxy {
     protected final void addLineBreak(){
         element.addText("\n");
     }
+    /**
+     * Adds an attribute with the same namespace as the elment
+     * @param name
+     * @param value
+     */
     protected final void createAttribute(String name,String value){
         element.addAttribute(createQName(name),value);
     }
+
     public final QName getQName() {
         return new QName(getTagName(), getNS());
     }
