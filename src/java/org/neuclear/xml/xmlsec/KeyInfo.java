@@ -72,7 +72,7 @@ public final class KeyInfo extends AbstractXMLSigElement {
      * @throws XMLSecurityException 
      */
     public final PublicKey getPublicKey()
-            throws XMLSecurityException, CryptoException {
+            throws XMLSecurityException {
         if (pub == null) {
             try {
                 final KeyFactory keyFactory;

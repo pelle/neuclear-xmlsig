@@ -1,5 +1,13 @@
-/* $Id: XMLSecTools.java,v 1.4 2003/11/21 04:44:31 pelle Exp $
+/* $Id: XMLSecTools.java,v 1.5 2003/12/19 18:03:07 pelle Exp $
  * $Log: XMLSecTools.java,v $
+ * Revision 1.5  2003/12/19 18:03:07  pelle
+ * Revamped a lot of exception handling throughout the framework, it has been simplified in most places:
+ * - For most cases the main exception to worry about now is InvalidNamedObjectException.
+ * - Most lowerlevel exception that cant be handled meaningful are now wrapped in the LowLevelException, a
+ *   runtime exception.
+ * - Source and Store patterns each now have their own exceptions that generalizes the various physical
+ *   exceptions that can happen in that area.
+ *
  * Revision 1.4  2003/11/21 04:44:31  pelle
  * EncryptedFileStore now works. It uses the PBECipher with DES3 afair.
  * Otherwise You will Finaliate.
@@ -134,13 +142,15 @@ package org.neuclear.xml.xmlsec;
 
 /**
  * @author pelleb
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.5 $
  */
 
 import org.dom4j.*;
 import org.dom4j.io.XMLWriter;
 import org.neuclear.commons.crypto.Base64;
 import org.neuclear.commons.crypto.CryptoException;
+import org.neuclear.commons.crypto.passphraseagents.UserCancellationException;
+import org.neuclear.commons.crypto.signers.NonExistingSignerException;
 import org.neuclear.xml.XMLException;
 import org.neuclear.xml.c14.Canonicalizer;
 import org.neuclear.xml.c14.CanonicalizerWithoutSignature;
@@ -204,7 +214,7 @@ public final class XMLSecTools {
      * @param signer  NeuClear Signer
      * @throws XMLSecurityException 
      */
-    public static XMLSignature signElement(final String baseURI, final Element root, final String name, final org.neuclear.commons.crypto.signers.Signer signer) throws XMLSecurityException, CryptoException {//, KeyStoreException {
+    public static XMLSignature signElement(final String baseURI, final Element root, final String name, final org.neuclear.commons.crypto.signers.Signer signer) throws XMLSecurityException, NonExistingSignerException, UserCancellationException {//, KeyStoreException {
         final XMLSignature sig = new QuickEmbeddedSignature(name, signer, root, baseURI);
         return sig;
     }
@@ -311,7 +321,7 @@ public final class XMLSecTools {
      * @return true if it verifies
      * @throws XMLSecurityException 
      */
-    public static boolean verifySignature(final Element elem, final PublicKey pub) throws XMLSecurityException, CryptoException {
+    public static boolean verifySignature(final Element elem, final PublicKey pub) throws XMLSecurityException {
         final XMLSignature sig = getXMLSignature(elem);
         return sig.verifySignature(pub);
     }
@@ -324,7 +334,7 @@ public final class XMLSecTools {
      * @return true if it verifies
      * @throws XMLSecurityException 
      */
-    public static boolean verifySignature(final Element elem, final PublicKey[] pubs) throws XMLSecurityException, CryptoException {
+    public static boolean verifySignature(final Element elem, final PublicKey[] pubs) throws XMLSecurityException {
         final XMLSignature sig = getXMLSignature(elem);
         return sig.verifySignature(pubs);
     }
@@ -466,8 +476,7 @@ public final class XMLSecTools {
      * @param element 
      * @return 
      */
-    public static BigInteger decodeBigIntegerFromElement(final Element element)
-            throws CryptoException {
+    public static BigInteger decodeBigIntegerFromElement(final Element element) throws XMLSecurityException {
         return new BigInteger(1, decodeBase64Element(element));
     }
 
@@ -510,7 +519,7 @@ public final class XMLSecTools {
      * @param element 
      * @return 
      */
-    public static byte[] decodeBase64Element(final Element element) throws CryptoException {
+    public static byte[] decodeBase64Element(final Element element) throws XMLSecurityException {
 
         final Iterator iter = element.nodeIterator();
         final StringBuffer sb = new StringBuffer();
@@ -525,7 +534,11 @@ public final class XMLSecTools {
             }
         }
 
-        return Base64.decode(sb.toString());
+        try {
+            return Base64.decode(sb.toString());
+        } catch (CryptoException e) {
+            throw new XMLSecurityException(e);
+        }
     }
 
     /**

@@ -1,5 +1,13 @@
-/* $Id: SignedElement.java,v 1.5 2003/12/10 23:57:05 pelle Exp $
+/* $Id: SignedElement.java,v 1.6 2003/12/19 18:03:07 pelle Exp $
  * $Log: SignedElement.java,v $
+ * Revision 1.6  2003/12/19 18:03:07  pelle
+ * Revamped a lot of exception handling throughout the framework, it has been simplified in most places:
+ * - For most cases the main exception to worry about now is InvalidNamedObjectException.
+ * - Most lowerlevel exception that cant be handled meaningful are now wrapped in the LowLevelException, a
+ *   runtime exception.
+ * - Source and Store patterns each now have their own exceptions that generalizes the various physical
+ *   exceptions that can happen in that area.
+ *
  * Revision 1.5  2003/12/10 23:57:05  pelle
  * Did some cleaning up in the builders
  * Fixed some stuff in IdentityCreator
@@ -106,14 +114,16 @@ package org.neuclear.xml.xmlsec;
 
 /**
  * @author pelleb
- * @version $Revision: 1.5 $
+ * @version $Revision: 1.6 $
  */
 
 import org.dom4j.Element;
 import org.dom4j.Namespace;
 import org.dom4j.QName;
 import org.neuclear.commons.crypto.CryptoException;
+import org.neuclear.commons.crypto.passphraseagents.UserCancellationException;
 import org.neuclear.commons.crypto.signers.Signer;
+import org.neuclear.commons.crypto.signers.NonExistingSignerException;
 import org.neuclear.xml.AbstractElementProxy;
 import org.neuclear.xml.XMLException;
 
@@ -201,7 +211,7 @@ public abstract class SignedElement extends AbstractElementProxy {
         postSign();
     }
 
-    public final void sign(final String name, final Signer signer) throws XMLSecurityException, CryptoException {
+    public final void sign(final String name, final Signer signer) throws XMLSecurityException, NonExistingSignerException, UserCancellationException {
         preSign();
         sig = XMLSecTools.signElement(getURI(), getElement(), name, signer);
         postSign();

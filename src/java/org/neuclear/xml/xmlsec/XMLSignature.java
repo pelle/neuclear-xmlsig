@@ -1,5 +1,13 @@
-/* $Id: XMLSignature.java,v 1.5 2003/12/11 23:56:53 pelle Exp $
+/* $Id: XMLSignature.java,v 1.6 2003/12/19 18:03:07 pelle Exp $
  * $Log: XMLSignature.java,v $
+ * Revision 1.6  2003/12/19 18:03:07  pelle
+ * Revamped a lot of exception handling throughout the framework, it has been simplified in most places:
+ * - For most cases the main exception to worry about now is InvalidNamedObjectException.
+ * - Most lowerlevel exception that cant be handled meaningful are now wrapped in the LowLevelException, a
+ *   runtime exception.
+ * - Source and Store patterns each now have their own exceptions that generalizes the various physical
+ *   exceptions that can happen in that area.
+ *
  * Revision 1.5  2003/12/11 23:56:53  pelle
  * Trying to test the ReceiverServlet with cactus. Still no luck. Need to return a ElementProxy of some sort.
  * Cleaned up some missing fluff in the ElementProxy interface. getTagName(), getQName() and getNameSpace() have been killed.
@@ -139,7 +147,7 @@ package org.neuclear.xml.xmlsec;
 
 /**
  * @author pelleb
- * @version $Revision: 1.5 $
+ * @version $Revision: 1.6 $
  */
 
 import org.dom4j.DocumentHelper;
@@ -245,7 +253,7 @@ public class XMLSignature extends AbstractXMLSigElement {
         return XMLSecTools.decodeBase64Element(sigVal);
     }
 
-    public final boolean verifySignature() throws XMLSecurityException, CryptoException {
+    public final boolean verifySignature() throws XMLSecurityException {
         final Element keyInfoElem = getElement().element(XMLSecTools.createQName("KeyInfo"));
         if (keyInfoElem == null)
             throw new XMLSecurityException("Signature does not contain an embedded PublicKey");
@@ -254,28 +262,36 @@ public class XMLSignature extends AbstractXMLSigElement {
         return verifySignature(pk);
     }
 
-    public final boolean verifySignature(final PublicKey pk) throws XMLSecurityException, CryptoException {
+    public final boolean verifySignature(final PublicKey pk) throws XMLSecurityException {
 
-        if (!si.getReference().verifyReferences())
-            return false;
-        final byte[] sig = getSignature();
-        final byte[] cansi = si.canonicalize();
-        return CryptoTools.verify(pk, cansi, sig);
+        try {
+            if (!si.getReference().verifyReferences())
+                return false;
+            final byte[] sig = getSignature();
+            final byte[] cansi = si.canonicalize();
+            return CryptoTools.verify(pk, cansi, sig);
+        } catch (CryptoException e) {
+            throw new XMLSecurityException(e);
+        }
     }
 
-    public final boolean verifySignature(final PublicKey[] pks) throws XMLSecurityException, CryptoException {
+    public final boolean verifySignature(final PublicKey[] pks) throws XMLSecurityException {
 
-        if (!si.getReference().verifyReferences()) {
+        try {
+            if (!si.getReference().verifyReferences()) {
 //            System.err.println("XMLSIG: References didnt match up");
-            return false;
-        }
-        final byte[] sig = getSignature();
-        final byte[] cansi = si.canonicalize();
-        for (int i = 0; i < pks.length; i++)
-            if (CryptoTools.verify(pks[i], cansi, sig))
-                return true;
+                return false;
+            }
+            final byte[] sig = getSignature();
+            final byte[] cansi = si.canonicalize();
+            for (int i = 0; i < pks.length; i++)
+                if (CryptoTools.verify(pks[i], cansi, sig))
+                    return true;
 //        System.err.println("XMLSIG: Signature didnt Verify");
-        return false;
+            return false;
+        } catch (CryptoException e) {
+            throw new XMLSecurityException(e);
+        }
     }
 
 

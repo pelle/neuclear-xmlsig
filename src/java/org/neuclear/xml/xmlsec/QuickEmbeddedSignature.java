@@ -5,8 +5,16 @@ package org.neuclear.xml.xmlsec;
  * User: pelleb
  * Date: Feb 8, 2003
  * Time: 12:15:24 PM
- * $Id: QuickEmbeddedSignature.java,v 1.3 2003/11/21 04:44:31 pelle Exp $
+ * $Id: QuickEmbeddedSignature.java,v 1.4 2003/12/19 18:03:07 pelle Exp $
  * $Log: QuickEmbeddedSignature.java,v $
+ * Revision 1.4  2003/12/19 18:03:07  pelle
+ * Revamped a lot of exception handling throughout the framework, it has been simplified in most places:
+ * - For most cases the main exception to worry about now is InvalidNamedObjectException.
+ * - Most lowerlevel exception that cant be handled meaningful are now wrapped in the LowLevelException, a
+ *   runtime exception.
+ * - Source and Store patterns each now have their own exceptions that generalizes the various physical
+ *   exceptions that can happen in that area.
+ *
  * Revision 1.3  2003/11/21 04:44:31  pelle
  * EncryptedFileStore now works. It uses the PBECipher with DES3 afair.
  * Otherwise You will Finaliate.
@@ -101,7 +109,9 @@ import org.dom4j.Element;
 import org.neuclear.commons.crypto.Base64;
 import org.neuclear.commons.crypto.CryptoTools;
 import org.neuclear.commons.crypto.signers.Signer;
+import org.neuclear.commons.crypto.signers.NonExistingSignerException;
 import org.neuclear.commons.crypto.CryptoException;
+import org.neuclear.commons.crypto.passphraseagents.UserCancellationException;
 
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
@@ -131,7 +141,7 @@ public final class QuickEmbeddedSignature extends XMLSignature {
         sig.add(XMLSecTools.base64ToElement("SignatureValue", CryptoTools.sign(key, canonicalizedSignedInfo)));
     }
 
-    public QuickEmbeddedSignature(final String name, final Signer signer, final Element root, final String uri) throws XMLSecurityException, CryptoException {
+    public QuickEmbeddedSignature(final String name, final Signer signer, final Element root, final String uri) throws XMLSecurityException, UserCancellationException, NonExistingSignerException {
         super(getSignatureElement(root,signer.getKeyType(name)));
         final Element sig = getElement();
 
