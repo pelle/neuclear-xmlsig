@@ -9,6 +9,15 @@
 	<body>
         <section name="New Release 0.8 with Interop">
             <p>
+                [November 11th, 2003] NeuDist XMLSig is now NeuClear XMLSig.
+                Several minor improvements through the code, but the big news is
+                that most code unrelated to XML has been moved into the sister
+                library <a href="http://neuclear.org/commons/">NeuClear Commons</a> library.
+                Making this a required library now.
+            </p>
+        </section>
+        <section name="New Release 0.8 with Interop">
+            <p>
                 [February 24th, 2003] New Release with much improved Interop. Some major problems were found here which
                 have been fixed. Please upgrade to this version to allow compatibility with other XMLSignature implementations.
             </p>
@@ -42,7 +51,7 @@
                 its own project soon.
             </p>
         </section>
-        <section name="NeuClear XMLSig API split out.">
+        <section name="NeuDist XMLSig API split out.">
             <p>
                 [January 20th, 2003] As of today the XMLSig API has been split out of the main NeuClear Framework.
                 This is to make it easier to develop seperately and to hopefully allow other people to useit.

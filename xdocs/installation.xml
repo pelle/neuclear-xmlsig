@@ -9,10 +9,11 @@
 	<body>
 		<section name="Requirements">
             <p>
-                The two main requirements for the library is:
+                The three main requirements for the library is:
                 <ul>
                     <li><a href="http://www.bouncycastle.org">Bouncy Castle Crypto</a></li>
                     <li><a href="http://www.dom4j.org">Dom4J</a></li>
+                    <li><a href="http://neuclear.org/commons/">NeuClear Commons</a></li>
                 </ul>
                 With Dom4J make sure you include the full jar in your classpath.
                 If you plan on using the SOAP Servlet functionality of the library you also will need to have the
