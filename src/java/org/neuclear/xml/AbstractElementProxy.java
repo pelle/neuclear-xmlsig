@@ -1,6 +1,10 @@
 /*
- * $Id: AbstractElementProxy.java,v 1.9 2004/02/18 00:13:49 pelle Exp $
+ * $Id: AbstractElementProxy.java,v 1.10 2004/02/19 00:27:59 pelle Exp $
  * $Log: AbstractElementProxy.java,v $
+ * Revision 1.10  2004/02/19 00:27:59  pelle
+ * Discovered several incompatabilities with the xmlsig implementation. Have been working on getting it working.
+ * Currently there is still a problem with enveloping signatures and it seems enveloped signatures done via signers.
+ *
  * Revision 1.9  2004/02/18 00:13:49  pelle
  * Many, many clean ups. I've readded Targets in a new method.
  * Gotten rid of NamedObjectBuilder and revamped Identity and Resolvers

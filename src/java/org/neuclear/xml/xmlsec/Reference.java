@@ -1,5 +1,9 @@
-/* $Id: Reference.java,v 1.9 2004/01/15 00:01:46 pelle Exp $
+/* $Id: Reference.java,v 1.10 2004/02/19 00:27:59 pelle Exp $
  * $Log: Reference.java,v $
+ * Revision 1.10  2004/02/19 00:27:59  pelle
+ * Discovered several incompatabilities with the xmlsig implementation. Have been working on getting it working.
+ * Currently there is still a problem with enveloping signatures and it seems enveloped signatures done via signers.
+ *
  * Revision 1.9  2004/01/15 00:01:46  pelle
  * Problem fixed with Enveloping signatures.
  *
@@ -129,7 +133,7 @@ package org.neuclear.xml.xmlsec;
  * The Reference class implements the W3C XML Signature Spec Reference Object.
  * The basic contract says that once it has been instantiated the digest value within is valid.
  * @author pelleb
- * @version $Revision: 1.9 $
+ * @version $Revision: 1.10 $
  */
 
 import org.dom4j.Element;
@@ -163,13 +167,11 @@ public final class Reference extends AbstractXMLSigElement {
         Element transformsElement = addElement("Transforms");
 //        final Element object;
         if (sigtype == XMLSIGTYPE_ENVELOPED){
+            createAttribute("URI","");
             canon=new CanonicalizerWithoutSignature();
             transformsElement.addElement(XMLSecTools.createQName("Transform")).addAttribute("Algorithm","http://www.w3.org/2000/09/xmldsig#enveloped-signature");
-//            object=root;
         } else if (sigtype == XMLSIGTYPE_ENVELOPING){
-
             canon= new Canonicalizer();
-            //object=root.getParent();
         } else {
             throw new XMLSecurityException("Unsupported Signature Method");
         }

@@ -19,8 +19,12 @@ import java.security.interfaces.DSAPublicKey;
  * User: pelleb
  * Date: Jan 20, 2003
  * Time: 3:49:27 PM
- * $Id: SimpleXMLSigTest.java,v 1.7 2004/01/14 06:42:38 pelle Exp $
+ * $Id: SimpleXMLSigTest.java,v 1.8 2004/02/19 00:28:00 pelle Exp $
  * $Log: SimpleXMLSigTest.java,v $
+ * Revision 1.8  2004/02/19 00:28:00  pelle
+ * Discovered several incompatabilities with the xmlsig implementation. Have been working on getting it working.
+ * Currently there is still a problem with enveloping signatures and it seems enveloped signatures done via signers.
+ *
  * Revision 1.7  2004/01/14 06:42:38  pelle
  * Got rid of the verifyXXX() methods
  *
@@ -150,29 +154,6 @@ public final class SimpleXMLSigTest extends TestCase {
         final XMLSignature sig = new XMLSignature(dsaSigner, doc.getRootElement());
 
         final File outputFile = new File("target/testdata/homegrown/signature-enveloped-dsa.xml");
-        XMLTools.writeFile(outputFile, doc);
-
-        doc = XMLTools.loadDocument(outputFile);
-        assertTrue("Test if DSA Signature is valid", XMLSecTools.verifySignature(doc.getRootElement()));
-    }
-
-    public final void testQuickRSASignXML() throws DocumentException, XMLException, CryptoException {
-        Document doc = DocumentHelper.parseText(TESTXML);
-        XMLSecTools.signElement( doc.getRootElement(), signer);
-        final File outputFile = new File("target/testdata/homegrown/signature-enveloped-rsa-quick.xml");
-        XMLTools.writeFile(outputFile, doc);
-
-        doc = XMLTools.loadDocument(outputFile);
-        assertTrue("Test if RSA Signature is valid", XMLSecTools.verifySignature(doc.getRootElement()));
-    }
-
-    public final void testQuickDSASignXML()
-            throws DocumentException, XMLException, CryptoException {
-        assertTrue("Test if public key is really DSA", dsaSigner.getPublic() instanceof DSAPublicKey);
-        Document doc = DocumentHelper.parseText(TESTXML);
-        XMLSecTools.signElement( doc.getRootElement(), dsaSigner);
-
-        final File outputFile = new File("target/testdata/homegrown/signature-enveloped-dsa-quick.xml");
         XMLTools.writeFile(outputFile, doc);
 
         doc = XMLTools.loadDocument(outputFile);

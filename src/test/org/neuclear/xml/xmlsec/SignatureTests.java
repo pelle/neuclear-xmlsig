@@ -4,8 +4,12 @@ package org.neuclear.xml.xmlsec;
  * User: pelleb
  * Date: Feb 3, 2003
  * Time: 6:54:20 AM
- * $Id: SignatureTests.java,v 1.4 2004/01/14 17:07:59 pelle Exp $
+ * $Id: SignatureTests.java,v 1.5 2004/02/19 00:28:00 pelle Exp $
  * $Log: SignatureTests.java,v $
+ * Revision 1.5  2004/02/19 00:28:00  pelle
+ * Discovered several incompatabilities with the xmlsig implementation. Have been working on getting it working.
+ * Currently there is still a problem with enveloping signatures and it seems enveloped signatures done via signers.
+ *
  * Revision 1.4  2004/01/14 17:07:59  pelle
  * KeyInfo containing X509Certificates now work correctly.
  * 10 out of 16 of merlin's tests now work. The missing ones are largely due to key resolution issues. (Read X509)
@@ -88,11 +92,13 @@ import junit.framework.TestCase;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.io.SAXReader;
-import org.neuclear.xml.xmlsec.XMLSecTools;
-import org.neuclear.commons.RegexFileNameFilter;
 import org.neuclear.commons.NeuClearException;
+import org.neuclear.commons.RegexFileNameFilter;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FilenameFilter;
+import java.io.IOException;
 
 public final class SignatureTests extends TestCase {
     public SignatureTests(final String s) {
@@ -151,7 +157,7 @@ public final class SignatureTests extends TestCase {
                     System.out.println("FAILED: "+(errors++));
             } catch (Exception e) {
                     System.out.println("ERROR: "+(errors++)+e.getMessage());
-                e.printStackTrace();  //To change body of catch statement use Options | File Templates.
+//                e.printStackTrace();  //To change body of catch statement use Options | File Templates.
             }
         }
         System.out.println(errors +" out of "+i+" documents failed");

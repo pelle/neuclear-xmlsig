@@ -5,8 +5,12 @@ package org.neuclear.xml.c14;
  * User: pelleb
  * Date: Feb 3, 2003
  * Time: 5:56:42 AM
- * $Id: Canonicalizer.java,v 1.6 2004/01/14 16:34:27 pelle Exp $
+ * $Id: Canonicalizer.java,v 1.7 2004/02/19 00:27:59 pelle Exp $
  * $Log: Canonicalizer.java,v $
+ * Revision 1.7  2004/02/19 00:27:59  pelle
+ * Discovered several incompatabilities with the xmlsig implementation. Have been working on getting it working.
+ * Currently there is still a problem with enveloping signatures and it seems enveloped signatures done via signers.
+ *
  * Revision 1.6  2004/01/14 16:34:27  pelle
  * New model of references and signatures now pretty much works.
  * I am still not 100% sure on the created enveloping signatures. I need to do more testing.
@@ -118,10 +122,9 @@ import org.dom4j.*;
 import org.dom4j.tree.NamespaceStack;
 import org.neuclear.xml.ElementProxy;
 import org.neuclear.xml.XMLTools;
-import org.neuclear.xml.xmlsec.XMLSecurityException;
 import org.neuclear.xml.transforms.TransformerFactory;
 import org.neuclear.xml.transforms.XPathTransform;
-import org.neuclear.commons.LowLevelException;
+import org.neuclear.xml.xmlsec.XMLSecurityException;
 
 import java.io.*;
 import java.nio.charset.Charset;
@@ -325,7 +328,12 @@ public class Canonicalizer extends XPathTransform {
         if (isNamespaceDeclaration(ns)) {
             namespaceStack.push(ns);
             writeNamespace(ns, sorted);
-        } else if (ns.getURI() != null && ns.getURI().equals("") && element.getParent() != null && element.getParent().getNamespaceURI() != null && !element.getParent().getNamespaceURI().equals("")) {
+        } else if (ns.getURI() != null &&
+                ns.getURI().equals("") &&
+                element.getParent() != null &&
+                element.getParent().getNamespaceURI() != null
+                && !element.getParent().getNamespaceURI().equals("")
+        ) {
             writeNamespace(ns, sorted);
         }
 

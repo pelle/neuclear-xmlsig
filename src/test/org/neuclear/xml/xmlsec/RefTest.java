@@ -29,8 +29,12 @@ You should have received a copy of the GNU Lesser General Public
 License along with this library; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-$Id: RefTest.java,v 1.4 2004/01/15 00:01:46 pelle Exp $
+$Id: RefTest.java,v 1.5 2004/02/19 00:28:00 pelle Exp $
 $Log: RefTest.java,v $
+Revision 1.5  2004/02/19 00:28:00  pelle
+Discovered several incompatabilities with the xmlsig implementation. Have been working on getting it working.
+Currently there is still a problem with enveloping signatures and it seems enveloped signatures done via signers.
+
 Revision 1.4  2004/01/15 00:01:46  pelle
 Problem fixed with Enveloping signatures.
 
@@ -67,17 +71,18 @@ public class RefTest extends TestCase {
     }
 
     public void testEnvelopedReference() throws DocumentException, XMLException, CryptoException {
-        Document doc=DocumentHelper.parseText("<test Id=\"one\">hello</test>");
+        Document doc=DocumentHelper.parseText("<test>hello</test>");
         Reference ref=new Reference(doc.getRootElement(),Reference.XMLSIGTYPE_ENVELOPED);
         assertNotNull(ref);
 //        assertNotNull(ref.getDigest());
-        assertEquals("#one",ref.getUri());
+        assertEquals("",ref.getUri());
+//        assertEquals(ref.);
         System.out.println(ref.asXML());
 
     }
     public void testEnvelopingReference() throws DocumentException, XMLException, CryptoException, InvalidSignatureException {
         Document doc=DocumentHelper.parseText("<Signature><SignedInfo/><Object Id=\"one\"><test>hello</test></Object></Signature>");
-        Reference ref=new Reference(doc.getRootElement().element("Object"),Reference.XMLSIGTYPE_ENVELOPED);
+        Reference ref=new Reference(doc.getRootElement().element("Object"),Reference.XMLSIGTYPE_ENVELOPING);
         doc.getRootElement().element("SignedInfo").add(ref.getElement());
         assertNotNull(XMLTools.getByID(doc,"one"));
         assertNotNull(ref);

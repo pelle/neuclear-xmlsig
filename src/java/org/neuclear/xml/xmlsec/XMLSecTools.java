@@ -1,5 +1,9 @@
-/* $Id: XMLSecTools.java,v 1.8 2004/01/14 16:34:27 pelle Exp $
+/* $Id: XMLSecTools.java,v 1.9 2004/02/19 00:27:59 pelle Exp $
  * $Log: XMLSecTools.java,v $
+ * Revision 1.9  2004/02/19 00:27:59  pelle
+ * Discovered several incompatabilities with the xmlsig implementation. Have been working on getting it working.
+ * Currently there is still a problem with enveloping signatures and it seems enveloped signatures done via signers.
+ *
  * Revision 1.8  2004/01/14 16:34:27  pelle
  * New model of references and signatures now pretty much works.
  * I am still not 100% sure on the created enveloping signatures. I need to do more testing.
@@ -152,7 +156,7 @@ package org.neuclear.xml.xmlsec;
 
 /**
  * @author pelleb
- * @version $Revision: 1.8 $
+ * @version $Revision: 1.9 $
  */
 
 import org.dom4j.*;
