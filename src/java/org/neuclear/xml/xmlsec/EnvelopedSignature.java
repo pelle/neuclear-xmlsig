@@ -3,6 +3,7 @@ package org.neuclear.xml.xmlsec;
 import org.dom4j.Element;
 import org.neuclear.commons.Utility;
 import org.neuclear.commons.crypto.passphraseagents.UserCancellationException;
+import org.neuclear.commons.crypto.signers.BrowsableSigner;
 import org.neuclear.commons.crypto.signers.NonExistingSignerException;
 import org.neuclear.commons.crypto.signers.Signer;
 
@@ -43,6 +44,25 @@ public class EnvelopedSignature extends XMLSignature {
         elem.add(getElement());
         sign(name, signer);
     }
+
+    /**
+     * Creates a standard Enveloped Signature within the given Element.
+     * Uses the provided Signer and Alias to sign it.
+     *
+     * @param signer
+     * @param elem
+     * @throws XMLSecurityException
+     * @throws UserCancellationException  
+     * @throws NonExistingSignerException
+     * @see Signer
+     */
+    public EnvelopedSignature(BrowsableSigner signer, Element elem) throws XMLSecurityException, UserCancellationException, NonExistingSignerException {
+        super(new SignedInfo(SignedInfo.SIG_ALG_RSA, 1));
+        si.setEnvelopedReference(elem);
+        elem.add(getElement());
+        sign(signer);
+    }
+
 
     /**
      * Creates a standard Enveloped Signature within the given Element.

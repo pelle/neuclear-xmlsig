@@ -6,6 +6,7 @@ import org.dom4j.Element;
 import org.neuclear.commons.crypto.Base64;
 import org.neuclear.commons.crypto.CryptoTools;
 import org.neuclear.commons.crypto.keyresolvers.KeyResolverFactory;
+import org.neuclear.commons.crypto.signers.SetPublicKeyCallBack;
 
 import java.io.ByteArrayInputStream;
 import java.security.KeyFactory;
@@ -212,6 +213,18 @@ public final class KeyInfo extends AbstractXMLSigElement {
         return null;
     }
 
+    public static class CreateKeyInfoCallBack implements SetPublicKeyCallBack {
+        private PublicKey pub;
+
+        public void setPublicKey(PublicKey pub) {
+            this.pub = pub;
+        }
+
+        public KeyInfo createKeyInfo() {
+            return new KeyInfo(pub);
+        }
+
+    }
 
     private static final String TAG_NAME = "KeyInfo";
     private PublicKey pub;

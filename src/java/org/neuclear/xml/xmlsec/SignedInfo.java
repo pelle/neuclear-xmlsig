@@ -1,5 +1,9 @@
-/* $Id: SignedInfo.java,v 1.7 2004/03/23 20:51:00 pelle Exp $
+/* $Id: SignedInfo.java,v 1.8 2004/04/07 17:22:22 pelle Exp $
  * $Log: SignedInfo.java,v $
+ * Revision 1.8  2004/04/07 17:22:22  pelle
+ * Added support for the new improved interactive signing model. A new Agent is also available with SwingAgent.
+ * The XMLSig classes have also been updated to support this.
+ *
  * Revision 1.7  2004/03/23 20:51:00  pelle
  * Added ExternalSignature and further Javadocs.
  * Added Busy Developers Guide and Interop guide.
@@ -120,7 +124,7 @@ package org.neuclear.xml.xmlsec;
 
 /**
  * @author pelleb
- * @version $Revision: 1.7 $
+ * @version $Revision: 1.8 $
  */
 
 import org.dom4j.Element;
@@ -128,6 +132,7 @@ import org.neuclear.commons.Utility;
 import org.neuclear.commons.crypto.CryptoException;
 import org.neuclear.commons.crypto.CryptoTools;
 import org.neuclear.commons.crypto.passphraseagents.UserCancellationException;
+import org.neuclear.commons.crypto.signers.BrowsableSigner;
 import org.neuclear.commons.crypto.signers.NonExistingSignerException;
 import org.neuclear.commons.crypto.signers.Signer;
 import org.neuclear.xml.XMLException;
@@ -300,6 +305,11 @@ public final class SignedInfo extends AbstractXMLSigElement {
     public final byte[] sign(String name, Signer signer) throws XMLSecurityException, NonExistingSignerException, UserCancellationException {
         return signer.sign(name, canonicalize());
     }
+
+    public final byte[] sign(BrowsableSigner signer, KeyInfo.CreateKeyInfoCallBack cb) throws XMLSecurityException, NonExistingSignerException, UserCancellationException {
+        return signer.sign(canonicalize(), cb);
+    }
+
 
     public final boolean verify(PublicKey pub, byte[] sig) throws XMLSecurityException {
         try {

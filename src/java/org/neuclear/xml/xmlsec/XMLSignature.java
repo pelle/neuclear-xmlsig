@@ -1,5 +1,9 @@
-/* $Id: XMLSignature.java,v 1.19 2004/03/23 20:51:00 pelle Exp $
+/* $Id: XMLSignature.java,v 1.20 2004/04/07 17:22:22 pelle Exp $
  * $Log: XMLSignature.java,v $
+ * Revision 1.20  2004/04/07 17:22:22  pelle
+ * Added support for the new improved interactive signing model. A new Agent is also available with SwingAgent.
+ * The XMLSig classes have also been updated to support this.
+ *
  * Revision 1.19  2004/03/23 20:51:00  pelle
  * Added ExternalSignature and further Javadocs.
  * Added Busy Developers Guide and Interop guide.
@@ -208,7 +212,7 @@ package org.neuclear.xml.xmlsec;
 
 /**
  * @author pelleb
- * @version $Revision: 1.19 $
+ * @version $Revision: 1.20 $
  */
 
 import org.dom4j.Element;
@@ -216,6 +220,7 @@ import org.neuclear.commons.crypto.Base64;
 import org.neuclear.commons.crypto.CryptoException;
 import org.neuclear.commons.crypto.CryptoTools;
 import org.neuclear.commons.crypto.passphraseagents.UserCancellationException;
+import org.neuclear.commons.crypto.signers.BrowsableSigner;
 import org.neuclear.commons.crypto.signers.NonExistingSignerException;
 import org.neuclear.commons.crypto.signers.PublicKeySource;
 import org.neuclear.commons.crypto.signers.Signer;
@@ -254,12 +259,16 @@ abstract public class XMLSignature extends AbstractXMLSigElement {
     }
 
     private XMLSignature(final PublicKey pub, final SignedInfo si) {
+        this(si);
+        if (pub != null)
+            addElement(new KeyInfo(pub));
+    }
+
+    protected XMLSignature(final SignedInfo si) {
         super(XMLSignature.TAG_NAME);
         this.si = si;
         addElement(si);
         sigval = addElement("SignatureValue");
-        if (pub != null)
-            addElement(new KeyInfo(pub));
     }
 
     /**
@@ -358,7 +367,7 @@ abstract public class XMLSignature extends AbstractXMLSigElement {
      * Subclasses should call this in their constructor.
      *
      * @param alias
-     * @param signer
+     * @param signer 
      * @throws XMLSecurityException
      * @throws NonExistingSignerException
      * @throws UserCancellationException
@@ -367,6 +376,11 @@ abstract public class XMLSignature extends AbstractXMLSigElement {
         sigval.setText(Base64.encode(si.sign(alias, signer)));
     }
 
+    protected void sign(BrowsableSigner signer) throws XMLSecurityException, NonExistingSignerException, UserCancellationException {
+        KeyInfo.CreateKeyInfoCallBack cb = new KeyInfo.CreateKeyInfoCallBack();
+        sigval.setText(Base64.encode(si.sign(signer, cb)));
+        addElement(cb.createKeyInfo());
+    }
 
     private static PublicKey getPublicKey(final String alias, final Signer signer) throws XMLSecurityException, NonExistingSignerException {
         if (!(signer instanceof PublicKeySource))
